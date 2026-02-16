@@ -81,8 +81,9 @@ Deploy to AWS when you're ready to go live.
 
 - [AWS account](https://aws.amazon.com/free/)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed and configured
-- VPC subnets for ECS and RDS
+- VPC with at least two subnets in different availability zones
 - Container registry ([Docker Hub](https://hub.docker.com) or [ECR](https://aws.amazon.com/ecr/))
+- [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) (for ECS Exec)
 
 <Steps>
   <Step title="Verify AWS credentials">
@@ -98,13 +99,15 @@ Update `infra/settings.py` with your subnets and image registry:
 ```python infra/settings.py
 infra_settings = InfraSettings(
     aws_region="us-east-1",
+    aws_az1="us-east-1a",
+    aws_az2="us-east-1b",
     aws_subnet_ids=["subnet-xxx", "subnet-yyy"],
     image_repo="your-dockerhub-username",
     push_images=True,
 )
 ```
 
-For ECR, use `image_repo="[ACCOUNT_ID].dkr.ecr.[REGION].amazonaws.com"`.
+Set `aws_az1` and `aws_az2` to match your subnet availability zones. For ECR, use `image_repo="[ACCOUNT_ID].dkr.ecr.[REGION].amazonaws.com"`.
   </Step>
 
   <Step title="Authenticate to your registry">
@@ -125,11 +128,11 @@ aws ecr get-login-password --region us-east-1 | \
   <Step title="Set production secrets">
 
 ```bash
-cp infra/secrets/prd_api_secrets.example.yml infra/secrets/prd_api_secrets.yml
-cp infra/secrets/prd_db_secrets.example.yml infra/secrets/prd_db_secrets.yml
+cp infra/example_secrets/prd_api_secrets.yml infra/secrets/prd_api_secrets.yml
+cp infra/example_secrets/prd_db_secrets.yml infra/secrets/prd_db_secrets.yml
 ```
 
-Edit `prd_api_secrets.yml` and add your `OPENAI_API_KEY`. Edit `prd_db_secrets.yml` and set a secure database password.
+Edit `prd_api_secrets.yml` and add your `OPENAI_API_KEY`. Edit `prd_db_secrets.yml` and set `MASTER_USERNAME` and `MASTER_USER_PASSWORD` for your production database.
   </Step>
 
   <Step title="Deploy">
@@ -151,7 +154,7 @@ TASK_ARN=$(aws ecs list-tasks --cluster $ECS_CLUSTER --query "taskArns[0]" --out
 
 aws ecs execute-command --cluster $ECS_CLUSTER \
   --task $TASK_ARN \
-  --container agentos-aws-template \
+  --container agentos-aws-template-prd-api \
   --interactive \
   --command "python -m agents.knowledge_agent"
 ```

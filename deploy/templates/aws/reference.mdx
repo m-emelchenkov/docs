@@ -86,7 +86,7 @@ TASK_ARN=$(aws ecs list-tasks --cluster $ECS_CLUSTER --query "taskArns[0]" --out
 
 aws ecs execute-command --cluster $ECS_CLUSTER \
   --task $TASK_ARN \
-  --container agentos-aws-template \
+  --container agentos-aws-template-prd-api \
   --interactive \
   --command "python -m agents.knowledge_agent"
 ```
