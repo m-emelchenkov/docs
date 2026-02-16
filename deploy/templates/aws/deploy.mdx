@@ -1,0 +1,159 @@
+---
+title: "Deploy to AWS"
+sidebarTitle: "Deploy"
+description: "Deploy AgentOS to AWS with ECS Fargate, RDS PostgreSQL, and a public endpoint."
+---
+
+This template deploys AgentOS and PostgreSQL to AWS. It includes example agents ready to use after deployment, managed infrastructure, and a public endpoint.
+
+## Prerequisites
+
+- [Docker Desktop](https://docs.docker.com/get-docker/)
+- [OpenAI API key](https://platform.openai.com)
+
+## Development
+
+Run locally before deploying to AWS.
+
+<Steps>
+  <Step title="Clone the template">
+```bash
+git clone \
+  https://github.com/agno-agi/agentos-aws-template.git \
+  agentos-aws
+
+cd agentos-aws
+```
+
+The template includes the following agents:
+
+| Agent | Description |
+| :--- | :--- |
+| Knowledge Agent | Answers questions from your documents using Agentic RAG. |
+| MCP Agent | Connects to external tools via Model Context Protocol. |
+  </Step>
+
+  <Step title="Set your API key">
+```bash
+cp example.env .env
+```
+
+Edit `.env` and add your `OPENAI_API_KEY`.
+  </Step>
+
+  <Step title="Start AgentOS">
+```bash
+./scripts/venv_setup.sh && source .venv/bin/activate
+ag infra up
+```
+  </Step>
+
+  <Step title="Load knowledge">
+```bash
+docker exec -it ai-api python -m agents.knowledge_agent
+```
+
+This loads the default documents into the Knowledge Agent's vector database.
+  </Step>
+
+  <Step title="Confirm it's running">
+
+Navigate to [localhost:8000/docs](http://localhost:8000/docs) to see your AgentOS API.
+
+  </Step>
+
+  <Step title="Connect to the control plane">
+
+1. Go to [os.agno.com](https://os.agno.com)
+2. Click **Connect OS** → Select **Local**
+3. Enter `http://localhost:8000`
+
+  </Step>
+</Steps>
+
+<Check>Your AgentOS is running locally.</Check>
+
+## Production
+
+Deploy to AWS when you're ready to go live.
+
+### Prerequisites
+
+- [AWS account](https://aws.amazon.com/free/)
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed and configured
+- VPC subnets for ECS and RDS
+- ECR repository for your image
+
+<Steps>
+  <Step title="Verify AWS credentials">
+```bash
+aws sts get-caller-identity
+```
+  </Step>
+
+  <Step title="Configure AWS settings">
+
+Update `infra/settings.py`:
+
+```python infra/settings.py
+infra_settings = InfraSettings(
+    aws_region="us-east-1",
+    subnet_ids=["subnet-xxx", "subnet-yyy"],
+    image_repo="[ACCOUNT_ID].dkr.ecr.us-east-1.amazonaws.com",
+)
+```
+  </Step>
+
+  <Step title="Deploy">
+```bash
+ag infra up prd:aws
+```
+
+Takes about 5 minutes. The command builds and pushes your image, provisions RDS PostgreSQL, creates ECS resources, and configures an application load balancer.
+
+  </Step>
+
+  <Step title="Load knowledge">
+
+Use ECS Exec to load documents into the Knowledge Agent's vector database:
+
+```bash
+aws ecs execute-command \
+  --cluster agentos-prd-cluster \
+  --task <task-id> \
+  --container ai-api \
+  --interactive \
+  --command "python -m agents.knowledge_agent"
+```
+
+Find the task ID with `aws ecs list-tasks --cluster agentos-prd-cluster`.
+
+  </Step>
+
+  <Step title="Get your endpoint">
+
+Find your Load Balancer DNS in the AWS Console (EC2 → Load Balancers). Navigate to `<load-balancer-dns>/docs` to confirm the API is running.
+
+  </Step>
+
+  <Step title="Connect to the control plane">
+
+1. Go to [os.agno.com](https://os.agno.com)
+2. Click **Connect OS** → Select **Live**
+3. Paste your AWS endpoint
+
+  </Step>
+</Steps>
+
+<Check>Your AgentOS is live on AWS.</Check>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Add apps" icon="grid-2" href="/deploy/apps">
+    Browse agents, teams, and workflows for your deployment.
+  </Card>
+  <Card title="Connect interfaces" icon="comments" href="/deploy/interfaces">
+    Expose your agents on Slack, Discord, WhatsApp, or MCP.
+  </Card>
+</CardGroup>

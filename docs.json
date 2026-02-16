@@ -3033,7 +3033,7 @@
               {
                 "group": "AWS",
                 "pages": [
-                  "deploy/templates/aws/overview",
+                  "deploy/templates/aws/deploy",
                   {
                     "group": "Reference",
                     "pages": [
