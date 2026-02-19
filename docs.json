@@ -4758,17 +4758,28 @@
                   {
                     "group": "OpenRouter",
                     "pages": [
-                      "examples/models/openrouter/responses/overview",
-                      "examples/models/openrouter/chat/basic",
-                      "examples/models/openrouter/chat/dynamic-model-router",
-                      "examples/models/openrouter/chat/retry",
-                      "examples/models/openrouter/chat/structured-output",
-                      "examples/models/openrouter/chat/tool-use",
-                      "examples/models/openrouter/responses/basic",
-                      "examples/models/openrouter/responses/fallback",
-                      "examples/models/openrouter/responses/stream",
-                      "examples/models/openrouter/responses/structured-output",
-                      "examples/models/openrouter/responses/tool-use"
+                      {
+                        "group": "Responses API",
+                        "pages": [
+                          "examples/models/openrouter/responses/overview",
+                          "examples/models/openrouter/responses/basic",
+                          "examples/models/openrouter/responses/fallback",
+                          "examples/models/openrouter/responses/stream",
+                          "examples/models/openrouter/responses/structured-output",
+                          "examples/models/openrouter/responses/tool-use"
+                        ]
+                      },
+                      {
+                        "group": "Chat API",
+                        "pages": [
+                          "examples/models/openrouter/chat/overview",
+                          "examples/models/openrouter/chat/basic",
+                          "examples/models/openrouter/chat/dynamic-model-router",
+                          "examples/models/openrouter/chat/retry",
+                          "examples/models/openrouter/chat/structured-output",
+                          "examples/models/openrouter/chat/tool-use"
+                        ]
+                      }
                     ]
                   },
                   {
