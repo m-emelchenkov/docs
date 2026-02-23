@@ -53,6 +53,8 @@ team = Team(
 )
 ```
 
+<Snippet file="team_snippet.mdx" />
+
 Tasks mode runs an iterative task loop. Use `max_iterations` to cap how many cycles the leader can run.
 
 ```python
@@ -69,7 +71,28 @@ team = Team(
 
 ## Callable Factories
 
+```python
+from agno.tools.hackernews import HackerNewsTools
+
+def tools_factory(team, run_context):
+    return [HackerNewsTools()]
+
+team = Team(
+    name="Research Team",
+    members=[...],
+    tools=tools_factory
+)
+```
+
 You can define members, tools, or knowledge as callables that are resolved at runtime with access to the run context.
+Use this for runtime-resolved configuration based on the current context.
+
+| Behavior | Details |
+|----------|---------|
+| Injected parameters | `team`, `run_context`, `session_state` when present in the factory signature |
+| Caching | `cache_callables=True` caches by custom key, then `user_id`, then `session_id` |
+| Return types | Tools and members return list or tuple. Knowledge returns a KnowledgeProtocol instance |
+| Async factories | Async factories require `arun()` or `aprint_response()` |
 
 ## Team Members
 

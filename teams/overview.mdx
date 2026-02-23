@@ -83,12 +83,11 @@ team = Team(
 )
 ```
 
-| Mode | Configuration | Use case |
-|------|--------------|----------|
-| **Coordinate** | `mode=TeamMode.coordinate` (default) | Decompose work, delegate to members, synthesize results |
-| **Route** | `mode=TeamMode.route` | Route to a single specialist and return their response directly |
-| **Broadcast** | `mode=TeamMode.broadcast` | Delegate the same task to all members and synthesize |
-| **Tasks** | `mode=TeamMode.tasks` | Manage a shared task list and loop until the goal is complete |
+Mode selection controls how the leader collaborates with members. `mode` overrides legacy flags. If `mode` is not set, `respond_directly=True` maps to `TeamMode.route`, `delegate_to_all_members=True` maps to `TeamMode.broadcast`, otherwise `TeamMode.coordinate`.
+
+<Snippet file="team_snippet.mdx" />
+
+Modes are explicit orchestration patterns. Use them to name and swap coordination topologies without changing agent logic.
 
 See [Delegation](/teams/delegation) for details.
 
