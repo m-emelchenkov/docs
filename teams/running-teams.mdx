@@ -50,7 +50,7 @@ When you call `run()`:
 
 [Callable factories](./overview#callable-factories) are resolved after session state is loaded, so factories can access `run_context` and `session_state`. Async factories require `arun()` or `aprint_response()`.
 
-<Snippet file="team_execution_style.mdx" />
+<Snippet file="team-execution-style.mdx" />
 
 In `TeamMode.tasks`, the leader uses task management tools to build and execute a shared task list, looping until the goal is complete or `max_iterations` is reached.
 

@@ -53,7 +53,7 @@ team = Team(
 )
 ```
 
-<Snippet file="team_snippet.mdx" />
+<Snippet file="team-snippet.mdx" />
 
 Tasks mode runs an iterative task loop. Use `max_iterations` to cap how many cycles the leader can run.
 
@@ -68,40 +68,6 @@ team = Team(
     max_iterations=6
 )
 ```
-
-## Callable Factories
-
-Build teams with [Callable Factories](./overview#callable-factories). 
-
-```python
-from agno.tools.hackernews import HackerNewsTools
-
-def tools_factory(team, run_context):
-    return [HackerNewsTools()]
-
-team = Team(
-    name="Research Team",
-    members=[...],
-    tools=tools_factory
-)
-```
-
-Callable factories can be cached per user or session, or by a custom key.
-
-| Setting | Purpose |
-|---------|---------|
-| `cache_callables` | Enable or disable caching for callable factories |
-| `callable_tools_cache_key` | Custom cache key for tools factory |
-| `callable_knowledge_cache_key` | Custom cache key for knowledge factory |
-| `callable_members_cache_key` | Custom cache key for members factory |
-
-Clear cached results when you need to force re-resolution:
-
-```python
-team.clear_callable_cache(kind="tools")
-```
-
-Use `aclear_callable_cache()` in async code.
 
 ## Team Members
 
@@ -182,6 +148,95 @@ team = Team(
     members=[agent_with_model, agent_without_model]
 )
 ```
+
+## Callable Factories
+
+Build dynamically configurable teams with [Callable Factories](/teams/overview#callable-factories). 
+
+```python
+from agno.agent import Agent
+from agno.models.openai import OpenAIResponses
+from agno.run import RunContext
+
+# ---------------------------------------------------------------------------
+# Tools
+# ---------------------------------------------------------------------------
+
+def search_web(query: str) -> str:
+    """Search the web for information."""
+    return f"Search results for: {query}"
+
+
+def search_internal_docs(query: str) -> str:
+    """Search internal documentation (admin only)."""
+    return f"Internal doc results for: {query}"
+
+
+def get_account_balance(account_id: str) -> str:
+    """Get account balance (finance only)."""
+    return f"Balance for {account_id}: $42,000"
+
+# ---------------------------------------------------------------------------
+# Callable Factory
+# ---------------------------------------------------------------------------
+
+
+def tools_for_user(run_context: RunContext):
+    """Return different tools based on the user's role stored in session_state."""
+    role = (run_context.session_state or {}).get("role", "viewer")
+    print(f"--> Resolving tools for role: {role}")
+
+    base_tools = [search_web]
+    if role == "admin":
+        base_tools.append(search_internal_docs)
+    if role in ("admin", "finance"):
+        base_tools.append(get_account_balance)
+
+    return base_tools
+
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+agent = Agent(
+    model=OpenAIResponses(id="gpt-5-mini"),
+    tools=tools_for_user,
+    instructions=[
+        "You are a helpful assistant.",
+        "Use the tools available to you to answer the user's question.",
+    ],
+)
+
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    # Run 1: viewer role - only search_web available
+    # Each user_id gets its own cached toolset
+    print("=== Run as viewer ===")
+    agent.print_response(
+        "Search for recent news about AI agents",
+        user_id="viewer_user",
+        session_state={"role": "viewer"},
+        stream=True,
+    )
+
+    # Run 2: admin role - all tools available
+    # Different user_id means the factory is called again with new context
+    print("\n=== Run as admin ===")
+    agent.print_response(
+        "Search internal docs for the deployment guide and check account balance for ACC-001",
+        user_id="admin_user",
+        session_state={"role": "admin"},
+        stream=True,
+    )
+
+```
+
+### Callable Caching Settings
+
+<Snippet file="concept-callable-factories-caching.mdx" />
 
 ## Team Features
 
