@@ -12,6 +12,10 @@ Human-in-the-Loop (HITL) in Workflows enables you to pause execution at any step
 User input is currently supported for `Step` (to collect parameters) and `Router` (to select routes). Other primitives (`Condition`, `Loop`, `Steps`) support confirmation only.
 </Note>
 
+<Warning>
+Agent tool-level HITL (e.g., `@tool(requires_confirmation=True)`) is **not** propagated to the workflow. If an agent inside a step has tool-level HITL, the workflow will continue but the paused tool may not execute. Use workflow-level HITL (`Step.requires_confirmation`) instead.
+</Warning>
+
 ```python
 from agno.workflow import Workflow, OnReject
 from agno.workflow.step import Step
@@ -277,6 +281,7 @@ Step(name="process", executor=process_data)
 
 ## Developer Resources
 
+- [Cookbooks](https://github.com/agno-agi/agno/tree/main/cookbook/04_workflows/_07_human_in_the_loop)
 - [Step reference](/reference/workflows/step)
 - [Router reference](/reference/workflows/router-steps)
 - [Condition reference](/reference/workflows/conditional-steps)
