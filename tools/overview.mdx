@@ -416,6 +416,10 @@ def generate_image(prompt: str) -> ToolResult:
 
 This would **make generated media available** to the LLM model.
 
+## Callable Factories
+
+Agno tools support callable factory pattern for dynamic configuration. Agno resolves the factory at run time using signature-based injection of `agent` or `team`,`run_context`, and `session_state`, then uses the returned list for that run. This enables per-user or per-session tool sets, deferred setup, and optional caching via `cache_callables` and `callable_tools_cache_key`.
+
 ## Learn more
 
 <CardGroup cols={3}>
