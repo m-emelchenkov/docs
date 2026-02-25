@@ -10,6 +10,7 @@ This template deploys AgentOS and PostgreSQL to AWS. It includes example agents 
 
 - [Docker Desktop](https://docs.docker.com/get-docker/)
 - [OpenAI API key](https://platform.openai.com)
+- [Agno CLI](https://docs.agno.com/): `uv pip install 'agno[infra]'`
 
 ## Development
 
@@ -43,7 +44,6 @@ Edit `.env` and add your `OPENAI_API_KEY`.
 
   <Step title="Start AgentOS">
 ```bash
-./scripts/venv_setup.sh && source .venv/bin/activate
 ag infra up --env dev
 ```
   </Step>

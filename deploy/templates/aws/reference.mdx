@@ -137,16 +137,14 @@ To upgrade all libraries:
 
 Run without Docker for faster iteration:
 ```bash
-# Install uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
 # Set up environment
-uv venv --python 3.12
+./scripts/venv_setup.sh
 source .venv/bin/activate
-uv pip install -r requirements.txt
 
 # Start PostgreSQL (required)
-docker compose up -d agentos-db
+docker run -d --name agentos-db \
+  -e POSTGRES_USER=ai -e POSTGRES_PASSWORD=ai -e POSTGRES_DB=ai \
+  -p 5432:5432 pgvector/pgvector:pg17
 
 # Run AgentOS
 python -m app.main
@@ -157,7 +155,7 @@ python -m app.main
 | Variable | Required | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `OPENAI_API_KEY` | Yes | — | OpenAI API key |
-| `PORT` | No | `8000` | API server port |
+| `PORT` | No | `8000` | API server port (set in `infra/dev_resources.py`) |
 | `DB_HOST` | No | `localhost` | Database host |
 | `DB_PORT` | No | `5432` | Database port |
 | `DB_USER` | No | `ai` | Database user |
@@ -165,7 +163,6 @@ python -m app.main
 | `DB_DATABASE` | No | `ai` | Database name |
 | `RUNTIME_ENV` | No | `prd` | Set to `dev` for auto-reload |
 | `WAIT_FOR_DB` | No | `True` | Wait for database before API startup |
-| `MIGRATE_DB` | No | `False` | Run Alembic migrations on startup |
 
 ## Troubleshooting
 
