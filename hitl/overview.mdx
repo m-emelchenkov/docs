@@ -15,12 +15,13 @@ Human-in-the-Loop (HITL) in Agno enables you to implement patterns where human o
 
 ## Types of Human-in-the-Loop Flows
 
-Agno supports four main types of human-in-the-loop flows:
+Agno supports these human-in-the-loop flows:
 
 1. **[User Confirmation](/hitl/user-confirmation)**: Require explicit user approval before executing a tool
 2. **[User Input](/hitl/user-input)**: Gather specific information from users during execution
 3. **[Dynamic User Input](/hitl/dynamic-user-input)**: Have the agent collect user input as it needs it
 4. **[External Tool Execution](/hitl/external-execution)**: Execute tools outside of the agent's control
+5. **[Approval](/hitl/approval)**: Store approval records in the DB and pause the run until an admin approves or rejects; optional audit-only mode logs resolution without pausing
 
 <Note>
 Human-in-the-Loop is supported for both `Agent` and `Workflow`. See [Workflow HITL](/workflows/hitl/overview) for workflow-specific documentation. `Team` support is coming soon!
@@ -151,9 +152,16 @@ You can also stream the events resulting from calling the `continue_run` or `aco
   >
     Execute tools outside of the agent's control
   </Card>
+  <Card
+    title="Approval"
+    icon="clipboard-check"
+    href="/hitl/approval"
+  >
+    Admin approval with persistence, resolution tracking, and audit trails
+  </Card>
 </CardGroup>
 
 
 ## Developer Resources
 
-- View more [Examples](/hitl/usage/)
+- [HITL usage examples](/hitl/usage/)

@@ -1,0 +1,95 @@
+---
+title: Approval
+sidebarTitle: Approval
+description: Admin approval for user-triggered actions, built on HITL primitives with persistence and audit.
+keywords: [approval, HITL, human-in-the-loop, admin approval, requires_confirmation, audit]
+mode: wide
+---
+
+**Approval** is for when a **user** triggers an action and an **admin** must approve before it runs. The run pauses, a pending approval is stored in your database, and the run continues only after an admin approves or rejects.
+
+<Note>
+Approval sits on top of HITL primitives (`requires_confirmation`, `requires_user_input`, or `external_execution`). You need at least one on the tool.
+</Note>
+
+## Quick start
+
+```python
+from agno.approval import approval
+from agno.tools import tool
+from agno.db.sqlite import SqliteDb
+from agno.agent import Agent
+
+@approval
+@tool(requires_confirmation=True)
+def delete_user_data(user_id: str) -> str:
+    """Permanently delete all data for a user. Requires admin approval."""
+    return f"All data for user {user_id} has been deleted."
+
+db = SqliteDb(db_file="app.db", approvals_table="approvals")
+agent = Agent(model=..., tools=[delete_user_data], db=db)
+```
+
+When the user asks for something that uses this tool, the run pauses and a **pending** approval is written to the database. An admin resolves it; then you continue the run.
+
+## Approval types and flow
+
+### Approval types
+
+| Type | What happens |
+|------|--------------|
+| **`@approval`** | Run pauses until an admin resolves in the DB. For actions that must be approved first (e.g. delete data, bulk email). |
+| **`@approval(type="audit")`** | No pause. After the HITL interaction resolves, an audit record is written. For logging only. |
+
+<Note>
+`@approval` defaults to required and sets `requires_confirmation=True` if no other HITL flag is set; `@approval(type="audit")` needs one HITL flag. The SDK creates records; you don't call `create_approval`. No admin or DB? See [User Confirmation](/hitl/user-confirmation).
+</Note>
+
+### Flow
+
+1. User asks the agent to do something that uses an `@approval` tool.
+2. Agent pauses; the SDK creates a pending approval in your DB.
+3. Admin lists pending, then resolves in the DB (use `expected_status="pending"` so the update only succeeds if still pending):
+
+```python
+db.update_approval(
+    approval_id,
+    expected_status="pending",
+    status="approved",   # or "rejected"
+    resolved_by="admin_user_id",
+    resolved_at=int(time.time()),
+    # For requires_user_input or external_execution: pass resolution_data
+    # (e.g. values for user input, result for external execution); SDK applies it on continue_run.
+)
+```
+
+4. Your app continues the run. The SDK looks up the approval, verifies it is resolved, and applies it. If the approval is missing or still pending, `continue_run` raises `RuntimeError`.
+
+```python
+run = agent.continue_run(run_id=run.run_id, requirements=run.requirements)
+```
+
+## Examples
+
+<CardGroup cols={2}>
+  <Card title="Blocking approvals" icon="hand" href="/examples/agents/approvals/approval-basic">
+    @approval + requires_confirmation: pause, DB record, resolve, continue.
+  </Card>
+  <Card title="Approval list and resolve" icon="list" href="/examples/agents/approvals/approval-list-and-resolve">
+    Full lifecycle: pause, list pending, resolve via DB, continue.
+  </Card>
+  <Card title="Approval with user input" icon="keyboard" href="/examples/agents/approvals/approval-user-input">
+    @approval + requires_user_input.
+  </Card>
+  <Card title="Approval with external execution" icon="plug" href="/examples/agents/approvals/approval-external-execution">
+    @approval + external_execution.
+  </Card>
+  <Card title="Team approval" icon="users" href="/examples/agents/approvals/approval-team">
+    Team-level approval when a member agent uses an @approval tool.
+  </Card>
+  <Card title="Audit approval" icon="clipboard-list" href="/examples/agents/approvals/audit-approval-confirmation">
+    @approval(type="audit") + requires_confirmation; no pause, audit record only.
+  </Card>
+</CardGroup>
+
+Full set of approval examples: [Approvals cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/02_agents/11_approvals).
