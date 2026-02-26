@@ -153,85 +153,35 @@ team = Team(
 
 Build dynamically configurable teams with [Callable Factories](/teams/overview#callable-factories). 
 
+Agno framework supports the Callable Factory Pattern for Team configurations just as it does for individual Agents. This allows you to dynamically resolve team members, tools, and knowledge at runtime based on the specific session or user context.
+
+You can pass a function to the `members`, `tools`, or `knowledge` parameters of a Team. The framework uses signature inspection to inject the team instance and `run_context`.
+
 ```python
+from agno.team import Team
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
-from agno.run import RunContext
+from agno.models.openai import OpenAIChat
 
-# ---------------------------------------------------------------------------
-# Tools
-# ---------------------------------------------------------------------------
+def get_team_members(team: Team, run_context: any):
+    """
+    Dynamic member factory: 
+    Only include the 'Analyst' if the user is a premium user.
+    """
+    members = [Agent(name="Generalist", model=OpenAIChat(id="gpt-5"))]
+    
+    # Logic based on session/user metadata
+    if run_context.user_id == "premium_user_123":
+        members.append(Agent(name="Analyst", role="High-level data insights"))
+        
+    return members
 
-def search_web(query: str) -> str:
-    """Search the web for information."""
-    return f"Search results for: {query}"
-
-
-def search_internal_docs(query: str) -> str:
-    """Search internal documentation (admin only)."""
-    return f"Internal doc results for: {query}"
-
-
-def get_account_balance(account_id: str) -> str:
-    """Get account balance (finance only)."""
-    return f"Balance for {account_id}: $42,000"
-
-# ---------------------------------------------------------------------------
-# Callable Factory
-# ---------------------------------------------------------------------------
-
-
-def tools_for_user(run_context: RunContext):
-    """Return different tools based on the user's role stored in session_state."""
-    role = (run_context.session_state or {}).get("role", "viewer")
-    print(f"--> Resolving tools for role: {role}")
-
-    base_tools = [search_web]
-    if role == "admin":
-        base_tools.append(search_internal_docs)
-    if role in ("admin", "finance"):
-        base_tools.append(get_account_balance)
-
-    return base_tools
-
-
-# ---------------------------------------------------------------------------
-# Create Agent
-# ---------------------------------------------------------------------------
-agent = Agent(
-    model=OpenAIResponses(id="gpt-5-mini"),
-    tools=tools_for_user,
-    instructions=[
-        "You are a helpful assistant.",
-        "Use the tools available to you to answer the user's question.",
-    ],
+# Initialize team with the factory function
+agent_team = Team(
+    name="Dynamic Team",
+    members=get_team_members,  # Callable factory
+    show_tool_calls=True,
+    cache_callables=True       # Optional: Cache the result for the session
 )
-
-
-# ---------------------------------------------------------------------------
-# Run Agent
-# ---------------------------------------------------------------------------
-if __name__ == "__main__":
-    # Run 1: viewer role - only search_web available
-    # Each user_id gets its own cached toolset
-    print("=== Run as viewer ===")
-    agent.print_response(
-        "Search for recent news about AI agents",
-        user_id="viewer_user",
-        session_state={"role": "viewer"},
-        stream=True,
-    )
-
-    # Run 2: admin role - all tools available
-    # Different user_id means the factory is called again with new context
-    print("\n=== Run as admin ===")
-    agent.print_response(
-        "Search internal docs for the deployment guide and check account balance for ACC-001",
-        user_id="admin_user",
-        session_state={"role": "admin"},
-        stream=True,
-    )
-
 ```
 
 ### Callable Caching Settings
