@@ -6,7 +6,7 @@ keywords: [approval, HITL, human-in-the-loop, admin approval, requires_confirmat
 mode: wide
 ---
 
-**Approval** is for when a **user** triggers an action and an **admin** must approve before it runs. The run pauses, a pending approval is stored in your database, and the run continues only after an admin approves or rejects.
+Approval enables a "User Triggers, Admin Authorizes" workflow. When an agent hits a protected tool during a workflow run, the run pauses and persists a pending record to your database. Execution only resumes once an admin approves or rejects the request.
 
 <Note>
 Approval sits on top of HITL primitives (`requires_confirmation`, `requires_user_input`, or `external_execution`). You need at least one on the tool.
