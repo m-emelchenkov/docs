@@ -32,7 +32,7 @@ When the user asks for something that uses this tool, the run pauses and a **pen
 
 | Type | Behavior | Use Case |
 | --- | --- | --- |
-| `@approval` | **Blocking:** Run pauses until an admin reviews and resolves the database record. | Critical actions such as deletion, payments, bulk emails. |
+| `@approval(type="required") or `@approval`` | **Blocking:** Run pauses until an admin reviews and resolves the database record. | Critical actions such as deletion, payments, bulk emails. |
 | `@approval(type="audit")` | **Non-blocking:** Run continues immediately after the HITL interaction is resolved and an audit log is created. | Compliance and activity auditing purposes. |
 
 ### Blocking
