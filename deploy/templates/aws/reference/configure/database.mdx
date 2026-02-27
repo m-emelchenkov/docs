@@ -70,7 +70,7 @@ prd_db = DbInstance(
 After changes:
 
 ```bash
-ag infra patch prd:aws:::db
+ag infra patch --env prd --infra aws --type dbinstance
 ```
 
 <Note>
@@ -106,7 +106,7 @@ container_env = {
 Then update and redeploy:
 
 ```bash
-ag infra patch prd:aws:::td && ag infra patch prd:aws:::service
+ag infra patch --env prd --infra aws --name td && ag infra patch --env prd --infra aws --name service
 ```
 
 ### Option 2: Run Manually via ECS Exec
@@ -118,7 +118,7 @@ TASK_ARN=$(aws ecs list-tasks --cluster $ECS_CLUSTER --query "taskArns[0]" --out
 aws ecs execute-command \
     --cluster $ECS_CLUSTER \
     --task $TASK_ARN \
-    --container {infra_name}-prd \
+    --container {infra_name}-prd-api \
     --interactive \
     --command "alembic -c db/alembic.ini upgrade head"
 ```

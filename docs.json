@@ -4700,7 +4700,6 @@
                     "pages": [
                       "deploy/templates/aws/reference/go-live/connect",
                       "deploy/templates/aws/reference/go-live/https",
-                      "deploy/templates/aws/reference/go-live/domain-https",
                       "deploy/templates/aws/reference/go-live/updates",
                       "deploy/templates/aws/reference/go-live/verify"
                     ]

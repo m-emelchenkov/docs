@@ -10,7 +10,7 @@ Iterate, customize, and manage your AgentOS AWS template for production.
 infra_settings = InfraSettings(
     infra_name="my-custom-ai",
     aws_region="us-east-1",
-    subnet_ids=["subnet-123", "subnet-456"],
+    aws_subnet_ids=["subnet-123", "subnet-456"],
 )
 ```
 
@@ -27,7 +27,7 @@ infra_settings = InfraSettings(
 
 ### 1. Infrastructure Settings
 
-Configure `infra_name`, `aws_region`, `subnet_ids`, and `image_repo` in `infra/settings.py`.
+Configure `infra_name`, `aws_region`, `aws_subnet_ids`, and `image_repo` in `infra/settings.py`.
 
 [Infra Settings guide](/deploy/templates/aws/reference/configure/infra-settings)
 
@@ -65,7 +65,7 @@ Automate code validation (linting, testing) and image builds with pre-configured
 
 Enable HTTPS and point custom Route 53 domains to your load balancer using ACM.
 
-[Domain & HTTPS guide](/deploy/templates/aws/reference/go-live/domain-https)
+[HTTPS guide](/deploy/templates/aws/reference/go-live/https)
 
 ### 8. Workflow
 

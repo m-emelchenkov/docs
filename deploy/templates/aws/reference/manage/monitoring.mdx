@@ -13,14 +13,14 @@ CloudWatch Logs captures output from your ECS containers.
 Tail logs in real-time:
 
 ```bash
-aws logs tail /ecs/{infra_name}-prd --follow
+aws logs tail {infra_name}-prd-api --follow
 ```
 
 Search recent logs:
 
 ```bash
 aws logs filter-log-events \
-  --log-group-name /ecs/{infra_name}-prd \
+  --log-group-name {infra_name}-prd-api \
   --filter-pattern "ERROR" \
   --start-time $(date -d '1 hour ago' +%s)000
 ```
@@ -37,7 +37,7 @@ View service status and recent events:
 ```bash
 aws ecs describe-services \
   --cluster {infra_name}-prd \
-  --services {infra_name}-prd-service \
+  --services {infra_name}-prd-api-service \
   --query 'services[0].{status:status,running:runningCount,desired:desiredCount,events:events[:5]}'
 ```
 
@@ -96,7 +96,7 @@ CloudWatch retains logs indefinitely by default. Set a retention policy to contr
 
 ```bash
 aws logs put-retention-policy \
-  --log-group-name /ecs/{infra_name}-prd \
+  --log-group-name {infra_name}-prd-api \
   --retention-in-days 30
 ```
 

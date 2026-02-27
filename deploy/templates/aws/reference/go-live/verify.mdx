@@ -25,7 +25,7 @@ Expected response:
 ## Check CloudWatch Logs
 
 ```bash
-aws logs tail /ecs/{infra_name}-prd --follow
+aws logs tail {infra_name}-prd-api --follow
 ```
 
 Look for these lines indicating successful startup:
@@ -47,7 +47,7 @@ INFO:     Uvicorn running on http://0.0.0.0:8000
 ```bash
 aws ecs describe-services \
   --cluster {infra_name}-prd \
-  --services {infra_name}-prd-service \
+  --services {infra_name}-prd-api-service \
   --query 'services[0].{status:status,running:runningCount,desired:desiredCount}'
 ```
 

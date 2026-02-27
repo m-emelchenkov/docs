@@ -22,7 +22,7 @@ Solutions for common issues encountered when deploying to AWS.
 
     If this fails, check CloudWatch logs for startup errors:
     ```bash
-    aws logs tail /ecs/{infra_name}-prd --follow
+    aws logs tail {infra_name}-prd-api --follow
     ```
 
   </Accordion>
@@ -32,7 +32,7 @@ Solutions for common issues encountered when deploying to AWS.
 
     Check the logs for the startup sequence:
     ```bash
-    aws logs tail /ecs/{infra_name}-prd --since 10m
+    aws logs tail {infra_name}-prd-api --since 10m
     ```
 
     Look for:
@@ -174,11 +174,11 @@ Solutions for common issues encountered when deploying to AWS.
 # View ECS service events (replace {infra_name} with your infra_name)
 aws ecs describe-services \
   --cluster {infra_name}-prd \
-  --services {infra_name}-prd-service \
+  --services {infra_name}-prd-api-service \
   --query 'services[0].events[:5]'
 
 # View recent logs
-aws logs tail /ecs/{infra_name}-prd --follow
+aws logs tail {infra_name}-prd-api --follow
 
 # Check task status
 aws ecs list-tasks --cluster {infra_name}-prd
@@ -190,7 +190,7 @@ aws ecs describe-tasks --cluster {infra_name}-prd --tasks [TASK_ARN]
 ### Local Development
 
 ```bash
-docker exec -it ai-api zsh
+docker exec -it {infra_name}-api zsh
 ```
 
 ### Production (ECS)
@@ -202,7 +202,7 @@ TASK_ARN=$(aws ecs list-tasks --cluster $ECS_CLUSTER --query "taskArns[0]" --out
 aws ecs execute-command \
     --cluster $ECS_CLUSTER \
     --task $TASK_ARN \
-    --container {infra_name}-prd \
+    --container {infra_name}-prd-api \
     --interactive \
     --command "zsh"
 ```

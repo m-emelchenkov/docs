@@ -22,8 +22,8 @@ keywords:
 | ECR + GitHub OIDC  | Using ECR, no stored credentials | Higher       |
 
 <Note>
-  For manual builds, see [Getting Started - AWS
-  Setup](/deploy/templates/aws/reference/getting-started#step-1-aws-setup). ECR
+  For manual builds, see [Deploy - AWS
+  Setup](/deploy/templates/aws/deploy#step-1-aws-setup). ECR
   tokens expire after 12 hours.
 </Note>
 
@@ -185,7 +185,7 @@ gh workflow run ecr-images.yml
 After a new image is pushed, update your ECS deployment:
 
 ```bash
-ag infra patch prd:aws:::service
+ag infra patch --env prd --infra aws --name service
 ```
 
 This triggers a new deployment with the latest image.

@@ -28,7 +28,7 @@ To use ECR, **create the image repo and authenticate with ECR** before pushing i
 
 **1. Create the image repository in ECR**
 
-The repo name should match the `infra_name`. Meaning if you're using the default infra name, the repo name would be `ai`.
+The repo name should match the `image_name` in `settings.py` (default: `agentos-aws-template`).
 
 <img src="/images/create-ecr-image.png" alt="create-ecr-image" />
 
@@ -60,7 +60,7 @@ Update the script with your ECR repo before running.
 infra_settings = InfraSettings(
     ...
     # Subnet IDs in the aws_region
-    subnet_ids=["subnet-xyz", "subnet-xyz"],
+    aws_subnet_ids=["subnet-xyz", "subnet-xyz"],
     # -*- Image Settings
     # Repository for images
     image_repo="your-image-repo",

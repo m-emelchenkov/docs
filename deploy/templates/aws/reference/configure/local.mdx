@@ -24,7 +24,7 @@ Access points:
 ## View Logs
 
 ```bash
-docker logs -f ai-api
+docker logs -f {infra_name}-api
 ```
 
 Expected startup output:
@@ -67,8 +67,8 @@ ag infra up dev:docker -t image -f
 | Stop all | `ag infra down` |
 | Restart containers | `ag infra restart dev:docker -t container` |
 | Rebuild everything | `ag infra up dev:docker -f` |
-| View API logs | `docker logs -f ai-api` |
-| View DB logs | `docker logs -f ai-db` |
+| View API logs | `docker logs -f {infra_name}-api` |
+| View DB logs | `docker logs -f {infra_name}-db` |
 
 ## Target Types
 

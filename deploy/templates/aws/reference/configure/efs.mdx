@@ -36,7 +36,7 @@ Amazon Elastic File System (EFS) provides shared, persistent storage for your EC
 ### DuckDB Single Worker Requirement
 
 <Warning>
-DuckDB requires single-writer access. The template sets `--workers 1` in the uvicorn command. Do not increase workers if using Pal or any DuckDB-based agent.
+DuckDB requires single-writer access. If using Pal or any DuckDB-based agent, set `--workers 1` in the uvicorn command. The template defaults to `--workers 2`.
 </Warning>
 
 Multiple workers cause "database is locked" errors and potential data corruption.
@@ -173,7 +173,7 @@ ag infra up prd:aws -y
 Verify the mount by checking your container logs:
 
 ```bash
-aws logs tail /ecs/{infra_name}-prd --follow
+aws logs tail {infra_name}-prd-api --follow
 ```
 
 You should see your application start without errors. Data written to `/data` now persists across restarts.
@@ -271,7 +271,7 @@ Enable lifecycle policies to automatically move infrequently accessed files to c
   </Accordion>
 
   <Accordion title="Data not persisting">
-    Ensure your application writes to `/data`, not another directory. Check your `DATA_DIR` environment variable.
+    Ensure your application writes to `/data`, not another directory. Verify the EFS volume is mounted at `/data` in your container configuration.
   </Accordion>
 </AccordionGroup>
 

@@ -71,13 +71,13 @@ prd_fastapi = FastApi(
 
 <Step title="Create HTTPS listener">
 ```bash
-ag infra up prd:aws:::listener
+ag infra up --env prd --infra aws --name listener
 ```
 </Step>
 
 <Step title="Redirect HTTP to HTTPS">
 ```bash
-ag infra patch prd:aws:::listener
+ag infra patch --env prd --infra aws --name listener
 ```
 
 All HTTP requests now redirect to HTTPS.
@@ -101,5 +101,5 @@ Should return:
 |-------|----------|
 | Certificate not validating | Check CNAME records in Route 53, wait up to 30 min |
 | Certificate not showing in dropdown | Must be in same region as load balancer (us-east-1) |
-| HTTPS not working after setup | Run `ag infra patch prd:aws:::listener` again |
+| HTTPS not working after setup | Run `ag infra patch --env prd --infra aws --name listener` again |
 

@@ -68,7 +68,7 @@ Expected response:
 ### Check CloudWatch logs
 
 ```bash
-aws logs tail /ecs/{infra_name}-prd --follow
+aws logs tail {infra_name}-prd-api --follow
 ```
 
 Look for `Application startup complete` to confirm the app started.
@@ -78,15 +78,15 @@ Look for `Application startup complete` to confirm the app started.
 ```bash
 aws ecs describe-services \
   --cluster {infra_name}-prd \
-  --services {infra_name}-prd-service \
+  --services {infra_name}-prd-api-service \
   --query 'services[0].{status:status,running:runningCount,desired:desiredCount}'
 ```
 
 ## ECR Authentication
 
 <Note>
-  If you haven't set up ECR yet, see [Getting Started - AWS
-  Setup](/deploy/templates/aws/reference/getting-started#step-1-aws-setup).
+  If you haven't set up ECR yet, see [Deploy - AWS
+  Setup](/deploy/templates/aws/deploy#step-1-aws-setup).
 </Note>
 
 ECR tokens expire after 12 hours. Re-authenticate before pushing:
@@ -118,7 +118,7 @@ ag infra up prd:docker
 Required when you change: image, CPU, memory, or environment variables.
 
 ```bash
-ag infra patch prd:aws:::td
+ag infra patch --env prd --infra aws --name td
 ```
 
 ### Update service
@@ -126,7 +126,7 @@ ag infra patch prd:aws:::td
 Triggers a new deployment with the latest task definition:
 
 ```bash
-ag infra patch prd:aws:::service
+ag infra patch --env prd --infra aws --name service
 ```
 
 <Note>
@@ -159,7 +159,7 @@ prd_fastapi = FastApi(
 After changes, update the task definition and service:
 
 ```bash
-ag infra patch prd:aws:::td && ag infra patch prd:aws:::service
+ag infra patch --env prd --infra aws --name td && ag infra patch --env prd --infra aws --name service
 ```
 
 ## Stop Deployment

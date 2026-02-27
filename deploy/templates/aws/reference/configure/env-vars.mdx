@@ -14,8 +14,7 @@ These variables are set in `prd_resources.py`:
 | Variable | Source | Description |
 |----------|--------|-------------|
 | `RUNTIME_ENV` | Hardcoded | `prd` in production |
-| `DATA_DIR` | Hardcoded | `/data` (EFS mount point) |
-| `OPENAI_API_KEY` | Secrets | From `prd_api_secrets.yml` |
+| `OPENAI_API_KEY` | Environment / Secrets | From `prd_api_secrets.yml` via Secrets Manager |
 | `EXA_API_KEY` | Secrets | From `prd_api_secrets.yml` (optional) |
 | `DB_HOST` | AWS | RDS endpoint (auto-populated) |
 | `DB_PORT` | AWS | RDS port (auto-populated) |
@@ -35,7 +34,6 @@ These variables are set in `dev_resources.py`:
 | Variable | Value | Notes |
 |----------|-------|-------|
 | `RUNTIME_ENV` | `dev` | |
-| `DATA_DIR` | `/app/.data` | Local container path |
 | `MIGRATE_DB` | `True` | Auto-migrates on startup |
 | `WAIT_FOR_DB` | `True` | Waits for Docker Postgres |
 
@@ -57,7 +55,7 @@ container_env = {
 After adding variables:
 
 ```bash
-ag infra patch prd:aws:::td && ag infra patch prd:aws:::service
+ag infra patch --env prd --infra aws --name td && ag infra patch --env prd --infra aws --name service
 ```
 
 ## Reading in Code
