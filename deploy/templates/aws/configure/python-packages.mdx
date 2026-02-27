@@ -79,7 +79,7 @@ ag infra up -e dev -i docker -t image
 
 <Note>
 
-Remember to [authenticate with ECR](/deploy/templates/aws/reference/configure/production-app#create-an-ecr-repository) if needed.
+Remember to [authenticate with ECR](/deploy/templates/aws/configure/production-app#create-an-ecr-repository) if needed.
 
 </Note>
 
@@ -117,12 +117,12 @@ ag infra restart -e dev -i docker -t container
 
 <CodeGroup>
 
-```bash terminal
+```bash Full Options
 ag infra patch --env prd --infra aws --name service
 ```
 
-```bash short options
-ag infra patch -e prd -i aws -n service
+```bash Shorthand
+ag infra patch prd:aws::service
 ```
 
 </CodeGroup>

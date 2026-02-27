@@ -17,7 +17,7 @@ RDS is created automatically by `ag infra up prd:aws`.
 
 ## Prerequisites
 
-Complete [Secrets Setup](/deploy/templates/aws/reference/configure/secrets) first. The database credentials must exist before deployment.
+Complete [Secrets Setup](/deploy/templates/aws/configure/secrets) first. The database credentials must exist before deployment.
 
 ## Database Credentials
 
@@ -69,9 +69,17 @@ prd_db = DbInstance(
 
 After changes:
 
-```bash
+<CodeGroup>
+
+```bash Full Options
 ag infra patch --env prd --infra aws --type dbinstance
 ```
+
+```bash Shorthand
+ag infra patch prd:aws:::dbinstance
+```
+
+</CodeGroup>
 
 <Note>
   Some changes (like instance class) require a reboot. Check AWS Console for
@@ -105,9 +113,17 @@ container_env = {
 
 Then update and redeploy:
 
-```bash
+<CodeGroup>
+
+```bash Full Options
 ag infra patch --env prd --infra aws --name td && ag infra patch --env prd --infra aws --name service
 ```
+
+```bash Shorthand
+ag infra patch prd:aws::td && ag infra patch prd:aws::service
+```
+
+</CodeGroup>
 
 ### Option 2: Run Manually via ECS Exec
 

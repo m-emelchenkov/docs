@@ -54,9 +54,17 @@ container_env = {
 
 After adding variables:
 
-```bash
+<CodeGroup>
+
+```bash Full Options
 ag infra patch --env prd --infra aws --name td && ag infra patch --env prd --infra aws --name service
 ```
+
+```bash Shorthand
+ag infra patch prd:aws::td && ag infra patch prd:aws::service
+```
+
+</CodeGroup>
 
 ## Reading in Code
 

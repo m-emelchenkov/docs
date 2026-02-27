@@ -184,8 +184,16 @@ gh workflow run ecr-images.yml
 
 After a new image is pushed, update your ECS deployment:
 
-```bash
+<CodeGroup>
+
+```bash Full Options
 ag infra patch --env prd --infra aws --name service
 ```
+
+```bash Shorthand
+ag infra patch prd:aws::service
+```
+
+</CodeGroup>
 
 This triggers a new deployment with the latest image.

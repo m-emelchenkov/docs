@@ -93,7 +93,7 @@ export OPENAI_API_KEY=sk-***
 </Steps>
 
 <Warning>
-  [HTTPS](/deploy/templates/aws/reference/go-live/https) is required to connect
+  [HTTPS](/deploy/templates/aws/go-live/https) is required to connect
   to os.agno.com. You'll set this up after deployment.
 </Warning>
 
@@ -217,7 +217,7 @@ cp infra/secrets/prd_api_secrets.example.yml infra/secrets/prd_api_secrets.yml
 cp infra/secrets/prd_db_secrets.example.yml infra/secrets/prd_db_secrets.yml
 ```
 
-Edit both files with your credentials. See [Secrets](/deploy/templates/aws/reference/configure/secrets) for details.
+Edit both files with your credentials. See [Secrets](/deploy/templates/aws/configure/secrets) for details.
 
 </Step>
 </Steps>
@@ -301,21 +301,21 @@ Should return: `{"status": "ok", "instantiated_at": "..."}`
   <Card
     title="Configure Settings"
     icon="gear"
-    href="/deploy/templates/aws/reference/configure/infra-settings"
+    href="/deploy/templates/aws/configure/infra-settings"
   >
     Region, subnets, and ECR
   </Card>
   <Card
     title="Connect to AgentOS"
     icon="key"
-    href="/deploy/templates/aws/reference/go-live/connect"
+    href="/deploy/templates/aws/go-live/connect"
   >
     Run your agents in the cloud
   </Card>
   <Card
     title="Verify Deployment"
     icon="check"
-    href="/deploy/templates/aws/reference/go-live/verify"
+    href="/deploy/templates/aws/go-live/verify"
   >
     Confirm everything is working
   </Card>

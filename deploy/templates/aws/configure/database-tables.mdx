@@ -130,12 +130,12 @@ Because we updated the Environment Variables, we need to update the Task Definit
 
 <CodeGroup>
 
-```bash terminal
+```bash Full Options
 ag infra patch --env prd --infra aws --name td
 ```
 
-```bash shorthand
-ag infra patch -e prd -i aws -n td
+```bash Shorthand
+ag infra patch prd:aws::td
 ```
 
 </CodeGroup>
@@ -146,12 +146,12 @@ After updating the task definition, redeploy the production application:
 
 <CodeGroup>
 
-```bash terminal
+```bash Full Options
 ag infra patch --env prd --infra aws --name service
 ```
 
-```bash shorthand
-ag infra patch -e prd -i aws -n service
+```bash Shorthand
+ag infra patch prd:aws::service
 ```
 
 </CodeGroup>
