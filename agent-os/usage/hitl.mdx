@@ -97,6 +97,18 @@ curl -X POST http://localhost:7777/agents/data_manager/runs/{run_id}/continue \
   -F "stream=false"
 ```
 
+If an admin resolves a required approval in the database, you can continue with an empty `tools` value. Non-admin users receive `403` if a required approval is still pending.
+
+## Approval Status API
+
+Poll a single approval record:
+
+```bash
+GET /approvals/{approval_id}/status
+```
+
+When a run pauses, each tool that requires approval is stamped with `approval_id`. Store that ID and poll for status changes. Admins with the `approvals:write` scope can continue once the approval is resolved.
+
 ## Usage
 
 <Steps>
