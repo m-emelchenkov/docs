@@ -105,6 +105,26 @@ for run_event in agent.run("Perform sensitive operation", stream=True):
     response = agent.continue_run(run_id=run_event.run_id, requirements=run_event.requirements, stream=True)
 ```
 
+## Teams
+
+HITL works the same way for Teams. When a member agent's tool requires confirmation, user input, or external execution, the team run pauses until the requirement is resolved. The requirement includes `member_agent_name` so you know which member triggered it.
+
+```python
+run_response = team.run("What is the weather in Tokyo?")
+
+if run_response.is_paused:
+    for requirement in run_response.active_requirements:
+        if requirement.needs_confirmation:
+            print(f"Member {requirement.member_agent_name} wants to call {requirement.tool_execution.tool_name}")
+            requirement.confirm()
+
+    run_response = team.continue_run(run_response)
+```
+
+Tools attached directly to the Team (not member agents) also support HITL. When the team leader calls a tool requiring confirmation, the run pauses the same way.
+
+See [Team HITL examples](/examples/teams/human-in-the-loop/overview) for complete examples.
+
 ## Learn More
 
 <CardGroup cols={3}>
@@ -148,4 +168,5 @@ for run_event in agent.run("Perform sensitive operation", stream=True):
 
 ## Developer Resources
 
-- [HITL usage examples](/hitl/usage/)
+- [Agent HITL examples](/examples/agents/human-in-the-loop/overview)
+- [Team HITL examples](/examples/teams/human-in-the-loop/overview)
