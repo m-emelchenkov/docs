@@ -121,7 +121,8 @@ if run_response.is_paused:
     run_response = team.continue_run(run_response)
 ```
 
-Tools attached directly to the Team (not member agents) also support HITL. When the team leader calls a tool requiring confirmation, the run pauses the same way.
+Tools attached directly to the Team (rather than individual member agents) also support HITL. 
+If the team leader calls a tool that requires confirmation, the run pauses in the same way.
 
 See [Team HITL examples](/examples/teams/human-in-the-loop/overview) for complete examples.
 
