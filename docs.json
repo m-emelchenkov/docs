@@ -4459,6 +4459,7 @@
               "agent-os/config",
               "agent-os/background-tasks/overview",
               "agent-os/scheduler/overview",
+              "agent-os/approvals/overview",
               "agent-os/lifespan",
               {
                 "group": "Clients",
