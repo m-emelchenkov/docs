@@ -1,0 +1,169 @@
+---
+title: Troubleshooting HITL
+sidebarTitle: Troubleshooting
+description: Common issues and solutions when using Human-in-the-Loop features
+keywords: [troubleshooting, HITL, human-in-the-loop, debugging, issues]
+---
+
+This page covers common issues and solutions when working with Human-in-the-Loop (HITL) features in Agno.
+
+## Conversation History Not Preserved
+
+### Issue
+When using `continue_run()` after a tool confirmation pause, the agent doesn't remember previous conversation context (e.g., user introductions, earlier messages).
+
+### Solution
+Ensure you have `add_history_to_context=True` set on your agent:
+
+```python
+agent = Agent(
+    model=OpenAIResponses(id="gpt-4o"),
+    tools=[my_tool],
+    add_history_to_context=True,  # Enable history preservation
+    db=SqliteDb(db_file="tmp/agent.db"),  # Required for history
+)
+```
+
+<Note>
+As of version 0.34.0, `continue_run()` properly includes conversation history when resuming after confirmation pauses. Make sure you're using the latest version of Agno.
+</Note>
+
+### Example
+```python
+# User introduces themselves
+response = agent.run("Hi, I'm John from the sales team.")
+
+# Request that requires confirmation
+run_response = agent.run("Send an email to the CEO")
+
+if run_response.is_paused:
+    # Confirm the tool
+    for req in run_response.active_requirements:
+        if req.needs_confirmation:
+            req.confirm()
+    
+    # Continue - agent remembers John is from sales
+    final = agent.continue_run(
+        run_id=run_response.run_id,
+        requirements=run_response.requirements
+    )
+    # Response: "Hi John, I've sent the email to the CEO..."
+```
+
+## Tool Confirmation Not Triggering
+
+### Issue
+Tools marked with `@tool(requires_confirmation=True)` are executing without pausing for confirmation.
+
+### Possible Causes
+1. **Conflicting decorators**: Ensure the tool doesn't have conflicting decorators like `@tool(external_execution=True)` or `@tool(requires_user_input=True)`
+2. **Missing decorator**: Verify the `@tool` decorator is properly applied with the correct parameter
+
+### Solution
+```python
+# Correct usage
+@tool(requires_confirmation=True)
+def sensitive_operation():
+    return "Operation completed"
+
+# Incorrect - conflicting decorators
+@tool(requires_confirmation=True, external_execution=True)  # Won't work
+def bad_operation():
+    return "This won't work as expected"
+```
+
+## Async Confirmation Issues
+
+### Issue
+Async agents not properly handling confirmation pauses in streaming mode.
+
+### Solution
+Use the async methods correctly:
+
+```python
+# For async agents
+run_response = await agent.arun("Perform sensitive operation")
+
+if run_response.is_paused:
+    # Handle confirmation
+    for req in run_response.active_requirements:
+        req.confirm()
+    
+    # Use acontinue_run for async
+    response = await agent.acontinue_run(
+        run_id=run_response.run_id,
+        requirements=run_response.requirements
+    )
+```
+
+## Multiple Tools Requiring Confirmation
+
+### Issue
+When multiple tools need confirmation, handling them becomes complex.
+
+### Solution
+Iterate through all requirements and handle each one:
+
+```python
+if run_response.is_paused:
+    for requirement in run_response.active_requirements:
+        if requirement.needs_confirmation:
+            print(f"Confirm {requirement.tool_execution.tool_name}?")
+            # Handle each tool individually
+            if user_approves():
+                requirement.confirm()
+            else:
+                requirement.reject()
+                requirement.confirmation_note = "User rejected"
+```
+
+## Toolkit-Level Confirmation Not Working
+
+### Issue
+Specifying `requires_confirmation_tools` on a toolkit doesn't pause execution.
+
+### Solution
+Ensure you're passing the parameter correctly:
+
+```python
+# Correct usage
+agent = Agent(
+    model=OpenAIResponses(id="gpt-4o"),
+    tools=[
+        YFinanceTools(
+            requires_confirmation_tools=["get_stock_price"]
+        )
+    ],
+)
+
+# Common mistake - wrong parameter name
+# YFinanceTools(confirmation_tools=["get_stock_price"])  # Won't work
+```
+
+## Performance Issues with History
+
+### Issue
+Agent responses become slow when history is enabled.
+
+### Solution
+Optimize history settings:
+
+```python
+agent = Agent(
+    model=OpenAIResponses(id="gpt-4o"),
+    add_history_to_context=True,
+    num_history_runs=3,  # Start small, increase if needed
+    num_history_messages=10,  # Limit total messages
+)
+```
+
+<Tip>
+Start with `num_history_runs=3` and only increase if your use case requires more context. Each additional run increases token usage and response time.
+</Tip>
+
+## Related Resources
+
+- [User Confirmation Guide](/hitl/user-confirmation)
+- [Confirmation with History Example](/hitl/usage/confirmation-required-with-history)
+- [History Overview](/history/agent/overview)
+- [Database Setup](/database/overview)
