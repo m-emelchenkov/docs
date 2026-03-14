@@ -23,6 +23,10 @@ When you mark a tool with `@tool(requires_confirmation=True)`, your agent will:
 
 This gives you complete control over which tools execute and when, making it perfect for production scenarios where you need human oversight.
 
+<Tip>
+When using `continue_run()` after a confirmation pause, the agent's conversation history is fully preserved. This means any context from previous messages (like user introductions or earlier tool results) remains available to the agent when it resumes execution.
+</Tip>
+
 ## Basic Example
 
 The following example shows how to implement user confirmation with a custom tool:
@@ -56,6 +60,32 @@ for requirement in run_response.active_requirements:
 
 # After resolving the requirement, you can continue the run:
 response = agent.continue_run(run_id=run_response.run_id, requirements=run_response.requirements)
+```
+
+## History Preservation
+
+When using user confirmation with agents that have `add_history_to_context=True`, the conversation history is automatically preserved across confirmation pauses. This ensures the agent maintains full context when resuming execution:
+
+```python
+agent = Agent(
+    model=OpenAIResponses(id="gpt-5.2"),
+    tools=[sensitive_operation],
+    add_history_to_context=True,  # Enables history preservation
+)
+
+# First interaction
+run_response = agent.run("Hi, I'm John. I need help with a sensitive operation.")
+
+# The agent will pause when it tries to use the sensitive_operation tool
+if run_response.is_paused:
+    # Confirm the operation
+    for requirement in run_response.active_requirements:
+        if requirement.needs_confirmation:
+            requirement.confirmed = True
+    
+    # Continue the run - the agent remembers that the user is John
+    response = agent.continue_run(run_id=run_response.run_id, requirements=run_response.requirements)
+    # Agent's response will maintain context: "Hi John, I've completed the sensitive operation..."
 ```
 
 ## Toolkit-Level Confirmation
@@ -254,4 +284,3 @@ A tool can only use one of these patterns at a time.
     Resume confirmation using run_id
   </Card>
 </CardGroup>
-
