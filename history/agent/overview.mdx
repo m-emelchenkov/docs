@@ -25,6 +25,20 @@ Working with agent history can be tricky. Experiment with the above settings to 
 See the [History Reference](#history-reference) for help on how to use the different history features.
 </Tip>
 
+## History Preservation in Human-in-the-Loop
+
+When using tools that require confirmation (`@tool(requires_confirmation=True)`), the conversation history is automatically preserved when you call `continue_run()` after a confirmation pause. This ensures that:
+
+- User introductions and context from earlier messages are maintained
+- The agent can reference previous tool results and conversations
+- The conversational flow remains natural across confirmation pauses
+
+<Note>
+History preservation in HITL scenarios requires `add_history_to_context=True` to be set on the agent. This feature ensures seamless continuity in human-supervised workflows.
+</Note>
+
+See [User Confirmation with History](/hitl/usage/confirmation-required-with-history) for a complete example.
+
 ## History Reference
 
 <Tabs>
