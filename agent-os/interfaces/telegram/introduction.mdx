@@ -81,7 +81,7 @@ Main entry point for Agno Telegram applications.
 | `help_message` | `str` | `"Send me text, photos..."` | Message sent in response to the `/help` command. |
 | `error_message` | `str` | `"Sorry, there was an error..."` | Message sent when processing fails. |
 | `new_message` | `str` | `"New conversation started..."` | Message sent when a user starts a new session with `/new`. |
-| `commands` | `Optional[List[Dict]]` | `/start`, `/help`, `/new` | List of bot commands to register with Telegram. Each dict has `command` and `description` keys. |
+| `commands` | `Optional[List[Dict]]` | `None` | List of bot commands to register with Telegram. Each dict has `command` and `description` keys. Defaults to `/start`, `/help`, and `/new` when not provided. |
 | `register_commands` | `bool` | `True` | Automatically register commands with the Telegram Bot API on first message. |
 
 Provide `agent`, `team`, or `workflow`.

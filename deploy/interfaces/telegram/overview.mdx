@@ -71,7 +71,10 @@ ngrok http 7777
 # Or, if you have a paid ngrok plan with a static domain:
 # ngrok http --domain=your-custom-domain.ngrok-free.app 7777
 ```
-Copy the `https://` URL provided by ngrok.
+Copy the `https://` forwarding URL provided by ngrok and set it as an environment variable:
+```bash
+export NGROK_URL=https://your-subdomain.ngrok-free.app
+```
 </Step>
 
 <Step title="Run the App">
@@ -84,7 +87,7 @@ The server starts on `http://localhost:7777`.
 <Step title="Register the Webhook">
 Tell Telegram to send updates to your tunnel URL:
 ```bash
-curl "https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=https://YOUR-NGROK-URL/telegram/webhook"
+curl "https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${NGROK_URL}/telegram/webhook"
 ```
 You should see `{"ok":true,"result":true,"description":"Webhook was set"}`.
 
