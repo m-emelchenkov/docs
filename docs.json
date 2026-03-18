@@ -12167,10 +12167,6 @@
       "destination": "/tools/toolkits/others/giphy"
     },
     {
-      "source": "/integrations/toolkits/others/gitlab",
-      "destination": "/tools/toolkits/others/gitlab"
-    },
-    {
       "source": "/integrations/toolkits/others/clickup",
       "destination": "/tools/toolkits/others/clickup"
     },
