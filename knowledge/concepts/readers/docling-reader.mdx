@@ -2,7 +2,7 @@
 title: Docling Reader
 ---
 
-The **Docling Reader** processes multiple document formats using IBM's Docling library. It handles PDFs, documents, presentations, spreadsheets, images, audio, video and markup files.
+The **Docling Reader** processes multiple document formats using IBM's [Docling library](https://github.com/docling-project/docling). It handles PDFs, documents, presentations, spreadsheets, images, audio, video and markup files.
 
 ## Code
 
@@ -84,7 +84,4 @@ agent.print_response(
 
 ## Params
 
-| Parameter | Type | Default | Description |
-| --- | --- | --- | --- |
-| `output_format` | `str` | `"markdown"` | Export format ("markdown", "text", "json", "yaml", "html", "html_split_page", "doctags", "vtt") |
-| `converter` | `Optional[DocumentConverter]` | `None` | Custom Docling converter configuration |
+<Snippet file="docling-reader-reference.mdx" />
