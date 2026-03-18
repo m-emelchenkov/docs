@@ -1,5 +1,5 @@
 ---
-title: "Docling Reader Multiple Format"
+title: "Docling Multiple Formats"
 description: "Process multiple document formats with Docling Reader."
 ---
 ```python
@@ -77,10 +77,13 @@ source .venvs/demo/bin/activate
 # Install additional dependencies for audio/video processing
 uv pip install -U openai-whisper
 
-# Install FFmpeg from https://www.ffmpeg.org/download.html
-
 # Optional: Run PgVector (needs docker)
 ./cookbook/scripts/run_pgvector.sh
 
 python docling_reader_multi_format.py
 ```
+
+**Install `ffmpeg`** (required for audio/video processing):
+- **macOS**: `brew install ffmpeg`
+- **Ubuntu**: `sudo apt-get install ffmpeg`
+- **Windows**: Download from https://ffmpeg.org/download.html

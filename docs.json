@@ -5358,7 +5358,7 @@
                       "examples/knowledge/readers/doc-kb-async",
                       "examples/knowledge/readers/docling-reader",
                       "examples/knowledge/readers/docling-reader-async",
-                      "examples/knowledge/readers/docling-reader-multiple-format",
+                      "examples/knowledge/readers/docling-multi-formats",
                       "examples/knowledge/readers/docling-reader-url",
                       "examples/knowledge/readers/excel-legacy-xls",
                       "examples/knowledge/readers/excel-reader",
