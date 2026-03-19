@@ -1,11 +1,11 @@
 ---
 title: Fallback Models
 sidebarTitle: Fallback Models
-description: Automatic model failover when a provider fails. No external proxy needed.
+description: Try backup models automatically when the primary model hits rate limits, outages, or context window limits.
 keywords: [fallback models, model failover, resilience, rate limits, context window, error handling]
 ---
 
-When the primary model fails (rate limits, outages, context window limits), fallback models are tried in order until one succeeds.
+Pass `fallback_models` to any Agent or Team. If the primary model fails after exhausting its retries, each fallback is tried in order until one succeeds.
 
 ```python
 from agno.agent import Agent
