@@ -13,12 +13,12 @@ from agno.models.anthropic import Claude
 from agno.models.openai import OpenAIChat
 
 agent = Agent(
-    model=OpenAIChat(id="gpt-4o"),
-    fallback_models=[Claude(id="claude-sonnet-4-20250514")],
+    model=OpenAIChat(id="gpt-5.2"),
+    fallback_models=[Claude(id="claude-sonnet-4-6")],
 )
 ```
 
-If `gpt-4o` fails after exhausting its own retries, Claude is tried automatically.
+If `gpt-5.2` fails after exhausting its own retries, Claude is tried automatically.
 
 ## Usage with Teams
 
@@ -29,8 +29,8 @@ from agno.models.openai import OpenAIChat
 from agno.team import Team
 
 team = Team(
-    model=OpenAIChat(id="gpt-4o"),
-    fallback_models=[Claude(id="claude-sonnet-4-20250514")],
+    model=OpenAIChat(id="gpt-5.2"),
+    fallback_models=[Claude(id="claude-sonnet-4-6")],
     members=[researcher, writer],
 )
 ```
@@ -46,20 +46,20 @@ from agno.models.anthropic import Claude
 from agno.models.openai import OpenAIChat
 
 agent = Agent(
-    model=OpenAIChat(id="gpt-4o"),
+    model=OpenAIChat(id="gpt-5.2"),
     fallback_config=FallbackConfig(
         # On rate-limit (429) errors
         rate_limit_models=[
-            OpenAIChat(id="gpt-4o-mini"),
-            Claude(id="claude-sonnet-4-20250514"),
+            OpenAIChat(id="gpt-5.2-mini"),
+            Claude(id="claude-sonnet-4-6"),
         ],
         # On context-window-exceeded errors
         context_window_models=[
-            Claude(id="claude-sonnet-4-20250514"),
+            Claude(id="claude-sonnet-4-6"),
         ],
         # On any other error
         models=[
-            Claude(id="claude-sonnet-4-20250514"),
+            Claude(id="claude-sonnet-4-6"),
         ],
     ),
 )
@@ -92,9 +92,9 @@ Each model instance controls its own retry behavior:
 
 ```python
 agent = Agent(
-    model=OpenAIChat(id="gpt-4o", retries=3, exponential_backoff=True),
+    model=OpenAIChat(id="gpt-5.2", retries=3, exponential_backoff=True),
     fallback_models=[
-        Claude(id="claude-sonnet-4-20250514", retries=2),
+        Claude(id="claude-sonnet-4-6", retries=2),
     ],
 )
 ```
