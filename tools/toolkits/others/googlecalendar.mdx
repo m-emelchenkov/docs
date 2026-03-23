@@ -1,0 +1,214 @@
+---
+title: Google Calendar
+---
+
+Enable an Agent to work with Google Calendar to view, search, schedule meetings, check availability, and manage events.
+
+## Prerequisites
+
+### Install dependencies
+
+```shell
+uv pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
+
+### Setup Google Project and OAuth
+
+Reference: https://developers.google.com/calendar/api/quickstart/python
+
+1. Enable Google Calendar API
+
+   - Go to [Google Cloud Console](https://console.cloud.google.com/apis/enableflow?apiid=calendar-json.googleapis.com).
+   - Select Project and Enable.
+
+2. Go To API & Service -> OAuth Consent Screen
+
+3. Select User Type
+
+   - If you are a Google Workspace user, select Internal.
+   - Otherwise, select External.
+
+4. Fill in the app details (App name, logo, support email, etc).
+
+5. Select Scope
+
+   - Click on Add or Remove Scope.
+   - Search for Google Calendar API (Make sure you've enabled Google Calendar API otherwise scopes won't be visible).
+   - Select scopes accordingly
+     - For read-only access: Select `/auth/calendar.readonly`
+     - For full access: Select `/auth/calendar`
+   - Save and continue.
+
+6. Adding Test User
+
+   - Click Add Users and enter the email addresses of the users you want to allow during testing.
+   - NOTE : Only these users can access the app's OAuth functionality when the app is in "Testing" mode.
+     Any other users will receive access denied errors.
+   - To make the app available to all users, you'll need to move the app's status to "In Production".
+     Before doing so, ensure the app is fully verified by Google if it uses sensitive or restricted scopes.
+   - Click on Go back to Dashboard.
+
+7. Generate OAuth 2.0 Client ID
+
+   - Go to Credentials.
+   - Click on Create Credentials -> OAuth Client ID
+   - Select Application Type as Desktop app.
+   - Download JSON.
+
+8. Using Google Calendar Tool
+   - Pass the path of downloaded credentials as credentials_path to Google Calendar tool.
+   - Optional: Set the `token_path` parameter to specify where the tool should create the `token.json` file.
+   - The `token.json` file is used to store the user's access and refresh tokens and is automatically created during the authorization flow if it doesn't already exist.
+   - If `token_path` is not explicitly provided, the file will be created in the default location which is your current working directory.
+   - If you choose to specify `token_path`, please ensure that the directory you provide has write access, as the application needs to create or update this file during the authentication process.
+
+### Service Account Authentication (Alternative)
+
+For server/bot deployments without browser access:
+
+1. Create a service account at **IAM & Admin > Service Accounts** in Google Cloud Console
+2. Download the JSON key file
+3. For accessing another user's calendar, configure **domain-wide delegation** in Google Workspace Admin Console
+4. Set environment variables:
+
+```shell
+export GOOGLE_SERVICE_ACCOUNT_FILE=/path/to/service-account-key.json
+export GOOGLE_DELEGATED_USER=user@yourdomain.com  # Optional for Calendar
+```
+
+## Example
+
+The following agent will use GoogleCalendarTools to find today's events.
+
+```python cookbook/91_tools/google/calendar_daily_briefing.py
+from agno.agent import Agent
+from agno.models.openai import OpenAIChat
+from agno.tools.google.calendar import GoogleCalendarTools
+
+agent = Agent(
+    model=OpenAIChat(id="gpt-4o"),
+    tools=[GoogleCalendarTools()],
+    add_datetime_to_context=True,
+    markdown=True,
+)
+
+agent.print_response("What meetings do I have tomorrow?", stream=True)
+```
+
+## Quick Start Example
+
+```python
+# Minimal example with OAuth
+from agno.agent import Agent
+from agno.tools.google.calendar import GoogleCalendarTools
+
+# OAuth authentication (browser-based)
+agent = Agent(
+    tools=[GoogleCalendarTools(
+        credentials_path="path/to/credentials.json"
+    )],
+    instructions=["You help users manage their Google Calendar."],
+)
+
+# Service account authentication (no browser needed)
+agent = Agent(
+    tools=[GoogleCalendarTools(
+        service_account_path="path/to/service-account.json",
+        delegated_user="user@domain.com"  # Optional
+    )],
+)
+```
+
+## Toolkit Params
+
+| Parameter               | Type                          | Default        | Description                                                                   |
+| ----------------------- | ----------------------------- | -------------- | ----------------------------------------------------------------------------- |
+| `creds`                 | `Credentials`                 | `None`         | Pre-fetched credentials to skip a new auth flow                              |
+| `credentials_path`      | `str`                         | `None`         | Path of the file credentials.json file which contains OAuth 2.0 Client ID     |
+| `token_path`            | `str`                         | `"token.json"` | Path of the file token.json which stores the user's access and refresh tokens |
+| `service_account_path`  | `str`                         | `None`         | Path to service account JSON key. When set, OAuth is skipped                 |
+| `delegated_user`        | `str`                         | `None`         | Email to impersonate via domain-wide delegation. Optional for Calendar        |
+| `scopes`                | `List[str]`                   | `None`         | List of OAuth scopes for Google Calendar API access                           |
+| `oauth_port`            | `int`                         | `8080`         | Port number for OAuth callback server                                         |
+| `login_hint`            | `str`                         | `None`         | Email to pre-select in the OAuth consent screen                              |
+| `calendar_id`           | `str`                         | `"primary"`    | The calendar ID to use for operations                                         |
+| `allow_update`          | `bool`                        | `None`         | Deprecated: Use individual tool boolean flags                                 |
+| `list_events`           | `bool`                        | `True`         | Enable list_events tool                                                       |
+| `get_event`             | `bool`                        | `True`         | Enable get_event tool                                                         |
+| `fetch_all_events`      | `bool`                        | `True`         | Enable fetch_all_events tool                                                  |
+| `find_available_slots`  | `bool`                        | `True`         | Enable find_available_slots tool                                              |
+| `list_calendars`        | `bool`                        | `True`         | Enable list_calendars tool                                                    |
+| `check_availability`    | `bool`                        | `True`         | Enable check_availability tool                                                |
+| `get_event_attendees`   | `bool`                        | `True`         | Enable get_event_attendees tool                                               |
+| `search_events`         | `bool`                        | `True`         | Enable search_events tool                                                     |
+| `create_event`          | `bool`                        | `True`         | Enable create_event tool                                                      |
+| `update_event`          | `bool`                        | `True`         | Enable update_event tool                                                      |
+| `delete_event`          | `bool`                        | `True`         | Enable delete_event tool                                                      |
+| `quick_add_event`       | `bool`                        | `False`        | Enable quick_add_event tool                                                   |
+| `move_event`            | `bool`                        | `False`        | Enable move_event tool                                                        |
+| `respond_to_event`      | `bool`                        | `False`        | Enable respond_to_event tool                                                  |
+
+## Toolkit Functions
+
+### Reading Events
+
+| Function               | Description                                                                             |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| `list_events`          | List upcoming events from the calendar. Parameters: `limit` (int), `start_date` (str)   |
+| `get_event`            | Get full details of a single event by ID. Parameters: `event_id` (str)                  |
+| `fetch_all_events`     | Fetch all events in a date range with pagination. Parameters: `max_results` (int), `start_date` (str), `end_date` (str) |
+| `search_events`        | Search events by text across all fields. Parameters: `query` (str), `start_date` (str), `end_date` (str), `max_results` (int) |
+| `get_event_attendees`  | Get attendee list and RSVP statuses for an event. Parameters: `event_id` (str)         |
+
+### Scheduling & Availability
+
+| Function               | Description                                                                             |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| `find_available_slots` | Find free time slots based on working hours and existing events. Parameters: `start_date` (str), `end_date` (str), `duration_minutes` (int) |
+| `check_availability`   | Check busy/free status for multiple people using FreeBusy API. Parameters: `start_date` (str), `end_date` (str), `attendee_emails` (List[str]), `timezone` (str) |
+| `list_calendars`       | List all available calendars with access roles. No parameters required                  |
+
+### Creating & Managing Events
+
+| Function           | Description                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| `create_event`     | Create a detailed event with attendees and conferencing. Parameters: `start_date` (str), `end_date` (str), `title` (str), `description` (str), `location` (str), `timezone` (str), `attendees` (List[str]), `add_google_meet_link` (bool), `notify_attendees` (bool) |
+| `update_event`     | Update existing event details. Parameters: `event_id` (str), `title` (str), `description` (str), `location` (str), `start_date` (str), `end_date` (str), `timezone` (str), `attendees` (List[str]), `notify_attendees` (bool) |
+| `delete_event`     | Delete an event with optional notifications. Parameters: `event_id` (str), `notify_attendees` (bool) |
+| `quick_add_event`  | Create event from natural language (e.g., "Lunch with Sarah tomorrow noon"). Parameters: `text` (str) |
+| `move_event`       | Move event to a different calendar. Parameters: `event_id` (str), `destination_calendar_id` (str), `notify_attendees` (bool) |
+| `respond_to_event` | Set attendance response (accepted/declined/tentative). Parameters: `event_id` (str), `response` (str) |
+
+You can use `include_tools` or `exclude_tools` to modify the list of tools the agent has access to. Learn more about [selecting tools](/tools/selecting-tools).
+
+## Cookbook Examples
+
+The agno cookbook includes several Google Calendar examples demonstrating different use cases:
+
+| Example                           | Description                                                    |
+| --------------------------------- | -------------------------------------------------------------- |
+| `calendar_event_creator.py`       | Create events with attendees, Google Meet, and timezone handling |
+| `calendar_daily_briefing.py`      | Generate structured daily briefings with conflict detection    |
+| `calendar_meeting_scheduler.py`   | Multi-person scheduling with availability checking             |
+| `calendar_gmail_meeting_prep.py`  | Combined Calendar + Gmail agent for meeting preparation        |
+
+## Tips for Using Google Calendar Tools
+
+1. **Date/Time Formats**: All dates use ISO format (YYYY-MM-DDTHH:MM:SS). Always specify timezone when creating events.
+
+2. **Working with Attendees**: Use `check_availability` before scheduling meetings with multiple people to find suitable times.
+
+3. **Natural Language Events**: Use `quick_add_event` for simple event creation from natural language descriptions.
+
+4. **Event Search**: Use `search_events` for full-text search across event titles, descriptions, locations, and attendees.
+
+5. **Authentication**: 
+   - Use OAuth for user-facing applications (requires browser)
+   - Use service accounts for server/bot deployments (no browser needed)
+
+6. **Calendar IDs**: Use "primary" for the user's main calendar, or get specific calendar IDs using `list_calendars`.
+
+## Developer Resources
+
+- [Source Code](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/google/calendar.py)
+- [Cookbook Examples](https://github.com/agno-agi/agno/tree/main/cookbook/91_tools/google)

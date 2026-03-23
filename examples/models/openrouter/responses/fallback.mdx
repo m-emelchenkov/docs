@@ -1,0 +1,56 @@
+---
+title: "Fallback Routing"
+description: "Use fallback models with OpenRouter's dynamic model routing."
+---
+
+OpenRouter's dynamic routing supports fallback models. If the primary model fails due to rate limits, timeouts, or unavailability, OpenRouter tries fallback models in order.
+
+## Prerequisites
+Set OPENROUTER_API_KEY environment variable.
+
+```python
+
+from agno.agent import Agent
+from agno.models.openrouter import OpenRouterResponses
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+agent = Agent(
+    model=OpenRouterResponses(
+        id="openai/gpt-oss-20b",
+        # Fallback models if primary fails
+        models=[
+            "openai/gpt-oss-20b",
+            "openai/gpt-4o",
+        ],
+    ),
+    markdown=True,
+)
+
+agent.print_response("Write a haiku about coding", stream=True)
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    pass
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/90_models/openrouter/responses
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+# Export relevant API keys
+export OPENROUTER_API_KEY="***"
+
+python fallback.py
+```

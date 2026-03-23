@@ -1,94 +1,48 @@
 ---
 title: "Templates"
-sidebarTitle: "Introduction"
+description: "Production-ready codebases for deploying AgentOS to your infrastructure."
 ---
 
-## What are Templates?
+Templates are production-ready codebases you clone and build on top of. Each
+template includes AgentOS, PostgreSQL, and deployment scripts for your target
+platform.
 
-**Templates are standardized codebases for AgentOS.** They contain:
+## Blank Canvas
 
-- An **AgentOS instance** using FastAPI.
-- A **PostgreSQL database** for storing sessions, memories, evals and knowledge.
-- A set of **pre-built Agents, Teams and Workflows** to use as a starting point.
-
-Instead of starting from scratch, you can use a template to get started and ship your AgentOS to production. They are setup to run locally using docker and on cloud providers. They're a fantastic starting point and are used by various companies using Agno. You'll definitely need to customize them to fit your specific needs, but they'll get you started much faster.
-
-Agno currently supports the following templates:
-
-Docker: [agent-infra-docker](https://github.com/agno-agi/agent-infra-docker)
-AWS: [agent-infra-aws](https://github.com/agno-agi/agent-infra-aws)
-Railway: [agent-infra-railway](https://github.com/agno-agi/agent-infra-railway)
-
-Coming soon:
-
-- [Modal](https://modal.com/)
-- [Render](https://render.com/)
-- [Fly.io](https://fly.io/)
-- [GCP](https://cloud.google.com/)
-
-Additionally, all templates contain a dev and prd environment. The dev environment is used for development and testing. The prd environment is used for production. We recommend using docker for the dev environment for most use cases and selecting a cloud provider of your choice for the prd environment.
-
-## How to get started with a template:
-
-1. Make sure you have the agno and agno-infra installed.
-
-<CodeGroup>
-
-```bash Mac
-pip install -U agno
-pip install -U agno-infra
-```
-
-```bash Windows
-pip install -U agno
-pip install -U agno-infra
-```
-
-</CodeGroup>
-
-2. Create your codebase using: `ag infra create` and choose a template.
-
-<CodeGroup>
-
-```bash Mac
-ag infra create
-```
-
-```bash Windows
-ag infra create
-```
-
-</CodeGroup>
-
-3. `cd` into your codebase and run the dev environment.
-
-4. Run the prd environment after you've tested the dev environment and are ready to deploy to production.
-
-Notes:
-
-- The instructions for dev and prd environment are different for each template. Please refer to the template documentation for specific instructions.
-- Instead of using `ag infra create`, you can clone the repository and follow the instructions in the template documentation.
+Deploy a clean installation of AgentOS to your infrastructure.
 
 <CardGroup cols={3}>
-  <Card
-    title="Agent Infra Docker "
-    icon="server"
-    href="/templates/agent-infra-docker/introduction"
-  >
-    An AgentOS template with Docker compose file.
+  <Card title="Docker" icon="docker" href="/deploy/templates/docker">
+    Run AgentOS locally using Docker.
   </Card>
-  <Card
-    title="Agent Infra AWS"
-    icon="server"
-    href="/templates/agent-infra-aws/introduction"
-  >
-    An AgentOS template with AWS infrastructure.
+  <Card title="Railway" icon="train" href="/deploy/templates/railway">
+    Deploy AgentOS to Railway.
   </Card>
-  <Card
-    title="Agent Infra Railway"
-    icon="server"
-    href="/templates/agent-infra-railway/introduction"
-  >
-    An AgentOS template with Railway infrastructure.
+  <Card title="AWS" icon="aws" href="/deploy/templates/aws">
+    Deploy AgentOS to ECS.
   </Card>
 </CardGroup>
+
+## Pre-built Solutions
+
+Production-ready codebases with apps already wired up.
+
+<CardGroup cols={3}>
+  <Card title="Dash" icon="chart-mixed" href="/deploy/templates/dash">
+    Self-learning data agent.
+  </Card>
+  <Card title="Scout" icon="radar" href="/deploy/templates/scout">
+    Self-managing context agent.
+  </Card>
+  <Card title="Gcode" icon="code" href="/deploy/templates/gcode">
+    Lightweight coding agent.
+  </Card>
+</CardGroup>
+
+## Comparison
+
+| Template | Best For | Benefits | Time |
+| :--- | :--- | :--- | :--- |
+| [Docker](/deploy/templates/docker) | Local development, testing, self-hosting | Develop locally or deploy to any platform that support docker | ~5 min |
+| [Railway](/deploy/templates/railway) | Quick production deployments, MVPs | Ship fast without managing infrastructure | ~10 min |
+| [AWS](/deploy/templates/aws) | Production at scale, enterprise | Production-grade reliability and enterprise controls | ~15 min |

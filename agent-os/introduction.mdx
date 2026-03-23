@@ -1,87 +1,50 @@
 ---
 title: "What is AgentOS?"
 sidebarTitle: "Introduction"
-description: "The runtime and control plane for multi-agent systems."
+description: "The production runtime and control plane for multi-agent systems."
 ---
 
-**AgentOS turns your agents into a production API you can deploy anywhere.** It gives you a pre-built backend for your AI product, so all you need to do is add your agent logic, build your frontend and your product is live.
+**AgentOS turns your agents into a production service you can deploy anywhere.**
 
-You bring the agents and AgentOS turns it into a product:
-- 50+ API endpoints with SSE-compatible streaming. Ready for production on day one.
-- Sessions, memory, knowledge stored in your database. Your data stays in your system.
-- Request-level isolation. No state bleed between users, agents and sessions.
-- JWT-based RBAC with hierarchical scopes. Enterprise-ready from day one.
-- Tracing built-in, stored in your database. No third-party egress. No vendor lock-in.
-- Guardrails, human in the loop, learning machines. The full Agno framework.
+- **Production API**: 50+ ready to use endpoints with SSE-compatible streaming.
+- **Data Ownership**: Sessions, memory, knowledge, and traces stored in your database.
+- **Request Isolation**: No state bleed between users, agents, or sessions.
+- **Security**: JWT-based RBAC with hierarchical scopes.
+- **Observability**: Traces stored in your database with no third-party egress or vendor lock-in.
+- **Governance**: Guardrails, human-in-the-loop, and approval flows for full control.
 
-Here's an example of an AgentOS serving an Agent with memory, state, and MCP tools:
+Here's a minimal example of the AgentOS serving an Agent with memory, state and MCP:
 
-```python agno_agent.py
-from agno.os import AgentOS
+```python agno_assist.py lines
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.anthropic import Claude
+from agno.os import AgentOS
+from agno.tools.mcp import MCPTools
 
-agent = Agent(
-    name="Agno Agent",
+agno_assist = Agent(
+    name="Agno Assist",
     model=Claude(id="claude-sonnet-4-5"),
     db=SqliteDb(db_file="agno.db"),
+    tools=[MCPTools(url="https://docs.agno.com/mcp")],
+    add_datetime_to_context=True,
     add_history_to_context=True,
+    num_history_runs=3,
     markdown=True,
 )
 
-agent_os = AgentOS(agents=[agent])
+agent_os = AgentOS(agents=[agno_assist])
 app = agent_os.get_app()
-
-if __name__ == "__main__":
-    agent_os.serve(app="agno_agent:app", reload=True)
 ```
-
-<Check>
-
-AgentOS runs on FastAPI. Add middleware, custom routes, background tasks, or any FastAPI feature without extra configuration.
-
-</Check>
-
-## Control Plane
-
-AgentOS comes with a built-in [control plane](https://os.agno.com) that connects directly to your runtime from your browser. Monitor sessions. Debug with full traces. Manage users and permissions.
-
-<Frame>
-  <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    controls
-    style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
-  >
-    <source src="/videos/agno-agent-chat.mp4" type="video/mp4" />
-  </video>
-</Frame>
-
-## Private by Design
-
-Most AI tooling stores your data on their servers. You pay retention costs, deal with egress fees, and depend on their security.
-
-AgentOS runs entirely in your infrastructure:
-- **Your database**: Sessions, memory, knowledge, traces. All stored where you control it.
-- **Zero transmission**: No conversations, logs, or metrics sent to Agno.
-- **Nothing stored on our end**: The control plane reads from your database, displays in your browser, stores nothing. When you close the tab, there's no trace of your data anywhere but your own systems.
-
-See [AgentOS Security](/agent-os/security) for more details.
-
-<Frame>
-  <img
-    src="/images/agentos-secure-infra-illustration.png"
-    alt="AgentOS Security and Privacy Architecture"
-    style={{ borderRadius: "0.5rem" }}
-  />
-</Frame>
 
 ## Architecture
 
-Your AgentOS runs as a container in your cloud. The control plane connects directly from your browser. No proxy servers, no data relay.
+AgentOS consists of two parts:
+
+1. **Runtime**: Runs agents built with the Agno SDK (using FastAPI).
+2. **Control plane**: UI for managing, monitoring, and debugging your system.
+
+The runtime exposes a set of APIs that powers both, the control plane and your AI products.
 
 <img
   className="block dark:hidden"
@@ -95,35 +58,55 @@ Your AgentOS runs as a container in your cloud. The control plane connects direc
   alt="AgentOS Architecture"
 />
 
-## Get Started
+The AgentOS runs as a container in your cloud. The UI connects directly from the browser. No proxies. No data relays. Your data stays completely private.
+
+<Frame>
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    controls
+    style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
+  >
+    <source src="/videos/agentos-agent-chat.mp4" type="video/mp4" />
+  </video>
+</Frame>
+
+## Private by Design
+
+Most AI tooling stores your data on their servers. You pay retention costs, deal with egress fees, and depend on their security. AgentOS runs entirely in your infrastructure:
+- **Your database**: Sessions, memory, knowledge, traces. All stored where you control it.
+- **Zero transmission**: No conversations, logs, or metrics sent to Agno.
+- **From browser to runtime**: The control plane connects from your browser to the runtime. Agno stores no data except for your runtime endpoint. All data resides in your database.
+
+See [AgentOS Security](/agent-os/security) for more details.
+
+<Frame>
+  <img
+    src="/images/agentos-secure-infra-illustration.png"
+    alt="AgentOS Security and Privacy Architecture"
+    style={{ borderRadius: "0.5rem" }}
+  />
+</Frame>
+
+## Next Steps
 
 <CardGroup cols={2}>
-  <Card
-    title="Run Your First AgentOS"
-    icon="plus"
-    href="/agent-os/run-your-os"
-  >
-    Create and run your first AgentOS
+  <Card title="Run Your First AgentOS" icon="plus" href="/agent-os/run-your-os">
+    Initialize and serve a basic agent.
   </Card>
   <Card
-    title="Connect Your AgentOS"
+    title="Connect AgentOS to UI"
     icon="link"
     href="/agent-os/connect-your-os"
   >
-    Connect your AgentOS to the UI
+    Manage AgentOS using a Web UI.
   </Card>
-  <Card
-    title="Control Plane"
-    icon="desktop"
-    href="/agent-os/control-plane"
-  >
-    Monitor and manage your AgentOS
+  <Card title="Control Plane" icon="desktop" href="/agent-os/control-plane">
+    Inspect sessions and debug traces.
   </Card>
-  <Card
-    title="Overview"
-    icon="book"
-    href="/agent-os/overview"
-  >
+  <Card title="Learn More" icon="book" href="/agent-os/overview">
     Learn more about AgentOS
   </Card>
 </CardGroup>

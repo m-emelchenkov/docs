@@ -1,0 +1,62 @@
+---
+title: "Serper"
+description: "Use Serper tools with Agno agents."
+---
+
+Enable Agno agents with Serper tools for fast, cost-effective gateway to the entire Google Search ecosystem. Unlike traditional search tools, Serper is designed specifically for developers, returning structured JSON that agents can parse instantly.
+
+## Prerequisites
+
+- Get an API key from https://serper.dev/
+- Set your API key as an environment variable: 
+  `export SERPER_API_KEY="your_api_key_here"`
+ - Alternatively, pass API_KEY to the SerperTools class
+
+```python
+
+from agno.agent import Agent
+from agno.tools.serper import SerperTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+agent = Agent(
+    tools=[SerperTools()],
+)
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    agent.print_response(
+        "Search for the latest news about artificial intelligence developments",
+        markdown=True,
+    )
+
+    # Example 2: Google Scholar Search
+    # agent.print_response(
+    #     "Find 2 recent academic papers about large language model safety and alignment",
+    #     markdown=True,
+    # )
+
+    # Example 3: Web Scraping
+    # agent.print_response(
+    #     "Scrape and summarize the main content from this OpenAI blog post: https://openai.com/index/gpt-4/",
+    #     markdown=True
+    # )
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python serper_tools.py
+```
+For details, see [Serper cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/serper_tools.py).

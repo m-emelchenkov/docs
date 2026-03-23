@@ -1,0 +1,93 @@
+---
+title: Direct Response Mode
+sidebarTitle: Direct Response
+description: "Route requests to specialized agents who respond directly."
+---
+
+Use `mode=TeamMode.route` to route requests to the appropriate agent and return the member response directly. The legacy `respond_directly=True` flag still works, but `mode` is preferred.
+
+This example creates a language router with three agents:
+1. **English Agent** - Responds in English
+2. **Japanese Agent** - Responds in Japanese
+3. **Spanish Agent** - Responds in Spanish
+
+<Steps>
+
+  <Step title="Create a Python file">
+
+    ```python respond_directly.py
+    from agno.agent import Agent
+    from agno.models.openai import OpenAIResponses
+    from agno.team.team import Team
+    from agno.team.mode import TeamMode
+
+    english_agent = Agent(
+        name="English Agent",
+        role="You only answer in English",
+        model=OpenAIResponses(id="gpt-5.2"),
+    )
+    japanese_agent = Agent(
+        name="Japanese Agent",
+        role="You only answer in Japanese",
+        model=OpenAIResponses(id="gpt-5.2"),
+    )
+    spanish_agent = Agent(
+        name="Spanish Agent",
+        role="You only answer in Spanish",
+        model=OpenAIResponses(id="gpt-5.2"),
+    )
+
+    language_router = Team(
+        name="Language Router",
+        model=OpenAIResponses(id="gpt-5.2"),
+        mode=TeamMode.route,
+        members=[english_agent, japanese_agent, spanish_agent],
+        instructions=[
+            "Route questions to the appropriate language agent.",
+            "If the language is not supported, respond in English.",
+        ],
+        markdown=True,
+        show_members_responses=True,
+    )
+
+    # English
+    language_router.print_response("How are you?", stream=True)
+
+    # Japanese
+    language_router.print_response("お元気ですか?", stream=True)
+
+    # Spanish
+    language_router.print_response("¿Cómo estás?", stream=True)
+    ```
+
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U agno openai
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+
+    <CodeGroup>
+
+    ```bash Mac/Linux
+    export OPENAI_API_KEY="your_openai_api_key_here"
+    ```
+
+    ```bash Windows
+    $Env:OPENAI_API_KEY="your_openai_api_key_here"
+    ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Run Team">
+    ```bash
+    python respond_directly.py
+    ```
+  </Step>
+
+</Steps>

@@ -1,63 +1,54 @@
 ---
 title: Introduction
-description: "The complete stack for building, running, and managing multi-agent systems."
-keywords: [introduction]
+sidebarTitle: Introduction
+description: "**Build, run, and manage agentic software at scale.**"
+keywords: [introduction, agno]
 mode: "wide"
 ---
 
-## What is Agno?
+## What is Agno
 
-Agno is a framework, runtime, and control plane for multi-agent systems.
+Agno is the runtime for agentic software. Build agents, teams, and workflows. Run them as scalable services. Monitor and manage them in production.
 
 | Layer | What it does |
 |-------|--------------|
 | **Framework** | Build agents, teams, and workflows with memory, knowledge, guardrails, and 100+ integrations. |
-| **AgentOS Runtime** | Run your multi-agent system as a stateless, secure FastAPI application. |
-| **Control Plane** | Manage and monitor your system using the [AgentOS UI](https://os.agno.com). |
+| **Runtime** | Serve your system in production with a stateless, session-scoped FastAPI backend. |
+| **Control Plane** | Test, monitor, and manage your system using the [AgentOS UI](https://os.agno.com). |
 
-## Why Agno?
+## What You Can Build
 
-Running multi-agent systems as a secure, scalable service is a hard, distributed systems problem. Most teams cobble together LLM calls, custom orchestration, and third-party monitoring tools.
+Agno powers real agentic systems built from the same primitives above.
 
-Agno replaces that patchwork with a unified platform that runs entirely in your cloud. No data leaves your environment, making it ideal for security-conscious teams that want to move fast.
+- [**Pal →**](https://github.com/agno-agi/pal) A personal agent that learns your preferences.
+- [**Dash →**](https://github.com/agno-agi/dash) A self-learning data agent grounded in six layers of context.
+- [**Scout →**](https://github.com/agno-agi/scout) A self-learning context agent that manages enterprise context knowledge.
+- [**Gcode →**](https://github.com/agno-agi/gcode) A post-IDE coding agent that improves over time.
+- [**Investment Team →**](https://github.com/agno-agi/investment-team) A multi-agent investment committee that debates and allocates capital.
 
-## Quick Example
+Single agents. Coordinated teams. Structured workflows. All built on one architecture.
 
-Here's an agent that connects to an MCP server, persists conversation state, and is served via FastAPI:
+## Start Building
 
-```python
-from agno.agent import Agent
-from agno.db.sqlite import SqliteDb
-from agno.models.anthropic import Claude
-from agno.os import AgentOS
-from agno.tools.mcp import MCPTools
+Agno is designed to scale with you.
 
-agno_agent = Agent(
-    name="Agno Agent",
-    model=Claude(id="claude-sonnet-4-5"),
-    db=SqliteDb(db_file="agno.db"),
-    tools=[MCPTools(url="https://docs.agno.com/mcp")],
-    add_history_to_context=True,
-    markdown=True,
-)
+- **[Quickstart →](/first-agent)** Build your first agent with memory, knowledge, and tools.
+- **[Agents →](/agents/overview)** Build intelligent programs that reason, use tools, and take action.
+- **[Teams →](/teams/overview)** Coordinate multiple agents to collaborate and reach decisions.
+- **[Workflows →](/workflows/overview)** Orchestrate deterministic and agentic steps into structured systems.
+- **[AgentOS →](/agent-os/introduction)** Deploy, govern, and operate agents in production.
 
-agent_os = AgentOS(agents=[agno_agent])
-app = agent_os.get_app()
+Start small with a single agent. Or build distributed, governed multi-agent systems from day one.
 
-if __name__ == "__main__":
-    agent_os.serve(app="agno_agent:app", reload=True)
-```
+## Built for Production
 
-Run this script and connect to the [AgentOS UI](https://os.agno.com) to chat with your agent:
+Agno runs in your infrastructure, not ours.
 
-<Frame>
-  <video autoPlay muted loop playsInline style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}>
-    <source src="/videos/agno-agent-chat.mp4" type="video/mp4" />
-  </video>
-</Frame>
+- Stateless, horizontally scalable runtime.
+- 50+ APIs and background execution.
+- Per-user and per-session isolation.
+- Runtime approval enforcement.
+- Native tracing and full auditability.
+- Sessions, memory, knowledge, and traces stored in your database.
 
-## Get Started
-
-- [Quickstart](/get-started/quickstart): Build your first agent.
-- [Production](/production/overview): Step-by-step guides for deploying to production.
-- [Cookbook](/cookbook/overview): Ready-to-use examples you can copy and paste.
+You own the system. You own the data. You define the rules.

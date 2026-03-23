@@ -1,0 +1,55 @@
+---
+title: "Multi-tools Usage"
+description: "Use multiple tools with Agno agents."
+---
+
+You can enable multiple AI tools and allow a single Agno agent to become a multi-functional problem solver. You can equip an agent with a variety of individual functions, specialized toolkits, or even entire external servers via the Model Context Protocol (MCP).
+
+## Prerequisites
+
+* Install and set up individual AI tools. For example, to use YFinance tools, OpenAIChat and WebSearch, you need to install these packages.
+
+`uv pip install openai ddgs yfinance`
+
+```python
+
+from agno.agent import Agent
+from agno.models.openai import OpenAIChat
+from agno.tools.websearch import WebSearchTools
+from agno.tools.yfinance import YFinanceTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+
+agent = Agent(
+    model=OpenAIChat(id="gpt-4o"),
+    tools=[WebSearchTools(), YFinanceTools()],
+    instructions=["Use tables to display data"],
+    markdown=True,
+)
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    agent.print_response(
+        "Write a thorough report on NVDA, get all financial information and latest news",
+        stream=True,
+    )
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python multiple_tools.py
+```
+For details, see [Multiple tool cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/multiple_tools.py).

@@ -1,0 +1,38 @@
+---
+title: "Linkup"
+description: "Use Linkup tools with Agno agents."
+---
+
+Enable Agno agents to integrate with Linkup for specialized search engine and content provider designed for LLM workflows. It allows agents to access live web and premium data sources with minimal latency, high accuracy, deep search, token efficiency, and source quality control.
+
+```python
+
+from agno.agent import Agent
+from agno.tools.linkup import LinkupTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+agent = Agent(tools=[LinkupTools()])
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    agent.print_response("What's the latest news in French politics?", markdown=True)
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python linkup_tools.py
+```
+For details, see [Linkup cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/linkup_tools.py).

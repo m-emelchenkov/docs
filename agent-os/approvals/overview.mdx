@@ -1,0 +1,82 @@
+---
+title: Approvals
+description: "Manage approval workflows for agents and teams via the AgentOS Control Panel."
+---
+
+Approve, reject, and audit tool executions that require human authorization directly from AgentOS.
+
+```python
+from agno.agent import Agent
+from agno.approval import approval
+from agno.db.postgres import PostgresDb
+from agno.models.openai import OpenAIChat
+from agno.os import AgentOS
+from agno.tools import tool
+
+db = PostgresDb(db_url="postgresql+psycopg://ai:ai@localhost:5532/ai")
+
+@approval
+@tool(requires_confirmation=True)
+def delete_user_data(user_id: str) -> str:
+    """Permanently delete all data for a user. Requires admin approval."""
+    return f"All data for user {user_id} has been deleted."
+
+agent = Agent(
+    id="data-manager",
+    model=OpenAIChat(id="gpt-4o-mini"),
+    tools=[delete_user_data],
+    instructions=["You help users manage data operations."],
+    db=db,
+)
+
+app = AgentOS(
+    agents=[agent],
+    db=db,
+).get_app()
+```
+
+## Approval Flow
+
+When a user triggers a tool decorated with `@approval`, the run pauses and a pending record is persisted to the database. An admin resolves the request via the AgentOS Control Panel or the API, and the run resumes.
+
+## Managing Approvals
+
+View and resolve pending approvals from the AgentOS Control Panel. Each entry shows the agent, tool, arguments, and requesting user.
+
+<Frame>
+  <img src="/images/approvals-page.png" alt="Approvals list in AgentOS Control Panel" />
+</Frame>
+
+Review details, approve or reject, and track resolution history.
+
+<Frame>
+  <img src="/images/approval-required-chat.png" alt="Approval required in agent chat" />
+</Frame>
+
+## Approval Types
+
+| Type | Behavior | Use Case |
+|---|---|---|
+| `@approval` (default) | **Blocking.** Run pauses until an admin approves or rejects. | Deletions, payments, bulk operations |
+| `@approval(type="audit")` | **Non-blocking.** Run continues; an audit record is created after resolution. | Compliance logging, activity auditing |
+
+## Approvals API
+
+| Operation | Endpoint |
+|---|---|
+| List approvals | `GET /approvals` |
+| Get approval | `GET /approvals/{approval_id}` |
+| Get approval status | `GET /approvals/{approval_id}/status` |
+| Get approval count | `GET /approvals/count` |
+| Resolve approval | `POST /approvals/{approval_id}/resolve` |
+| Delete approval | `DELETE /approvals/{approval_id}` |
+
+## Next Steps
+
+| Task | Guide |
+|---|---|
+| Blocking approval basics | [Approval basic](/examples/agents/approvals/approval-basic) |
+| List and resolve workflow | [Approval list and resolve](/examples/agents/approvals/approval-list-and-resolve) |
+| Audit-style approvals | [Audit approval](/examples/agents/approvals/audit-approval-confirmation) |
+| Team-level approvals | [Team approval](/examples/agents/approvals/approval-team) |
+| API reference | [Approval API schemas](/reference-api/schema/approvals/list-approvals) |

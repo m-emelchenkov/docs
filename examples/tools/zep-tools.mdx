@@ -1,0 +1,118 @@
+---
+title: "Zep"
+description: "Use Zep with Agno agents."
+---
+
+Zep tools serves as the Agno agent's "Long-Term Memory and Knowledge Graph Engine." While standard memory tools store raw chat history, Zep goes further by continuously learning from user interactions, extracting facts, and organizing them into a temporal knowledge graph. This allows Agno agents to remember nuances from conversations that happened weeks or months ago without bloating the prompt with old text.
+
+## Prerequisites
+
+- Get your Zep API key from https://app.getzep.com/
+- Set Zep API key as an environment variable: `export ZEP_API_KEY=<your-zep-api-key>`. 
+
+```python
+
+import asyncio
+import time
+
+from agno.agent import Agent
+from agno.models.openai import OpenAIChat
+from agno.tools.zep import ZepAsyncTools, ZepTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+
+def run_sync() -> None:
+    # Initialize the ZepTools
+    sync_zep_tools = ZepTools(
+        user_id="agno", session_id="agno-session", add_instructions=True
+    )
+
+    # Initialize the Agent
+    sync_agent = Agent(
+        model=OpenAIChat(),
+        tools=[sync_zep_tools],
+        dependencies={"memory": sync_zep_tools.get_zep_memory(memory_type="context")},
+        add_dependencies_to_context=True,
+    )
+
+    # Interact with the Agent so that it can learn about the user
+    sync_agent.print_response("My name is John Billings")
+    sync_agent.print_response("I live in NYC")
+    sync_agent.print_response("I'm going to a concert tomorrow")
+
+    # Allow the memories to sync with Zep database
+    time.sleep(10)
+
+    if sync_agent.dependencies:
+        # Refresh the context
+        sync_agent.dependencies["memory"] = sync_zep_tools.get_zep_memory(
+            memory_type="context"
+        )
+
+        # Ask the Agent about the user
+        sync_agent.print_response("What do you know about me?")
+
+
+# ---------------------------------------------------------------------------
+# Async Variant
+# ---------------------------------------------------------------------------
+
+
+async def run_async() -> None:
+    # Initialize the ZepAsyncTools
+    async_zep_tools = ZepAsyncTools(
+        user_id="agno", session_id="agno-async-session", add_instructions=True
+    )
+
+    # Initialize the Agent
+    async_agent = Agent(
+        model=OpenAIChat(),
+        tools=[async_zep_tools],
+        dependencies={
+            "memory": lambda: async_zep_tools.get_zep_memory(memory_type="context"),
+        },
+        add_dependencies_to_context=True,
+    )
+
+    # Interact with the Agent
+    await async_agent.aprint_response("My name is John Billings")
+    await async_agent.aprint_response("I live in NYC")
+    await async_agent.aprint_response("I'm going to a concert tomorrow")
+
+    # Allow the memories to sync with Zep database
+    time.sleep(10)
+
+    # Refresh the context
+    async_agent.dependencies["memory"] = await async_zep_tools.get_zep_memory(
+        memory_type="context"
+    )
+
+    # Ask the Agent about the user
+    await async_agent.aprint_response("What do you know about me?")
+
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    run_sync()
+    asyncio.run(run_async())
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python zep_tools.py
+```
+For details, see [Zep tools cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/zep_tools.py).

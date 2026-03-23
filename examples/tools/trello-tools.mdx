@@ -1,0 +1,73 @@
+---
+title: "Trello"
+description: "Use Trello tool with Agno agents."
+---
+
+Enable Agno agents to interact with Trello's API to manage boards, lists, and cards, effectively turning your agent into an autonomous project manager that can organize team tasks, track deadlines, and update progress reports.
+
+## Prerequisites
+1. Get Your API Key 
+   - Visit the Trello Power-Ups Administration Page https://trello.com/power-ups/admin 
+   - (Optional) Create a Workspace
+   - Create a Power Up (this is required. Its like a "App" connector)
+     - If you don't already have a power-ups, create one by clicking the "New" button. 
+     - If you have an existing Power-Up, select it from the list. 
+     
+2. Generate API Key and Secret 
+   - On the left sidebar, click on the "API Key" option.
+   - Generate a new API Key: 
+     - Click the button to generate your API Key. 
+     - Copy the generated API Key and Secret. Store as TRELLO_API_KEY and TRELLO_API_SECRET. 
+     
+3. Generate a Token 
+   - On the same page where your API Key is shown, locate the option to manually generate a Token. 
+   - Authorize your Trello account. Follow the on-screen instructions to authorize the application
+   - Copy the generated Token. Store as TRELLO_TOKEN.
+
+```python
+
+from agno.agent import Agent
+from agno.tools.trello import TrelloTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+
+agent = Agent(
+    instructions=[
+        "You are a Trello management assistant that helps organize and manage Trello boards, lists, and cards",
+        "Help users with tasks like:",
+        "- Creating and organizing boards, lists, and cards",
+        "- Moving cards between lists",
+        "- Retrieving board and list information",
+        "- Managing card details and descriptions",
+        "Always confirm successful operations and provide relevant board/list/card IDs and URLs",
+        "When errors occur, provide clear explanations and suggest solutions",
+    ],
+    tools=[TrelloTools()],
+)
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    agent.print_response(
+        "Create a board called ai-agent and inside it create list called 'todo' and 'doing' and inside each of them create card called 'create agent'",
+        stream=True,
+    )
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python trello_tools.py
+```
+For details, see [Trello tool cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/trello_tools.py).

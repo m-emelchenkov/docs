@@ -1,0 +1,259 @@
+---
+title: Gmail
+---
+
+**Gmail** enables an Agent to interact with Gmail, allowing it to read, search, send, manage emails, and organize them with labels. Supports both OAuth and service account authentication.
+
+## Prerequisites
+
+### Install dependencies
+
+```shell
+uv pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
+
+### Setup Google Project and OAuth
+
+Reference: https://developers.google.com/gmail/api/quickstart/python
+
+1. Enable Gmail API
+
+   - Go to [Google Cloud Console](https://console.cloud.google.com/apis/enableflow?apiid=gmail.googleapis.com).
+   - Select Project and Enable.
+
+2. Go To API & Service -> OAuth Consent Screen
+
+3. Select User Type
+
+   - If you are a Google Workspace user, select Internal.
+   - Otherwise, select External.
+
+4. Fill in the app details (App name, logo, support email, etc).
+
+5. Select Scope
+
+   - Click on Add or Remove Scope.
+   - Search for Gmail API (Make sure you've enabled Gmail API otherwise scopes won't be visible).
+   - Select scopes accordingly
+     - For read-only access: Select `/auth/gmail.readonly`
+     - For full access: Select `/auth/gmail.modify` and `/auth/gmail.compose`
+   - Save and continue.
+
+6. Adding Test User
+
+   - Click Add Users and enter the email addresses of the users you want to allow during testing.
+   - NOTE: Only these users can access the app's OAuth functionality when the app is in "Testing" mode.
+     Any other users will receive access denied errors.
+   - To make the app available to all users, you'll need to move the app's status to "In Production".
+     Before doing so, ensure the app is fully verified by Google if it uses sensitive or restricted scopes.
+   - Click on Go back to Dashboard.
+
+7. Generate OAuth 2.0 Client ID
+
+   - Go to Credentials.
+   - Click on Create Credentials -> OAuth Client ID
+   - Select Application Type as Desktop app.
+   - Download JSON.
+
+8. Using Gmail Tool
+   - Pass the path of downloaded credentials as `credentials_path` to GmailTools.
+   - Optional: Set the `token_path` parameter to specify where the tool should create the `token.json` file.
+   - The `token.json` file is used to store the user's access and refresh tokens and is automatically created during the authorization flow if it doesn't already exist.
+   - If `token_path` is not explicitly provided, the file will be created as `token.json` in your current working directory.
+   - If you choose to specify `token_path`, please ensure that the directory you provide has write access, as the application needs to create or update this file during the authentication process.
+
+   Alternatively, if you prefer environment variables over a credentials file:
+
+   ```shell
+   export GOOGLE_CLIENT_ID=your_client_id_here
+   export GOOGLE_CLIENT_SECRET=your_client_secret_here
+   export GOOGLE_PROJECT_ID=your_project_id_here
+   ```
+
+### Service Account Authentication (Alternative)
+
+For server/bot deployments without browser access:
+
+1. Create a service account at **IAM & Admin > Service Accounts** in Google Cloud Console
+2. Download the JSON key file
+3. Configure **domain-wide delegation** in Google Workspace Admin Console (required for Gmail)
+4. Set environment variables:
+
+```shell
+export GOOGLE_SERVICE_ACCOUNT_FILE=/path/to/service-account-key.json
+export GOOGLE_DELEGATED_USER=user@yourdomain.com  # Required for Gmail
+```
+
+## Example
+
+```python cookbook/91_tools/google/gmail_tools.py
+from agno.agent import Agent
+from agno.tools.google.gmail import GmailTools
+
+agent = Agent(tools=[GmailTools()])
+agent.print_response("Show me my latest 5 unread emails", markdown=True)
+```
+
+## Quick Start Examples
+
+```python
+# OAuth authentication (browser-based)
+from agno.agent import Agent
+from agno.tools.google.gmail import GmailTools
+
+agent = Agent(
+    tools=[GmailTools(
+        credentials_path="path/to/credentials.json"
+    )],
+    instructions=["You help users manage their Gmail inbox."],
+)
+
+# Service account authentication (no browser needed)
+agent = Agent(
+    tools=[GmailTools(
+        service_account_path="path/to/service-account.json",
+        delegated_user="user@domain.com"  # Required for Gmail
+    )],
+)
+```
+
+## Toolkit Params
+
+| Parameter               | Type          | Default        | Description                                                |
+| ----------------------- | ------------- | -------------- | ---------------------------------------------------------- |
+| `creds`                 | `Credentials` | `None`         | Pre-fetched OAuth credentials to skip auth flow           |
+| `credentials_path`      | `str`         | `None`         | Path to OAuth credentials JSON file                        |
+| `token_path`            | `str`         | `"token.json"` | Path to token file for storing access/refresh tokens       |
+| `service_account_path`  | `str`         | `None`         | Path to service account JSON key. When set, OAuth is skipped |
+| `delegated_user`        | `str`         | `None`         | Email to impersonate (required for Gmail with service account) |
+| `scopes`                | `List[str]`   | `None`         | Custom OAuth scopes                                        |
+| `port`                  | `int`         | `None`         | Port for OAuth authentication callback                     |
+| `login_hint`            | `str`         | `None`         | Email to pre-select in OAuth consent screen                |
+| `include_html`          | `bool`        | `False`        | Return raw HTML body instead of stripping tags             |
+| `max_body_length`       | `int`         | `None`         | Truncate message bodies to this length                     |
+| `attachment_dir`        | `str`         | `None`         | Directory to save downloaded attachments                   |
+| `max_batch_size`        | `int`         | `10`           | Max items per Gmail API batch request (max 100)            |
+| `get_latest_emails`     | `bool`        | `True`         | Enable get_latest_emails tool                              |
+| `get_emails_from_user`  | `bool`        | `True`         | Enable get_emails_from_user tool                           |
+| `get_unread_emails`     | `bool`        | `True`         | Enable get_unread_emails tool                              |
+| `get_starred_emails`    | `bool`        | `True`         | Enable get_starred_emails tool                             |
+| `get_emails_by_context` | `bool`        | `True`         | Enable get_emails_by_context tool                          |
+| `get_emails_by_date`    | `bool`        | `True`         | Enable get_emails_by_date tool                             |
+| `get_emails_by_thread`  | `bool`        | `True`         | Enable get_emails_by_thread tool                           |
+| `search_emails`         | `bool`        | `True`         | Enable search_emails tool                                  |
+| `mark_email_as_read`    | `bool`        | `True`         | Enable mark_email_as_read tool                             |
+| `mark_email_as_unread`  | `bool`        | `True`         | Enable mark_email_as_unread tool                           |
+| `star_email`            | `bool`        | `True`         | Enable star_email tool                                     |
+| `unstar_email`          | `bool`        | `True`         | Enable unstar_email tool                                   |
+| `archive_email`         | `bool`        | `False`        | Enable archive_email tool                                  |
+| `create_draft_email`    | `bool`        | `True`         | Enable create_draft_email tool                             |
+| `send_email`            | `bool`        | `True`         | Enable send_email tool                                     |
+| `send_email_reply`      | `bool`        | `True`         | Enable send_email_reply tool                               |
+| `list_custom_labels`    | `bool`        | `True`         | Enable list_custom_labels tool                             |
+| `apply_label`           | `bool`        | `True`         | Enable apply_label tool                                    |
+| `remove_label`          | `bool`        | `True`         | Enable remove_label tool                                   |
+| `delete_custom_label`   | `bool`        | `True`         | Enable delete_custom_label tool                            |
+| `get_message`           | `bool`        | `True`         | Enable get_message tool                                    |
+| `get_thread`            | `bool`        | `True`         | Enable get_thread tool                                     |
+| `search_threads`        | `bool`        | `True`         | Enable search_threads tool                                 |
+| `modify_thread_labels`  | `bool`        | `False`        | Enable modify_thread_labels tool                           |
+| `trash_thread`          | `bool`        | `False`        | Enable trash_thread tool                                   |
+| `get_draft`             | `bool`        | `True`         | Enable get_draft tool                                      |
+| `list_drafts`           | `bool`        | `True`         | Enable list_drafts tool                                    |
+| `send_draft`            | `bool`        | `False`        | Enable send_draft tool                                     |
+| `update_draft`          | `bool`        | `True`         | Enable update_draft tool                                   |
+| `list_labels`           | `bool`        | `False`        | Enable list_labels tool                                    |
+| `modify_message_labels` | `bool`        | `False`        | Enable modify_message_labels tool                          |
+| `trash_message`         | `bool`        | `False`        | Enable trash_message tool                                  |
+| `download_attachment`   | `bool`        | `False`        | Enable download_attachment tool                            |
+
+## Toolkit Functions
+
+### Reading Emails
+
+| Function                | Description                                        |
+| ----------------------- | -------------------------------------------------- |
+| `get_latest_emails`     | Get the latest X emails from the user's inbox. Parameters: `count` (int) |
+| `get_emails_from_user`  | Get emails from a specific sender. Parameters: `user` (str), `count` (int) |
+| `get_unread_emails`     | Get unread emails. Parameters: `count` (int) |
+| `get_starred_emails`    | Get starred emails. Parameters: `count` (int) |
+| `get_emails_by_context` | Get emails matching a context. Parameters: `context` (str), `count` (int) |
+| `get_emails_by_date`    | Get emails within a date range. Parameters: `start_date` (str), `range_in_days` (int), `num_emails` (int) |
+| `get_emails_by_thread`  | Get all emails from a thread. Parameters: `thread_id` (str) |
+| `search_emails`         | Search emails using natural language. Parameters: `query` (str), `count` (int) |
+| `get_message`           | Get a specific message by ID. Parameters: `message_id` (str), `download_attachments` (bool) |
+| `get_thread`            | Get all messages in a thread. Parameters: `thread_id` (str) |
+| `search_threads`        | Search email threads. Parameters: `query` (str), `count` (int) |
+
+### Managing Emails
+
+| Function                | Description                                        |
+| ----------------------- | -------------------------------------------------- |
+| `mark_email_as_read`    | Mark email as read. Parameters: `message_id` (str) |
+| `mark_email_as_unread`  | Mark email as unread. Parameters: `message_id` (str) |
+| `star_email`            | Star an email. Parameters: `message_id` (str) |
+| `unstar_email`          | Unstar an email. Parameters: `message_id` (str) |
+| `archive_email`         | Archive an email. Parameters: `message_id` (str) |
+| `trash_message`         | Move message to trash, or restore with undo. Parameters: `message_id` (str), `undo` (bool) |
+| `trash_thread`          | Move thread to trash. Parameters: `thread_id` (str) |
+| `download_attachment`   | Download email attachment. Parameters: `message_id` (str), `attachment_id` (str), `filename` (str) |
+
+### Composing & Sending
+
+| Function             | Description                                        |
+| -------------------- | -------------------------------------------------- |
+| `create_draft_email` | Create draft with attachments. Parameters: `to` (str), `subject` (str), `body` (str), `cc` (str), `bcc` (str), `attachments` (List[str]), `thread_id` (str), `message_id` (str) |
+| `send_email`         | Send email with attachments. Parameters: `to` (str), `subject` (str), `body` (str), `cc` (str), `bcc` (str), `attachments` (List[str]), `thread_id` (str), `message_id` (str) |
+| `send_email_reply`   | Reply to email thread. Parameters: `thread_id` (str), `message_id` (str), `to` (str), `subject` (str), `body` (str), `cc` (str), `attachments` (List[str]) |
+| `get_draft`          | Get draft by ID. Parameters: `draft_id` (str) |
+| `list_drafts`        | List all drafts. Parameters: `count` (int) |
+| `send_draft`         | Send a draft. Parameters: `draft_id` (str) |
+| `update_draft`       | Update draft content. Parameters: `draft_id` (str), `to` (str), `subject` (str), `body` (str), `cc` (str), `bcc` (str), `attachments` (List[str]), `thread_id` (str), `message_id` (str) |
+
+### Label Management
+
+| Function                | Description                                        |
+| ----------------------- | -------------------------------------------------- |
+| `list_labels`           | List all labels in the account. No parameters |
+| `list_custom_labels`    | List user-created labels. No parameters |
+| `apply_label`           | Apply label to emails. Parameters: `context` (str), `label_name` (str), `count` (int) |
+| `remove_label`          | Remove label from emails. Parameters: `context` (str), `label_name` (str), `count` (int) |
+| `delete_custom_label`   | Delete a custom label. Parameters: `label_name` (str), `confirm` (bool) |
+| `modify_message_labels` | Modify message labels. Parameters: `message_id` (str), `add_labels` (List[str]), `remove_labels` (List[str]) |
+| `modify_thread_labels`  | Modify thread labels. Parameters: `thread_id` (str), `add_labels` (List[str]), `remove_labels` (List[str]) |
+
+You can use `include_tools` or `exclude_tools` to modify the list of tools the agent has access to. Learn more about [selecting tools](/tools/selecting-tools).
+
+## Cookbook Examples
+
+The agno cookbook includes several Gmail examples demonstrating different use cases:
+
+| Example                      | Description                                       |
+| ---------------------------- | ------------------------------------------------- |
+| `gmail_tools.py`             | Core examples: read-only agent, safe agent, label manager, full agent, thread reply |
+| `gmail_daily_digest.py`      | Summarize recent emails into a structured daily digest grouped by priority |
+| `gmail_draft_reply.py`       | Read a conversation thread and draft a contextual reply for human review |
+| `gmail_inbox_triage.py`      | Personal inbox triage agent with Learning Machine for persistent preferences |
+| `gmail_followup_tracker.py`  | Find unanswered sent emails, draft follow-ups     |
+| `gmail_action_items.py`      | Extract structured action items from email threads |
+
+## Tips for Using Gmail Tools
+
+1. **Authentication**: 
+   - Use OAuth for user-facing applications (requires browser)
+   - Use service accounts for server/bot deployments (requires domain-wide delegation)
+   
+2. **Search Queries**: The `search_emails` function supports natural language queries that get converted to Gmail's search syntax.
+
+3. **Attachments**: When sending emails with attachments, provide file paths as strings or a list of strings.
+
+4. **Thread Management**: Use thread operations (`get_thread`, `trash_thread`, etc.) to manage entire conversations.
+
+5. **Label Operations**: Gmail's label system is hierarchical - use forward slashes for nested labels (e.g., "Work/Projects").
+
+6. **Rate Limits**: Be mindful of Gmail API quotas when performing bulk operations.
+
+## Developer Resources
+
+- [Source Code](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/google/gmail.py)
+- [Cookbook Examples](https://github.com/agno-agi/agno/tree/main/cookbook/91_tools/google)

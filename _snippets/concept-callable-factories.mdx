@@ -1,0 +1,7 @@
+Pass a function instead of a static list for `tools`, `knowledge`, or `members`. Agno calls it at the start of each run, injecting context based on the function's parameter names.
+
+| Behavior | Details |
+|----------|---------|
+| Injected parameters | `agent`, `team`, `run_context`, `session_state` |
+| Caching | Cached by custom key > `user_id` > `session_id`. Disable with `cache_callables=False` |
+| Return types | Tools and members return a list or tuple. Knowledge returns a `KnowledgeProtocol` instance or `None` |

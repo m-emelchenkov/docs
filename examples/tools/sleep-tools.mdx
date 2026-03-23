@@ -1,0 +1,46 @@
+---
+title: "Sleep"
+description: "Use Sleep tools with Agno agents."
+---
+
+Enable Agno agents to intentionally pause their own execution. While most tools are designed for action (fetching data, writing files), SleepTools is designed for timing and coordination.
+
+```python
+
+from agno.agent import Agent
+from agno.tools.sleep import SleepTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+
+# Example 1: Enable specific sleep functions
+agent = Agent(tools=[SleepTools(enable_sleep=True)], name="Sleep Agent")
+
+# Example 2: Enable all sleep functions
+agent_all = Agent(tools=[SleepTools(all=True)], name="Full Sleep Agent")
+
+# Test the agents
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    agent.print_response("Sleep for 2 seconds")
+    agent_all.print_response("Sleep for 5 seconds")
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python sleep_tools.py
+```
+For details, see [Sleep tools cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/sleep_tools.py).

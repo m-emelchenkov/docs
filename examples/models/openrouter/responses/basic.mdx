@@ -1,0 +1,54 @@
+---
+title: "Basic Usage"
+description: "OpenRouter's Responses API (Beta) basic usage."
+---
+
+Use of OpenRouter's Responses API (Beta) to access OpenAI-compatible models across multiple providers.
+
+## Prerequisites
+Set OPENROUTER_API_KEY environment variable.
+
+```python
+
+import asyncio
+
+from agno.agent import Agent
+from agno.models.openrouter import OpenRouterResponses
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+agent = Agent(
+    model=OpenRouterResponses(id="openai/gpt-oss-20b", reasoning={"enabled": True}),
+    markdown=True,
+)
+
+# Print the response in the terminal
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    # --- Sync ---
+    agent.print_response("Share a 2 sentence horror story")
+
+    # --- Async ---
+    asyncio.run(agent.aprint_response("Share a 2 sentence horror story"))
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/90_models/openrouter/responses
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+# Export relevant API keys
+export OPENROUTER_API_KEY="***"
+
+python basic.py
+```

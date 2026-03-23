@@ -1,0 +1,50 @@
+---
+title: "Tools"
+description: "Use of tools with OpenRouter's Responses API."
+---
+
+OpenRouter Response API standardizes the tool calling interface across models and providers, making it easy to integrate external tools with any supported model.
+
+## Prerequisites
+Set OPENROUTER_API_KEY environment variable.
+
+```python
+from agno.agent import Agent
+from agno.models.openrouter import OpenRouterResponses
+from agno.tools.duckduckgo import DuckDuckGoTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+agent = Agent(
+    model=OpenRouterResponses(id="openai/gpt-oss-20b", reasoning={"enabled": True}),
+    tools=[DuckDuckGoTools()],
+    markdown=True,
+)
+
+agent.print_response("What is the latest news about AI?", stream=True)
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    pass
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/90_models/openrouter/responses
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+# Export relevant API keys
+export OPENROUTER_API_KEY="***"
+
+python tool_use.py
+```

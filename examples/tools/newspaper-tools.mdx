@@ -1,0 +1,42 @@
+---
+title: "Newspaper"
+description: "Use Newspaper tools with Agno agents."
+---
+
+Enable Agno agents with Newspaper tools to web scrape clean, ad-free text from news articles and blogs for high-quality analysis.
+
+```python
+
+from agno.agent import Agent
+from agno.tools.newspaper import NewspaperTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+
+agent = Agent(tools=[NewspaperTools()])
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    agent.print_response(
+        "Please summarize https://en.wikipedia.org/wiki/Language_model"
+    )
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python newspaper_tools.py
+```
+
+For details, see [Newspaper cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/newspaper_tools.py).

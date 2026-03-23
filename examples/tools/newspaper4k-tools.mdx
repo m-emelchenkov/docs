@@ -1,0 +1,42 @@
+---
+title: "Newspaper4K"
+description: "Use Newspaper4k tools with Agno agents."
+---
+
+Enable Agno agents with Newspaper4kTools and turn them into precision digital librarians that extract clean, ad-free text from news articles and blogs for high-quality analysis.
+
+```python
+
+from agno.agent import Agent
+from agno.tools.newspaper4k import Newspaper4kTools
+
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+
+agent = Agent(tools=[Newspaper4kTools(enable_read_article=True)])
+
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    agent.print_response(
+        "Please summarize https://www.rockymountaineer.com/blog/experience-icefields-parkway-scenic-drive-lifetime"
+    )
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python newspaper4k_tools.py
+```
+
+For details, see [Newspaper4K cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/newspaper4k_tools.py).

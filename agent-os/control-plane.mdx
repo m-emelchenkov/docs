@@ -31,7 +31,7 @@ Chat with agents, collaborate with teams, and run workflows from one screen.
     playsInline
     style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
   >
-    <source src="/videos/agentos-agent-chat.mp4" type="video/mp4" />
+    <source src="/videos/agentos-chat.mp4" type="video/mp4" />
   </video>
 </Frame>
 
@@ -68,6 +68,22 @@ Switch to Workflows. Provide input (plain text or structured, depending on the w
     style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
   >
     <source src="/videos/agentos-workflows-chat.mp4" type="video/mp4" />
+  </video>
+</Frame>
+
+## Approvals
+
+Pending tool executions can require human confirmation. Approvals pause runs until an admin resolves the request.
+
+<Frame>
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
+  >
+    <source src="/videos/approvalsdemo.mp4" type="video/mp4" />
   </video>
 </Frame>
 
@@ -123,6 +139,22 @@ Sessions group related runs under a single `session_id`. Each session captures m
   </video>
 </Frame>
 
+## Knowledge
+
+Knowledge bases provide agents with domain-specific information through RAG (Retrieval-Augmented Generation). Manage multiple knowledge bases, add content from URLs, files, or text, and monitor embedding status. Each knowledge base stores documents, chunks them, generates embeddings, and makes them searchable for agents.
+
+<Frame>
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
+  >
+    <source src="/videos/agentos-knowledge.mp4" type="video/mp4" />
+  </video>
+</Frame>
+
 ## Memories
 
 Memories store information that agents learn about users across conversations. Each memory is tied to a user ID and contains content, topics, timestamps, and the input that generated it. You can view, create, edit, or delete memories from the control plane.
@@ -136,6 +168,25 @@ Memories store information that agents learn about users across conversations. E
     style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
   >
     <source src="/videos/memory-table-usage.mp4" type="video/mp4" />
+  </video>
+</Frame>
+
+
+## Schedules
+
+Automate agents, teams, and workflows via AgentOS cron schedules. Configure custom intervals, retry logic, and timezones. Use the Control Panel to monitor run history, enable/disable job states, or trigger manual executions.
+
+For setup and API details, see [Scheduler](/agent-os/scheduler/overview) documentation.
+
+<Frame>
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
+  >
+    <source src="/videos/schedulesdemo.mp4" type="video/mp4" />
   </video>
 </Frame>
 
