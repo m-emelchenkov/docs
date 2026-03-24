@@ -2,12 +2,12 @@
 title: Telegram
 ---
 
-**TelegramTools** enable an Agent to send messages to a Telegram chat using the Telegram Bot API.
+**TelegramTools** enable an Agent to send messages and media to Telegram chats using the Telegram Bot API. 9 tool methods cover text, photos, documents, video, audio, animations, stickers, editing, and deleting messages.
 
 ## Prerequisites
 
 ```shell
-uv pip install -U agno httpx
+uv pip install -U "agno[telegram]"
 ```
 
 ```shell
@@ -44,17 +44,36 @@ agent.print_response("Send message to telegram chat a paragraph about the moon")
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `token` | `Optional[str]` | `None` | Telegram Bot API token. If not provided, will check TELEGRAM_TOKEN environment variable. |
-| `chat_id` | `Union[str, int]` | - | The ID of the chat to send messages to. |
-| `enable_send_message` | `bool` | `True` | Enable the send_message functionality. |
-| `all` | `bool` | `False` | Enable all functionality. |
+| `chat_id` | `Optional[str]` | `None` | Default chat ID. Falls back to `TELEGRAM_CHAT_ID` env var. |
+| `token` | `Optional[str]` | `None` | Bot token. Falls back to `TELEGRAM_TOKEN` env var. |
+| `enable_send_message` | `bool` | `True` | Enable `send_message` tool. |
+| `enable_send_photo` | `bool` | `False` | Enable `send_photo` tool. |
+| `enable_send_document` | `bool` | `False` | Enable `send_document` tool. |
+| `enable_send_video` | `bool` | `False` | Enable `send_video` tool. |
+| `enable_send_audio` | `bool` | `False` | Enable `send_audio` tool. |
+| `enable_send_animation` | `bool` | `False` | Enable `send_animation` tool (GIFs). |
+| `enable_send_sticker` | `bool` | `False` | Enable `send_sticker` tool. |
+| `enable_edit_message` | `bool` | `False` | Enable `edit_message` tool. |
+| `enable_delete_message` | `bool` | `False` | Enable `delete_message` tool. |
+| `all` | `bool` | `False` | Enable all tools. Overrides individual flags. |
 
 ## Toolkit Functions
 
 | Function | Description |
 |----------|-------------|
-| `send_message` | Sends a message to the specified Telegram chat. Takes a message string as input and returns the API response as text. If an error occurs, returns an error message. |
+| `send_message` | Send a text message to a chat. |
+| `send_photo` | Send a photo (bytes) with optional caption. |
+| `send_document` | Send a document (bytes) with filename and optional caption. |
+| `send_video` | Send a video (bytes) with optional caption. |
+| `send_audio` | Send an audio file (bytes) with optional caption and title. |
+| `send_animation` | Send an animation/GIF (bytes) with optional caption. |
+| `send_sticker` | Send a sticker (bytes). |
+| `edit_message` | Edit a previously sent message by `message_id`. |
+| `delete_message` | Delete a message by `message_id`. |
+
+All methods return a JSON string with `{"status": "success", "message_id": ...}` on success or `{"status": "error", "message": ...}` on failure.
 
 ## Developer Resources
 
 - View [Tools](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/telegram.py)
+- [Telegram interface docs](/agent-os/interfaces/telegram/introduction)

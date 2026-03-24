@@ -1,18 +1,20 @@
 ---
 title: Telegram
-description: Host agents as Telegram bots.
+sidebarTitle: "Telegram"
+description: "Expose agents, teams, or workflows as Telegram bots with webhook endpoints."
+keywords: [telegram, bot, interface, webhook, streaming, group chat, media, tools]
 ---
 
-Use the Telegram interface to serve Agents, Teams, or Workflows on Telegram. It mounts webhook routes on a FastAPI app and sends responses back to Telegram chats.
+The Telegram interface exposes an Agno Agent, Team, or Workflow on Telegram via FastAPI webhook endpoints. It handles inbound messages (text, photos, audio, video, documents, stickers) and streams responses back to the originating chat.
 
 ## Setup
 
-Follow the Telegram setup guide in the [cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/05_agent_os/interfaces/telegram/README.md).
+Follow the [Telegram deploy guide](/deploy/interfaces/telegram/overview) to set up your bot.
 
 Required configuration:
 
 - `TELEGRAM_TOKEN` (bot token from @BotFather)
-- Optional: `TELEGRAM_WEBHOOK_SECRET_TOKEN` (required in production when `APP_ENV` is not `development`)
+- `TELEGRAM_WEBHOOK_SECRET_TOKEN` -- required in production, skipped when `APP_ENV=development`
 - An ngrok tunnel (for local development) and webhook pointing to `/telegram/webhook`
 
 ## Example Usage
@@ -23,7 +25,7 @@ Create an agent, expose it with the `Telegram` interface, and serve via `AgentOS
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.google import Gemini
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.telegram import Telegram
 
 agent_db = SqliteDb(session_table="telegram_sessions", db_file="tmp/telegram_basic.db")
@@ -52,18 +54,11 @@ if __name__ == "__main__":
     agent_os.serve(app="basic:app", port=7777, reload=True)
 ```
 
-See the [Telegram Examples](/agent-os/usage/interfaces/telegram/basic) for more usage patterns.
+See the [Telegram examples](/agent-os/usage/interfaces/telegram/basic) for more usage patterns including [streaming](/agent-os/usage/interfaces/telegram/streaming), [teams](/agent-os/usage/interfaces/telegram/team), [workflows](/agent-os/usage/interfaces/telegram/workflow), and [multiple instances](/agent-os/usage/interfaces/telegram/multiple-instances).
 
-## Core Components
+## Parameters
 
-- `Telegram` (interface): Wraps an Agno `Agent`, `Team`, or `Workflow` for Telegram integration via FastAPI.
-- `AgentOS.serve`: Serves the FastAPI app using Uvicorn.
-
-## `Telegram` Interface
-
-Main entry point for Agno Telegram applications.
-
-### Initialization Parameters
+Provide `agent`, `team`, or `workflow`. Call `get_router()` to get the FastAPI `APIRouter` with all endpoints attached.
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -74,7 +69,7 @@ Main entry point for Agno Telegram applications.
 | `tags` | `Optional[List[str]]` | `None` | FastAPI route tags for API documentation. Defaults to `["Telegram"]` if not provided. |
 | `token` | `Optional[str]` | `None` | Bot token. Falls back to `TELEGRAM_TOKEN` environment variable. |
 | `streaming` | `bool` | `True` | Enable token-by-token streaming with live message edits. |
-| `show_reasoning` | `bool` | `False` | Send reasoning content as a separate message before the response. |
+| `show_reasoning` | `bool` | `False` | Show the model's reasoning as a blockquote message. Works in both streaming and non-streaming modes. |
 | `reply_to_mentions_only` | `bool` | `True` | When `True` (default), bot responds to @mentions and replies in groups, and all messages in DMs. When `False`, responds to all messages in groups. |
 | `reply_to_bot_messages` | `bool` | `True` | When `True`, also responds when users reply to the bot's own messages in groups. |
 | `start_message` | `str` | `"Hello! I'm ready to help..."` | Message sent in response to the `/start` command. |
@@ -84,48 +79,46 @@ Main entry point for Agno Telegram applications.
 | `commands` | `Optional[List[Dict]]` | `None` | List of bot commands to register with Telegram. Each dict has `command` and `description` keys. Defaults to `/start`, `/help`, and `/new` when not provided. |
 | `register_commands` | `bool` | `True` | Automatically register commands with the Telegram Bot API on first message. |
 
-Provide `agent`, `team`, or `workflow`.
-
-### Key Method
-
-| Method | Parameters | Return Type | Description |
-| --- | --- | --- | --- |
-| `get_router` | None | `APIRouter` | Returns the FastAPI router and attaches endpoints. |
-
 ## Endpoints
 
-Mounted under the `/telegram` prefix:
+Mounted under the `/telegram` prefix (customizable via `prefix`):
 
 ### `GET /telegram/status`
 
-- Health/status check for the interface.
-- Returns `{"status": "available"}`.
+Health/status check for the interface. Returns `{"status": "available"}`.
 
 ### `POST /telegram/webhook`
 
-- Receives Telegram updates (messages, edited messages).
+Receives Telegram updates (messages, edited messages).
+
 - Validates the `X-Telegram-Bot-Api-Secret-Token` header; bypassed when `APP_ENV=development`.
 - Deduplicates updates by `update_id`.
 - Processes text, photos, voice notes, audio, video, documents, stickers, and animations.
 - Streams or sends responses back to the originating chat (splits long messages at Telegram's 4096 character limit).
 - Responses: `200 {"status": "processing"}` or `{"status": "ignored"}`, `403` invalid secret token, `500` errors.
 
-## Session Management
+## Behavior
 
-Sessions are scoped by chat and entity:
+### Session Management
 
-- **DMs and basic groups**: `tg:{entity_id}:{chat_id}`
+Sessions are scoped by chat and entity. The `entity_id` is the agent, team, or workflow ID (falls back to name, then type).
+
+- **DMs and basic groups**: `tg:{entity_id}:{chat_id}` (e.g., `tg:Telegram Bot:123456789`)
 - **Supergroup threads and forum topics**: `tg:{entity_id}:{chat_id}:{message_thread_id}`
 
-When a database is configured on the agent/team, the `/new` command creates a fresh session. Without a database, the session scope string is used directly as the session ID.
+When a database is configured on the agent/team, the `/new` command creates a fresh session. Without a database, sessions reset on server restart. History and memory are not persisted.
 
-## Streaming
+<Note>
+The `/new` command only works when a database is configured. Without a database, each server restart already starts a fresh session.
+</Note>
+
+### Streaming
 
 When `streaming=True` (the default), the bot edits the response message in real time as tokens arrive. Edits are throttled to roughly once per second to stay within Telegram's rate limits. The user sees incremental output instead of waiting for the full response.
 
 For workflows, streaming also surfaces step progress (e.g., which agent in the workflow is currently running).
 
-## Group Chat Support
+### Group Chat Support
 
 By default, the bot only responds when mentioned (`@your_bot`) or replied to in group chats. This is controlled by two parameters:
 
@@ -136,16 +129,63 @@ To have the bot respond to all messages in a group, set `reply_to_mentions_only=
 
 **BotFather privacy mode:** By default, Telegram bots in groups only receive messages that mention them or are commands. To let the bot see all group messages (required for `reply_to_mentions_only=False`), message @BotFather, send `/setprivacy`, select your bot, and choose **Disable**.
 
-## Media Support
+### Media Support
 
 **Inbound** (user sends to bot): photos, stickers, voice notes, audio files, video, video notes, animations (GIFs), and documents. Media is downloaded and passed to the agent as images, audio, video, or file inputs.
 
 **Outbound** (agent sends to user): images, audio, video, and files generated by agent tools (e.g., DALL-E, ElevenLabs). Media is sent as native Telegram media messages alongside the text response.
 
+## TelegramTools
+
+`TelegramTools` is a standalone toolkit that lets agents proactively send messages and media to Telegram chats. It is independent from the Telegram interface. The interface handles inbound webhooks; the toolkit gives agents outbound actions.
+
+```python
+from agno.tools.telegram import TelegramTools
+
+agent = Agent(
+    tools=[TelegramTools(chat_id="123456789", all=True)],
+)
+```
+
+### Toolkit Parameters
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `chat_id` | `Optional[str]` | `None` | Default chat ID. Falls back to `TELEGRAM_CHAT_ID` env var. |
+| `token` | `Optional[str]` | `None` | Bot token. Falls back to `TELEGRAM_TOKEN` env var. |
+| `enable_send_message` | `bool` | `True` | Enable `send_message` tool. |
+| `enable_send_photo` | `bool` | `False` | Enable `send_photo` tool. |
+| `enable_send_document` | `bool` | `False` | Enable `send_document` tool. |
+| `enable_send_video` | `bool` | `False` | Enable `send_video` tool. |
+| `enable_send_audio` | `bool` | `False` | Enable `send_audio` tool. |
+| `enable_send_animation` | `bool` | `False` | Enable `send_animation` tool (GIFs). |
+| `enable_send_sticker` | `bool` | `False` | Enable `send_sticker` tool. |
+| `enable_edit_message` | `bool` | `False` | Enable `edit_message` tool. |
+| `enable_delete_message` | `bool` | `False` | Enable `delete_message` tool. |
+| `all` | `bool` | `False` | Enable all tools. Overrides individual flags. |
+
+### Toolkit Methods
+
+| Method | Description |
+| --- | --- |
+| `send_message` | Send a text message to a chat. |
+| `send_photo` | Send a photo (bytes) with optional caption. |
+| `send_document` | Send a document (bytes) with filename and optional caption. |
+| `send_video` | Send a video (bytes) with optional caption. |
+| `send_audio` | Send an audio file (bytes) with optional caption and title. |
+| `send_animation` | Send an animation/GIF (bytes) with optional caption. |
+| `send_sticker` | Send a sticker (bytes). |
+| `edit_message` | Edit a previously sent message by `message_id`. |
+| `delete_message` | Delete a message by `message_id`. |
+
+All methods return a JSON string with `{"status": "success", "message_id": ...}` on success or `{"status": "error", "message": ...}` on failure.
+
+For the full toolkit reference, see [TelegramTools](/tools/toolkits/social/telegram).
+
 ## Testing the Integration
 
 1. Run the app locally: `python <my-app>.py` (ensure ngrok is running)
-2. Register the webhook: `curl "https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=https://YOUR-NGROK-URL/telegram/webhook"`
+2. Register the webhook: `curl "https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${NGROK_URL}/telegram/webhook"`
 3. Open your bot in Telegram and send `/start` or any message
 4. In a group: add the bot and mention it with `@your_bot hello`
 
@@ -156,5 +196,12 @@ To have the bot respond to all messages in a group, set `reply_to_mentions_only=
 | 403 errors on webhook | Running in production mode without a webhook secret | Set `APP_ENV=development` for local testing, or set `TELEGRAM_WEBHOOK_SECRET_TOKEN` and register the webhook with the matching `secret_token` |
 | No response from the bot | Server not running or webhook not set | Check server: `curl http://localhost:7777/telegram/status`. Check webhook: `curl "https://api.telegram.org/bot${TELEGRAM_TOKEN}/getWebhookInfo"` |
 | Bot ignores group messages | Privacy mode enabled (default) | Message @BotFather, send `/setprivacy`, select your bot, choose **Disable** |
-| Blank or missing streaming edits | `streaming=True` not set | Pass `streaming=True` when creating the `Telegram` instance (enabled by default) |
+| `/new` has no effect | No database configured | Add a `SqliteDb` (or other DB) to the agent/team. Without a DB, sessions are ephemeral and `/new` cannot create a new one. |
 | `TELEGRAM_TOKEN is not set` | Missing env var | Export `TELEGRAM_TOKEN` before running |
+
+## Developer Resources
+
+- [Telegram deploy guide](/deploy/interfaces/telegram/overview)
+- [Telegram examples](/agent-os/usage/interfaces/telegram/basic)
+- [TelegramTools reference](/tools/toolkits/social/telegram)
+- [Deployment templates](/production/templates/overview)

@@ -1,6 +1,6 @@
 ---
 title: "Multi-Agent Telegram Team"
-description: "Deploy a multi-agent team on Telegram with specialized researcher and writer agents"
+description: "Researcher + Writer team coordinating on Telegram"
 ---
 
 ## Code
@@ -9,7 +9,7 @@ description: "Deploy a multi-agent team on Telegram with specialized researcher 
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.openai import OpenAIChat
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.telegram import Telegram
 from agno.team import Team
 

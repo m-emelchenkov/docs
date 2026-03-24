@@ -1,6 +1,6 @@
 ---
 title: "Basic Telegram Agent"
-description: "Create a basic AI agent that integrates with Telegram for conversations"
+description: "Gemini agent with session persistence on Telegram"
 ---
 
 ## Code
@@ -9,7 +9,7 @@ description: "Create a basic AI agent that integrates with Telegram for conversa
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.google import Gemini
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.telegram import Telegram
 
 agent_db = SqliteDb(session_table="telegram_sessions", db_file="tmp/telegram_basic.db")

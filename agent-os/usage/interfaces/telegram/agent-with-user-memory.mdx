@@ -1,6 +1,6 @@
 ---
 title: "Telegram Agent with User Memory"
-description: "Create a Telegram agent that remembers user preferences across conversations"
+description: "MemoryManager for cross-session user recall on Telegram"
 ---
 
 ## Code
@@ -12,19 +12,19 @@ from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.memory.manager import MemoryManager
 from agno.models.google import Gemini
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.telegram import Telegram
 from agno.tools.websearch import WebSearchTools
 
 agent_db = SqliteDb(db_file="tmp/persistent_memory.db")
 
 memory_manager = MemoryManager(
-    memory_capture_instructions="""\
-                    Collect User's name,
-                    Collect Information about user's passion and hobbies,
-                    Collect Information about the user's likes and dislikes,
-                    Collect information about what the user is doing with their life right now
-                """,
+    memory_capture_instructions=(
+        "Collect User's name,"
+        "Collect Information about user's passion and hobbies,"
+        "Collect Information about the user's likes and dislikes,"
+        "Collect information about what the user is doing with their life right now"
+    ),
     model=Gemini(id="gemini-2.0-flash"),
 )
 

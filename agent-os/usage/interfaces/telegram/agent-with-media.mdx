@@ -1,6 +1,6 @@
 ---
 title: "Telegram Agent with Media"
-description: "Create a multimedia Telegram agent with image generation and text-to-speech"
+description: "DALL-E image generation and ElevenLabs TTS on Telegram"
 ---
 
 ## Code
@@ -9,7 +9,7 @@ description: "Create a multimedia Telegram agent with image generation and text-
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.google import Gemini
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.telegram import Telegram
 from agno.tools.dalle import DalleTools
 from agno.tools.eleven_labs import ElevenLabsTools

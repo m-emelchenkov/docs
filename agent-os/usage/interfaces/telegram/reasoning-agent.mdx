@@ -1,6 +1,6 @@
 ---
 title: "Telegram Reasoning Agent"
-description: "Create a Telegram agent with chain-of-thought reasoning and web search"
+description: "ReasoningTools + DuckDuckGo search on Telegram"
 ---
 
 ## Code
@@ -9,7 +9,7 @@ description: "Create a Telegram agent with chain-of-thought reasoning and web se
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.openai import OpenAIChat
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.telegram import Telegram
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.reasoning import ReasoningTools

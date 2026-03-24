@@ -1,6 +1,6 @@
 ---
 title: "Streaming Telegram Agent"
-description: "Create a Telegram agent with real-time streaming responses"
+description: "OpenAI agent with token-by-token streaming via live message edits"
 ---
 
 ## Code
@@ -9,7 +9,7 @@ description: "Create a Telegram agent with real-time streaming responses"
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.openai import OpenAIChat
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.telegram import Telegram
 
 agent_db = SqliteDb(

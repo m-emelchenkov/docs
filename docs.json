@@ -4394,7 +4394,10 @@
                       "agent-os/usage/interfaces/telegram/team",
                       "agent-os/usage/interfaces/telegram/agent-with-media",
                       "agent-os/usage/interfaces/telegram/agent-with-user-memory",
-                      "agent-os/usage/interfaces/telegram/reasoning-agent"
+                      "agent-os/usage/interfaces/telegram/reasoning-agent",
+                      "agent-os/usage/interfaces/telegram/workflow",
+                      "agent-os/usage/interfaces/telegram/streaming-workflow",
+                      "agent-os/usage/interfaces/telegram/multiple-instances"
                     ]
                   }
                 ]
