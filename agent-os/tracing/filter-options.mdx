@@ -28,12 +28,19 @@ Fields are fetched dynamically and may vary. The defaults:
 
 | Field | Type | Available In |
 |-------|------|--------------|
+| `trace_id` | text | Runs |
 | `run_id` | text | Runs |
 | `session_id` | text | Runs |
+| `name` | text | Runs |
 | `status` | enum: `ok`, `error` | Runs |
 | `user_id` | text | Runs, Sessions |
 | `agent_id` | text | Runs, Sessions |
 | `team_id` | text | Runs, Sessions |
+| `workflow_id` | text | Runs, Sessions |
+| `created_at` | datetime | Runs, Sessions |
+| `start_time` | datetime | Runs, Sessions |
+| `end_time` | datetime | Runs, Sessions |
+| `duration_ms` | number | Runs, Sessions |
 
 ### Operators
 
