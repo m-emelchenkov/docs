@@ -35,7 +35,7 @@ Install the dependency: `uv pip install 'agno[telegram]'`
 </Note>
 
 <Note>
-The chat ID is automatically used as the session scope (e.g., `tg:Telegram Bot:123456789`), so each Telegram chat maintains its own conversation context.
+Each Telegram chat gets its own session scope (e.g., `tg:Telegram Bot:123456789`), so conversations stay isolated across chats.
 </Note>
 
 ## Setup and Configuration
