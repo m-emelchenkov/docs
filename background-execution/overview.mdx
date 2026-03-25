@@ -48,13 +48,13 @@ agent = Agent(
 async def main():
     # Returns immediately with PENDING status
     run_output = await agent.arun(
-        "Write a detailed analysis of quantum computing trends.",
+        "Write a short analysis of quantum computing trends.",
         background=True,
     )
     print(f"Run ID: {run_output.run_id}, Status: {run_output.status}")
 
     # Poll until complete
-    for _ in range(30):
+    for _ in range(60):
         await asyncio.sleep(1)
         result = await agent.aget_run_output(
             run_id=run_output.run_id,
@@ -104,7 +104,7 @@ team = Team(
 
 async def main():
     run_output = await team.arun(
-        "Research AI trends and related stocks.",
+        "Short research on AI trends and related stocks.",
         background=True,
     )
     print(f"Run ID: {run_output.run_id}, Status: {run_output.status}")
