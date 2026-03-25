@@ -278,6 +278,12 @@ team.print_response("What are the top AI stories?", show_members_responses=True)
 
 </Accordion>
 
+## Background Execution
+
+Run teams in the background with `background=True`. The team continues running even if the client disconnects. Combine with `stream=True` for resumable SSE streaming with automatic event buffering and reconnection.
+
+See [Background Execution](/background-execution/overview) for polling, resumable streaming, and the `/resume` endpoint.
+
 ## Developer Resources
 
 - [Team reference](/reference/teams/team)

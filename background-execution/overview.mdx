@@ -1,0 +1,321 @@
+---
+title: Background Execution
+sidebarTitle: Overview
+description: "Decouple execution from the client lifecycle with background runs and SSE reconnection."
+mode: wide
+---
+
+Run agents, teams, and workflows in the background by passing `background=True` to `.arun()`. Execution continues even if the client disconnects. Two patterns are available depending on whether you also set `stream=True`.
+
+## Execution Modes
+
+| `background` | `stream` | Behavior |
+|:---:|:---:|---|
+| `False` | `True` | **Default streaming.** Runs inline. Client disconnect cancels the run. |
+| `False` | `False` | Non-streaming. Returns full response. |
+| `True` | `False` | **Fire-and-forget.** Returns `PENDING` immediately. Poll for results. |
+| `True` | `True` | **Resumable streaming.** Runs in a detached task. Events are buffered. Reconnect via `/resume`. |
+
+<Note>
+Background execution requires a database (`db`) on the agent, team, or workflow for persisting run state.
+</Note>
+
+## Fire-and-forget (Polling)
+
+Start a background run and poll for the result. Works identically for agents, teams, and workflows.
+
+<CodeGroup>
+
+```python Agent
+import asyncio
+
+from agno.agent import Agent
+from agno.db.postgres import PostgresDb
+from agno.models.openai import OpenAIResponses
+from agno.run.base import RunStatus
+
+db = PostgresDb(
+    db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+    session_table="background_exec_sessions",
+)
+
+agent = Agent(
+    name="BackgroundAgent",
+    model=OpenAIResponses(id="gpt-5-mini"),
+    db=db,
+)
+
+async def main():
+    # Returns immediately with PENDING status
+    run_output = await agent.arun(
+        "Write a detailed analysis of quantum computing trends.",
+        background=True,
+    )
+    print(f"Run ID: {run_output.run_id}, Status: {run_output.status}")
+
+    # Poll until complete
+    for _ in range(30):
+        await asyncio.sleep(1)
+        result = await agent.aget_run_output(
+            run_id=run_output.run_id,
+            session_id=run_output.session_id,
+        )
+        if result and result.status == RunStatus.completed:
+            print(f"Done: {result.content}")
+            break
+
+asyncio.run(main())
+```
+
+```python Team
+import asyncio
+
+from agno.agent import Agent
+from agno.db.postgres import PostgresDb
+from agno.models.openai import OpenAIResponses
+from agno.run.base import RunStatus
+from agno.team import Team
+from agno.tools.hackernews import HackerNewsTools
+from agno.tools.yfinance import YFinanceTools
+
+db = PostgresDb(
+    db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+    session_table="background_team_sessions",
+)
+
+research_agent = Agent(
+    name="Researcher",
+    model=OpenAIResponses(id="gpt-5-mini"),
+    tools=[HackerNewsTools()],
+    role="Research tech trends",
+)
+finance_agent = Agent(
+    name="Finance",
+    model=OpenAIResponses(id="gpt-5-mini"),
+    tools=[YFinanceTools()],
+    role="Get stock data",
+)
+
+team = Team(
+    name="Research Team",
+    members=[research_agent, finance_agent],
+    db=db,
+)
+
+async def main():
+    run_output = await team.arun(
+        "Research AI trends and related stocks.",
+        background=True,
+    )
+    print(f"Run ID: {run_output.run_id}, Status: {run_output.status}")
+
+    for _ in range(60):
+        await asyncio.sleep(2)
+        result = await team.aget_run_output(
+            run_id=run_output.run_id,
+            session_id=run_output.session_id,
+        )
+        if result and result.status == RunStatus.completed:
+            print(f"Done: {result.content}")
+            break
+
+asyncio.run(main())
+```
+
+```python Workflow
+import asyncio
+
+from agno.agent import Agent
+from agno.db.sqlite import SqliteDb
+from agno.models.openai import OpenAIResponses
+from agno.tools.hackernews import HackerNewsTools
+from agno.workflow.step import Step
+from agno.workflow.workflow import Workflow
+
+hackernews_agent = Agent(
+    name="HackerNews Agent",
+    model=OpenAIResponses(id="gpt-5.2"),
+    tools=[HackerNewsTools()],
+    role="Extract key insights from HackerNews posts",
+)
+
+content_planner = Agent(
+    name="Content Planner",
+    model=OpenAIResponses(id="gpt-5.2"),
+    instructions=["Plan a content schedule for the provided topic"],
+)
+
+workflow = Workflow(
+    name="Content Creation Workflow",
+    db=SqliteDb(session_table="workflow_session", db_file="tmp/workflow.db"),
+    steps=[
+        Step(name="Research Step", agent=hackernews_agent),
+        Step(name="Planning Step", agent=content_planner),
+    ],
+)
+
+async def main():
+    bg_response = await workflow.arun(input="AI trends", background=True)
+    print(f"Run ID: {bg_response.run_id}, Status: {bg_response.status}")
+
+    while True:
+        result = workflow.get_run(bg_response.run_id)
+        if result and result.has_completed():
+            print(f"Done: {result.content}")
+            break
+        await asyncio.sleep(5)
+
+asyncio.run(main())
+```
+
+</CodeGroup>
+
+## Resumable Streaming (SSE)
+
+Combine `background=True` with `stream=True` for resumable SSE streaming. The run executes in a detached `asyncio.Task` that survives client disconnections. Events are buffered with sequential `event_index` values so clients can reconnect without losing events.
+
+### How It Works
+
+```
+Client connects     → StreamingResponse reads from queue ← Background task runs
+Client disconnects  → StreamingResponse cancelled         ← Background task keeps running
+Client reconnects   → /resume reads from subscriber queue ← Background task still publishing
+```
+
+1. The run persists `RUNNING` status in the database
+2. A detached `asyncio.Task` executes and publishes events to an in-memory buffer
+3. The client receives SSE events, each containing an `event_index` and `run_id`
+4. On disconnect, the client records `last_event_index`
+5. On reconnect, the client calls `/resume` with `last_event_index` to catch up on missed events
+
+### Starting a Resumable Stream
+
+Resumable streaming requires an [AgentOS server](/agent-os/run-your-os) running. Pass `background=true` and `stream=true` in the request. The pattern is the same for agents, teams, and workflows. Only the URL path differs.
+
+<Note>
+For workflows, SSE is the default reconnection transport. Workflows also support WebSocket-based reconnection. See the [WebSocket reconnect example](/examples/workflows/advanced-concepts/long-running/websocket-reconnect).
+</Note>
+
+```python
+import asyncio
+import json
+import httpx
+
+BASE_URL = "http://localhost:7777"
+
+async def start_resumable_stream():
+    async with httpx.AsyncClient(base_url=BASE_URL, timeout=60) as client:
+        # Use /agents, /teams, or /workflows
+        agents = (await client.get("/agents")).json()
+        agent_id = agents[0]["id"]
+
+        form_data = {
+            "message": "Write a detailed story about a brave knight.",
+            "stream": "true",
+            "background": "true",
+        }
+
+        run_id = None
+        session_id = None
+        last_event_index = None
+
+        async with client.stream("POST", f"/agents/{agent_id}/runs", data=form_data) as response:
+            buffer = ""
+            async for chunk in response.aiter_text():
+                buffer += chunk
+                while "\n\n" in buffer:
+                    event_str, buffer = buffer.split("\n\n", 1)
+                    for line in event_str.strip().split("\n"):
+                        if not line.startswith("data: "):
+                            continue
+                        data = json.loads(line[6:])
+
+                        # Track identifiers for reconnection
+                        if data.get("run_id") and not run_id:
+                            run_id = data["run_id"]
+                        if data.get("session_id") and not session_id:
+                            session_id = data["session_id"]
+                        if data.get("event_index") is not None:
+                            last_event_index = data["event_index"]
+
+                        print(f"[{data.get('event_index')}] {data.get('event')}: {str(data.get('content', ''))[:60]}")
+
+        return run_id, session_id, last_event_index
+
+asyncio.run(start_resumable_stream())
+```
+
+Each SSE event includes:
+- `event_index`: Sequential integer for ordering and resumption
+- `run_id`: The run identifier for reconnection
+- `session_id`: The session identifier
+
+### Reconnecting via `/resume`
+
+If the client disconnects (page refresh, network loss), reconnect using the `/resume` endpoint with the last received `event_index`:
+
+```python
+async def resume_stream(agent_id: str, run_id: str, session_id: str, last_event_index: int):
+    form_data = {"last_event_index": str(last_event_index)}
+    if session_id:
+        form_data["session_id"] = session_id
+
+    async with httpx.AsyncClient(base_url=BASE_URL, timeout=120) as client:
+        async with client.stream(
+            "POST", f"/agents/{agent_id}/runs/{run_id}/resume", data=form_data
+        ) as response:
+            buffer = ""
+            async for chunk in response.aiter_text():
+                buffer += chunk
+                while "\n\n" in buffer:
+                    event_str, buffer = buffer.split("\n\n", 1)
+                    for line in event_str.strip().split("\n"):
+                        if not line.startswith("data: "):
+                            continue
+                        data = json.loads(line[6:])
+                        event_type = data.get("event")
+
+                        if event_type in ("catch_up", "replay", "subscribed"):
+                            print(f"[META] {event_type}: {data}")
+                        else:
+                            print(f"[{data.get('event_index')}] {event_type}: {str(data.get('content', ''))[:60]}")
+```
+
+### Resume Endpoints
+
+The resume endpoint follows the same pattern for agents, teams, and workflows:
+
+```
+POST /agents/{agent_id}/runs/{run_id}/resume
+POST /teams/{team_id}/runs/{run_id}/resume
+POST /workflows/{workflow_id}/runs/{run_id}/resume
+
+Content-Type: multipart/form-data
+last_event_index=N&session_id=S
+```
+
+The endpoint handles three scenarios:
+
+| Scenario | Condition | Behavior |
+|----------|-----------|----------|
+| Catch up + live | Run still active in buffer | Replays missed events, then streams live events |
+| Replay | Run completed, still in buffer | Replays all missed events |
+| DB fallback | Buffer expired (30 min) | Falls back to database |
+
+### Meta Events
+
+The `/resume` stream includes meta events before data events:
+
+| Event | Meaning |
+|-------|---------|
+| `catch_up` | Run still active. Missed events follow, then live events. |
+| `replay` | Run already completed. All missed events follow. |
+| `subscribed` | Catch-up complete. Now receiving live events. |
+| `error` | Run not found or other issue. |
+
+## Developer Resources
+
+- [Agent SSE reconnection example](/examples/agents/advanced/sse-reconnect)
+- [Team SSE reconnection example](/examples/teams/other/sse-reconnect)
+- [Agent background execution example](/examples/agents/advanced/background-execution)
+- [Team background execution example](/examples/teams/other/background-execution)

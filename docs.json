@@ -2302,6 +2302,12 @@
                 ]
               },
               {
+                "group": "Background Execution",
+                "pages": [
+                  "background-execution/overview"
+                ]
+              },
+              {
                 "group": "Skills",
                 "pages": [
                   "skills/overview",
@@ -4798,6 +4804,7 @@
                       "examples/agents/advanced/automatic-cultural-management",
                       "examples/agents/advanced/background-execution",
                       "examples/agents/advanced/background-execution-structured",
+                      "examples/agents/advanced/sse-reconnect",
                       "examples/agents/advanced/basic-agent-events",
                       "examples/agents/advanced/cache-model-response",
                       "examples/agents/advanced/cancel-run",
@@ -4989,6 +4996,7 @@
                       "examples/teams/multimodal/media-input-for-tool",
                       "examples/teams/multimodal/video-caption-generation",
                       "examples/teams/other/background-execution",
+                      "examples/teams/other/sse-reconnect",
                       "examples/teams/reasoning/reasoning-multi-purpose-team",
                       "examples/teams/run-control/cancel-run",
                       "examples/teams/run-control/model-inheritance",
