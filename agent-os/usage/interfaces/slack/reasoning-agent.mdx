@@ -11,7 +11,7 @@ from agno.db.sqlite import SqliteDb
 from agno.models.anthropic.claude import Claude
 from agno.os.app import AgentOS
 from agno.os.interfaces.slack import Slack
-from agno.tools.thinking import ThinkingTools
+from agno.tools.reasoning import ReasoningTools
 from agno.tools.yfinance import YFinanceTools
 
 agent_db = SqliteDb(session_table="agent_sessions", db_file="tmp/persistent_memory.db")
@@ -21,12 +21,12 @@ reasoning_finance_agent = Agent(
     model=Claude(id="claude-sonnet-4-5"),
     db=agent_db,
     tools=[
-        ThinkingTools(add_instructions=True),
+        ReasoningTools(add_instructions=True),
         YFinanceTools(
-            stock_price=True,
-            analyst_recommendations=True,
-            company_info=True,
-            company_news=True,
+            enable_stock_price=True,
+            enable_analyst_recommendations=True,
+            enable_company_info=True,
+            enable_company_news=True,
         ),
     ],
     instructions="Use tables to display data. When you use thinking tools, keep the thinking brief.",
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
   <Step title="Install dependencies">
     ```bash
-    uv pip install -U agno yfinance
+    uv pip install -U "agno[slack]" yfinance
     ```
   </Step>
 
@@ -72,6 +72,6 @@ if __name__ == "__main__":
 
 ## Key Features
 
-- **Chain-of-Thought Reasoning**: ThinkingTools enables structured step-by-step financial analysis
+- **Chain-of-Thought Reasoning**: ReasoningTools enables structured step-by-step financial analysis
 - **Real-Time Data**: Stock prices, analyst recommendations, company news via YFinance
 - **Persistent Sessions**: SQLite database for conversation history across restarts
