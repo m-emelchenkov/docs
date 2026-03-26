@@ -4397,6 +4397,11 @@
                     "group": "Slack",
                     "pages": [
                       "agent-os/usage/interfaces/slack/basic",
+                      "agent-os/usage/interfaces/slack/streaming",
+                      "agent-os/usage/interfaces/slack/support-team",
+                      "agent-os/usage/interfaces/slack/channel-summarizer",
+                      "agent-os/usage/interfaces/slack/workflow",
+                      "agent-os/usage/interfaces/slack/multiple-instances",
                       "agent-os/usage/interfaces/slack/agent-with-user-memory",
                       "agent-os/usage/interfaces/slack/reasoning-agent",
                       "agent-os/usage/interfaces/slack/research-workflow"

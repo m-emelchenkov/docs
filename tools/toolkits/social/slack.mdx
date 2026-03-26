@@ -2,15 +2,13 @@
 title: Slack
 ---
 
+**SlackTools** enable an Agent to interact with the Slack API. 10 tool methods cover messaging, channels, file management, search, threads, and user lookup.
+
 ## Prerequisites
 
-The following example requires the `slack-sdk` library.
-
 ```shell
-uv pip install openai slack-sdk
+uv pip install slack-sdk
 ```
-
-Get a Slack token from [here](https://api.slack.com/tutorials/tracks/getting-a-token).
 
 ```shell
 export SLACK_TOKEN=***
@@ -18,7 +16,7 @@ export SLACK_TOKEN=***
 
 ## Example
 
-The following agent will use Slack to send a message to a channel, list all channels, and get the message history of a specific channel.
+The following agent sends a message to a Slack channel, lists channels, and retrieves message history.
 
 ```python cookbook/14_tools/slack_tools.py
 import os
@@ -38,28 +36,46 @@ agent.print_response("List all channels in our Slack workspace", markdown=True)
 
 # Example 3: Get the message history of a specific channel by channel ID
 agent.print_response("Get the last 10 messages from the channel 1231241", markdown=True)
-
 ```
 
 ## Toolkit Params
 
-| Parameter                       | Type   | Default | Description                                                         |
-| ------------------------------- | ------ | ------- | ------------------------------------------------------------------- |
-| `token`                         | `str`  | `None`  | Slack API token for authentication                                 |
-| `enable_send_message`           | `bool` | `True`  | Enables functionality to send messages to Slack channels           |
-| `enable_send_message_thread`    | `bool` | `True`  | Enables functionality to send threaded messages                    |
-| `enable_list_channels`          | `bool` | `True`  | Enables functionality to list available Slack channels             |
-| `enable_get_channel_history`    | `bool` | `True`  | Enables functionality to retrieve message history from channels    |
-| `all`                           | `bool` | `False` | Enables all functionality when set to True                         |
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `token` | `Optional[str]` | `None` | Slack API token. Falls back to `SLACK_TOKEN` env var. |
+| `markdown` | `bool` | `True` | Enable Slack mrkdwn formatting in messages. |
+| `output_directory` | `Optional[str]` | `None` | Directory to save downloaded/uploaded files locally. |
+| `enable_send_message` | `bool` | `True` | Enable `send_message` tool. |
+| `enable_send_message_thread` | `bool` | `True` | Enable `send_message_thread` tool. |
+| `enable_list_channels` | `bool` | `True` | Enable `list_channels` tool. |
+| `enable_get_channel_history` | `bool` | `True` | Enable `get_channel_history` tool. |
+| `enable_upload_file` | `bool` | `True` | Enable `upload_file` tool. |
+| `enable_download_file` | `bool` | `True` | Enable `download_file` tool. |
+| `enable_search_messages` | `bool` | `False` | Enable `search_messages` tool. |
+| `enable_get_thread` | `bool` | `False` | Enable `get_thread` tool. |
+| `enable_list_users` | `bool` | `False` | Enable `list_users` tool. |
+| `enable_get_user_info` | `bool` | `False` | Enable `get_user_info` tool. |
+| `all` | `bool` | `False` | Enable all tools. Overrides individual flags. |
+| `ssl` | `Optional[SSLContext]` | `None` | SSL context for the Slack WebClient. |
+| `max_file_size` | `int` | `1073741824` | Maximum file size in bytes for uploads and downloads (default 1 GB). |
+| `thread_message_limit` | `int` | `20` | Maximum number of messages to fetch in `get_thread`. |
 
 ## Toolkit Functions
 
-| Function              | Description                                         |
-| --------------------- | --------------------------------------------------- |
-| `send_message`        | Sends a message to a specified Slack channel        |
-| `list_channels`       | Lists all available channels in the Slack workspace |
-| `get_channel_history` | Retrieves message history from a specified channel  |
+| Function | Description |
+| --- | --- |
+| `send_message` | Send a message to a Slack channel. |
+| `send_message_thread` | Reply to a message thread in a channel. |
+| `list_channels` | List all channels in the workspace. |
+| `get_channel_history` | Get message history from a channel. |
+| `upload_file` | Upload a file to a channel with optional caption. |
+| `download_file` | Download a file by file ID. Returns path or base64 content. |
+| `search_messages` | Search messages across the workspace. Supports modifiers like `from:@user`, `in:#channel`. |
+| `get_thread` | Get all messages in a thread by parent timestamp. |
+| `list_users` | List all users in the workspace. |
+| `get_user_info` | Get detailed info about a user by user ID. |
 
 ## Developer Resources
 
-- View [Tools](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/slack.py)
+- [Tools](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/slack.py)
+- [Slack interface docs](/agent-os/interfaces/slack/introduction)

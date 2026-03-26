@@ -1,21 +1,17 @@
 ---
 title: "Slack Bot"
-description: "Build a Slack bot that responds to messages, joins channels, and executes commands using agents."
+description: "Deploy an Agno agent as a Slack bot with event subscriptions and OAuth scopes."
 ---
-
-Agno and AgentOS make it easy to deploy your agents on Slack with just 2 extra lines of code.
-
-This example creates a simple agent for answering questions:
 
 ```python
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.slack import Slack
 
 basic_agent = Agent(
     name="Basic Agent",
-    model=OpenAIChat(id="gpt-5.2"), # Ensure OPENAI_API_KEY is set
+    model=OpenAIChat(id="gpt-4o"),
     add_history_to_context=True,
     num_history_runs=3,
     add_datetime_to_context=True,
@@ -32,11 +28,7 @@ if __name__ == "__main__":
 ```
 
 <Note>
-Install the Slack SDK: `pip install slack-sdk`
-</Note>
-
-<Note>
-Thread timestamps are automatically used as session IDs, so each Slack thread maintains its own conversation context.
+Each Slack thread gets its own session scope. For example, an agent named "Basic Agent" produces session IDs like `Basic Agent:1719000000.000100`.
 </Note>
 
 ## Setup and Configuration
@@ -44,7 +36,6 @@ Thread timestamps are automatically used as session IDs, so each Slack thread ma
 <Steps>
 
 <Step title="Prerequisites">
-Ensure you have the following:
 - A Slack workspace with admin privileges
 - ngrok (for development)
 - Python 3.7+
@@ -76,10 +67,9 @@ Ensure you have the following:
 </Step>
 
 <Step title="Setup Environment Variables">
-Create a `.env` file in your project root with the following content, replacing placeholder values with your actual credentials:
 ```bash
-SLACK_TOKEN="xoxb-your-bot-user-token"  # Bot User OAuth Token
-SLACK_SIGNING_SECRET="your-signing-secret"  # App Signing Secret
+export SLACK_TOKEN=xoxb-your-bot-user-token
+export SLACK_SIGNING_SECRET=your-signing-secret
 ```
 
 Find these values in your Slack App settings:
@@ -87,30 +77,32 @@ Find these values in your Slack App settings:
 - Signing Secret: Under "Basic Information" > "App Credentials"
 </Step>
 
-<Step title="Setup Webhook with ngrok">
-1. Run ngrok to expose your local server, ensuring the port matches your app (7777):
+<Step title="Install dependencies">
+```bash
+uv pip install -U agno
+```
+</Step>
+
+<Step title="Setup ngrok tunnel">
+1. Run ngrok to expose your local server (port must match your app):
    ```bash
    ngrok http 7777
-   # Or, if you have a paid ngrok plan with a static domain:
-   # ngrok http --domain=your-custom-domain.ngrok-free.app 7777
    ```
 2. Copy the `https://` URL provided by ngrok
 3. In your Slack App settings, go to "Event Subscriptions"
 4. Enable events by toggling the switch
-5. Add your Request URL:
-   - Format: `https://your-ngrok-url.ngrok.io/slack/events`
+5. Add your Request URL: `https://<your-ngrok-url>/slack/events`
 6. Wait for Slack to verify the endpoint (your app must be running)
 </Step>
 
 <Step title="Configure Event Subscriptions">
-1. Under "Subscribe to bot events" in Event Subscriptions:
-2. Click "Add Bot User Event" and add:
+1. Under "Subscribe to bot events" in Event Subscriptions, click "Add Bot User Event" and add:
    - `app_mention`
    - `message.im`
    - `message.channels`
    - `message.groups`
-3. Click "Save Changes"
-4. Reinstall your app to apply the new permissions
+2. Click "Save Changes"
+3. Reinstall your app to apply the new permissions
 </Step>
 
 <Step title="Enable App Home">
@@ -125,7 +117,6 @@ Find these values in your Slack App settings:
 1. Go back to "Install App" in your Slack App settings
 2. Click "Reinstall to Workspace"
 3. Authorize the app with the new permissions
-4. Your app is now ready to use!
 </Step>
 
 </Steps>
@@ -139,4 +130,3 @@ ngrok is used only for local development and testing. For production deployments
 - [Slack Interface](/agent-os/interfaces/slack/introduction)
 - [Slack Events API](/reference-api/schema/slack/slack-events)
 - [Deployment Templates](/production/templates/overview)
-- [Discord](https://agno.link/discord)
