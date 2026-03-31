@@ -5,3 +5,4 @@
 | `distance`          | `Distance` | cosine           | The distance metric to use.                          |
 | `path`              | `str`      | "tmp/chromadb"   | The path where ChromaDB data will be stored.         |
 | `persistent_client` | `bool`     | False            | Whether to use a persistent ChromaDB client.         |
+| `batch_size`        | `int`      | None             | Maximum number of documents per batch operation. Auto-detected from ChromaDB's server limit if not set, falls back to `100` if auto-detect fails. |
