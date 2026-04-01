@@ -272,9 +272,9 @@ If `SLACK_SIGNING_SECRET` is not set, the server returns a 500 error. Always con
   </Accordion>
 
   <Accordion title="Bot responds to its own messages">
-    **Cause:** Missing bot self-loop filter.
+    **Cause:** Bot events not being filtered correctly.
 
-    **Fix:** This is handled automatically by filtering `bot_id` and bot lifecycle subtypes. If it still happens, verify your Slack app's bot user has a `bot_id` in events.
+    **Fix:** The interface filters these automatically. If it still happens, verify your Slack app's bot user has a `bot_id` in events. Reinstalling the app usually resolves this.
   </Accordion>
 
   <Accordion title="Streaming UI not appearing">
