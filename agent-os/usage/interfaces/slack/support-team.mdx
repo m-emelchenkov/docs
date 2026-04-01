@@ -17,6 +17,7 @@ from agno.tools.websearch import WebSearchTools
 
 team_db = SqliteDb(session_table="team_sessions", db_file="tmp/support_team.db")
 
+# Technical Support Agent
 tech_support = Agent(
     name="Technical Support",
     role="Code and technical troubleshooting",
@@ -30,6 +31,7 @@ tech_support = Agent(
     markdown=True,
 )
 
+# Documentation Agent
 docs_agent = Agent(
     name="Documentation Specialist",
     role="Finding and explaining documentation",
@@ -50,6 +52,7 @@ docs_agent = Agent(
     markdown=True,
 )
 
+# The Team with a coordinator
 support_team = Team(
     name="Support Team",
     model=OpenAIChat(id="gpt-4o"),
@@ -89,15 +92,15 @@ if __name__ == "__main__":
 
   <Step title="Set Environment Variables">
     ```bash
-    export SLACK_TOKEN=xoxb-your-bot-user-token
-    export SLACK_SIGNING_SECRET=your-signing-secret
-    export OPENAI_API_KEY=your-openai-api-key
+    export SLACK_TOKEN=***
+    export SLACK_SIGNING_SECRET=***
+    export OPENAI_API_KEY=***
     ```
   </Step>
 
-  <Step title="Install dependencies">
+  <Step title="Install Dependencies">
     ```bash
-    uv pip install -U "agno[slack]"
+    uv pip install 'agno[slack]'
     ```
   </Step>
 

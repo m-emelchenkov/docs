@@ -40,6 +40,7 @@ summarizer = Agent(
         "- Questions/Blockers",
         "Use bullet points and keep summaries concise.",
     ],
+    # Session history enables follow-up questions in the same Slack thread
     add_history_to_context=True,
     num_history_runs=5,
     add_datetime_to_context=True,
@@ -68,15 +69,15 @@ if __name__ == "__main__":
 
   <Step title="Set Environment Variables">
     ```bash
-    export SLACK_TOKEN=xoxb-your-bot-user-token
-    export SLACK_SIGNING_SECRET=your-signing-secret
-    export OPENAI_API_KEY=your-openai-api-key
+    export SLACK_TOKEN=***
+    export SLACK_SIGNING_SECRET=***
+    export OPENAI_API_KEY=***
     ```
   </Step>
 
-  <Step title="Install dependencies">
+  <Step title="Install Dependencies">
     ```bash
-    uv pip install -U "agno[slack]"
+    uv pip install 'agno[slack]'
     ```
   </Step>
 

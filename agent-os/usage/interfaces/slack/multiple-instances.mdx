@@ -9,7 +9,7 @@ description: "Multiple Slack bots on a single AgentOS server with prefix-based r
 from os import getenv
 
 from agno.agent import Agent
-from agno.db.sqlite import SqliteDb
+from agno.db.sqlite.sqlite import SqliteDb
 from agno.models.openai import OpenAIChat
 from agno.os.app import AgentOS
 from agno.os.interfaces.slack import Slack
@@ -19,7 +19,7 @@ agent_db = SqliteDb(session_table="agent_sessions", db_file="tmp/persistent_memo
 
 research_agent = Agent(
     name="Research Agent",
-    model=OpenAIChat(id="gpt-4o-mini"),
+    model=OpenAIChat(id="gpt-5-mini"),
     tools=[WebSearchTools()],
     db=agent_db,
     add_history_to_context=True,
@@ -29,7 +29,7 @@ research_agent = Agent(
 
 analyst_agent = Agent(
     name="Analyst Agent",
-    model=OpenAIChat(id="gpt-4o-mini"),
+    model=OpenAIChat(id="gpt-5-mini"),
     instructions=[
         "You are a data analyst. Help users interpret data and create insights."
     ],
@@ -39,7 +39,6 @@ analyst_agent = Agent(
     add_datetime_to_context=True,
 )
 
-# Each Slack interface gets its own credentials and prefix
 agent_os = AgentOS(
     agents=[research_agent, analyst_agent],
     interfaces=[
@@ -59,6 +58,7 @@ agent_os = AgentOS(
 )
 app = agent_os.get_app()
 
+
 if __name__ == "__main__":
     agent_os.serve(app="multiple_instances:app", reload=True)
 ```
@@ -70,17 +70,17 @@ if __name__ == "__main__":
 
   <Step title="Set Environment Variables">
     ```bash
-    export RESEARCH_SLACK_TOKEN=xoxb-research-bot-token
-    export RESEARCH_SLACK_SIGNING_SECRET=research-signing-secret
-    export ANALYST_SLACK_TOKEN=xoxb-analyst-bot-token
-    export ANALYST_SLACK_SIGNING_SECRET=analyst-signing-secret
-    export OPENAI_API_KEY=your-openai-api-key
+    export RESEARCH_SLACK_TOKEN=***
+    export RESEARCH_SLACK_SIGNING_SECRET=***
+    export ANALYST_SLACK_TOKEN=***
+    export ANALYST_SLACK_SIGNING_SECRET=***
+    export OPENAI_API_KEY=***
     ```
   </Step>
 
-  <Step title="Install dependencies">
+  <Step title="Install Dependencies">
     ```bash
-    uv pip install -U "agno[slack]"
+    uv pip install 'agno[slack]'
     ```
   </Step>
 
@@ -92,9 +92,9 @@ if __name__ == "__main__":
 
   <Step title="Configure Event Subscriptions">
     Set each Slack app's Event Subscription URL to its prefix:
-    ```bash
-    # @ResearchBot -> https://<your-ngrok-url>/research/events
-    # @AnalystBot  -> https://<your-ngrok-url>/analyst/events
+    ```
+    @ResearchBot -> https://<your-ngrok-url>/research/events
+    @AnalystBot  -> https://<your-ngrok-url>/analyst/events
     ```
   </Step>
 </Steps>
@@ -103,5 +103,5 @@ if __name__ == "__main__":
 
 - **Prefix-Based Routing**: Each agent gets its own event path (`/research/events`, `/analyst/events`)
 - **Shared Server**: Both agents run on a single AgentOS instance
-- **Separate Bot Tokens**: Each interface uses its own Slack app (each app needs its own token and signing secret)
+- **Separate Bot Tokens**: Each interface uses its own Slack app credentials
 - **Shared Database**: Both agents share the same SQLite database

@@ -51,7 +51,7 @@ agent.print_response("Get the last 10 messages from the channel 1231241", markdo
 | `enable_get_channel_history` | `bool` | `True` | Enable `get_channel_history` tool. |
 | `enable_upload_file` | `bool` | `True` | Enable `upload_file` tool. |
 | `enable_download_file` | `bool` | `True` | Enable `download_file` tool. |
-| `enable_search_messages` | `bool` | `False` | Enable `search_messages` tool. |
+| `enable_search_messages` | `bool` | `False` | Enable `search_messages` tool. Requires the `search:read` OAuth scope. |
 | `enable_get_thread` | `bool` | `False` | Enable `get_thread` tool. |
 | `enable_list_users` | `bool` | `False` | Enable `list_users` tool. |
 | `enable_get_user_info` | `bool` | `False` | Enable `get_user_info` tool. |
@@ -64,18 +64,28 @@ agent.print_response("Get the last 10 messages from the channel 1231241", markdo
 
 | Function | Description |
 | --- | --- |
-| `send_message` | Send a message to a Slack channel. |
-| `send_message_thread` | Reply to a message thread in a channel. |
-| `list_channels` | List all channels in the workspace. |
-| `get_channel_history` | Get message history from a channel. |
-| `upload_file` | Upload a file to a channel with optional caption. |
-| `download_file` | Download a file by file ID. Returns path or base64 content. |
-| `search_messages` | Search messages across the workspace. Supports modifiers like `from:@user`, `in:#channel`. |
-| `get_thread` | Get all messages in a thread by parent timestamp. |
-| `list_users` | List all users in the workspace. |
-| `get_user_info` | Get detailed info about a user by user ID. |
+| `send_message(channel, text)` | Send a message to a Slack channel. |
+| `send_message_thread(channel, text, thread_ts)` | Reply to a message thread in a channel. |
+| `list_channels()` | List all channels in the workspace. |
+| `get_channel_history(channel, limit=100)` | Get message history from a channel. |
+| `upload_file(channel, content, filename, title?, initial_comment?, thread_ts?)` | Upload a file to a channel with optional caption. |
+| `download_file(file_id, dest_path?)` | Download a file by file ID. Returns path or base64 content. |
+| `search_messages(query, limit=20)` | Search messages across the workspace. |
+| `get_thread(channel, thread_ts, limit=20)` | Get all messages in a thread by parent timestamp. Capped by `thread_message_limit`. |
+| `list_users(limit=100)` | List all users in the workspace. |
+| `get_user_info(user_id)` | Get detailed info about a user by user ID. |
+
+<Tip>
+`search_messages` supports Slack search modifiers: `from:@user`, `in:#channel`, `has:link`, `before:2024-01-01`, `after:2024-01-01`. Combine them to narrow results.
+</Tip>
 
 ## Developer Resources
 
-- [Tools](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/slack.py)
-- [Slack interface docs](/agent-os/interfaces/slack/introduction)
+<CardGroup cols={2}>
+  <Card title="Slack Interface" icon="book" href="/agent-os/interfaces/slack/introduction">
+    Streaming, sessions, file handling, and behavior details.
+  </Card>
+  <Card title="Source Code" icon="github" href="https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/slack.py">
+    View the SlackTools implementation on GitHub.
+  </Card>
+</CardGroup>
