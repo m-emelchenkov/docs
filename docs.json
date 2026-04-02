@@ -954,6 +954,7 @@
                   "models/model-as-string",
                   "models/compatibility",
                   "models/cache-response",
+                  "models/fallback-models",
                   {
                     "group": "Model Providers",
                     "pages": [
