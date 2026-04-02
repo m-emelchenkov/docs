@@ -4431,7 +4431,25 @@
               "deploy/introduction",
               "deploy/templates",
               "deploy/apps",
-              "deploy/interfaces"
+              "deploy/interfaces",
+              {
+                "group": "Agno Infra",
+                "pages": [
+                  "infra/overview",
+                  {
+                    "group": "CLI Reference",
+                    "pages": [
+                      "reference/agno-infra/cli/ws/create",
+                      "reference/agno-infra/cli/ws/up",
+                      "reference/agno-infra/cli/ws/down",
+                      "reference/agno-infra/cli/ws/restart",
+                      "reference/agno-infra/cli/ws/patch",
+                      "reference/agno-infra/cli/ws/config",
+                      "reference/agno-infra/cli/ws/delete"
+                    ]
+                  }
+                ]
+              }
             ]
           },
           {
@@ -7618,24 +7636,6 @@
                   "reference-api/schema/approvals/get-approval-status",
                   "reference-api/schema/approvals/delete-approval",
                   "reference-api/schema/approvals/resolve-approval"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Agno Infra Reference",
-            "pages": [
-              "infra/overview",
-              {
-                "group": "CLI Reference",
-                "pages": [
-                  "reference/agno-infra/cli/ws/create",
-                  "reference/agno-infra/cli/ws/up",
-                  "reference/agno-infra/cli/ws/down",
-                  "reference/agno-infra/cli/ws/restart",
-                  "reference/agno-infra/cli/ws/patch",
-                  "reference/agno-infra/cli/ws/config",
-                  "reference/agno-infra/cli/ws/delete"
                 ]
               }
             ]
