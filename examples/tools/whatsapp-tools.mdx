@@ -6,47 +6,33 @@ description: "Use WhatsApp with Agno agents."
 ## Prerequisites
 
 <AccordionGroup>
-  *(Click for details)*
-  <Accordion title="Set up WhatsApp developer account:">
-
-    1. Create Meta Developer Account
-      - Go to [Meta Developer Portal](https://developers.facebook.com/) and create a new account
-      - Create a new app at [Meta Apps Dashboard](https://developers.facebook.com/apps/)
-      - Enable WhatsApp integration for your app [here](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started)
-
-    2. Set Up WhatsApp Business API
-      You can get your WhatsApp Business Account ID from [Business Settings](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started)
+  <Accordion title="Set up a Meta Developer App">
+    1. Go to the [Meta Developer Portal](https://developers.facebook.com/) and create a developer account.
+    2. Create a new **Business** app at the [Apps Dashboard](https://developers.facebook.com/apps/).
+    3. Add the **WhatsApp** product to your app from the app dashboard.
+    4. In **WhatsApp > API Setup**, note your **Phone Number ID** and generate an **Access Token**.
   </Accordion>
   <Accordion title="Configure environment variables">
     ```bash
-      WHATSAPP_ACCESS_TOKEN=your_access_token          # Access Token
-      WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id    # Phone Number ID
-      WHATSAPP_RECIPIENT_WAID=your_recipient_waid      # Recipient WhatsApp ID (e.g. 1234567890)
-      WHATSAPP_VERSION=your_whatsapp_version           # WhatsApp API Version (e.g. v22.0)
+    export WHATSAPP_ACCESS_TOKEN=your_access_token
+    export WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+    export WHATSAPP_RECIPIENT_WAID=recipient_phone_number   # e.g. 1234567890
     ```
   </Accordion>
 </AccordionGroup>
 
-Note that for first-time outreach, you must use pre-approved message templates
-  [here](https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-message-templates)
-- Test messages can only be sent to numbers that are registered in your test environment
+<Note>
+For first-time outreach to a user, you must use [pre-approved message templates](https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-message-templates). Test messages can only be sent to numbers registered in your test environment.
+</Note>
 
-```python
-"""
+## Example
 
-The example below shows how to send a template message using Agno's WhatsApp tools.
-For more complex use cases, check out the WhatsApp Cloud API documentation:
-[here](https://developers.facebook.com/docs/whatsapp/cloud-api/overview)
-"""
+The following agent sends a template message via WhatsApp:
 
+```python cookbook/91_tools/whatsapp_tools.py
 from agno.agent import Agent
 from agno.models.google import Gemini
 from agno.tools.whatsapp import WhatsAppTools
-
-# ---------------------------------------------------------------------------
-# Create Agent
-# ---------------------------------------------------------------------------
-
 
 agent = Agent(
     name="whatsapp",
@@ -54,28 +40,16 @@ agent = Agent(
     tools=[WhatsAppTools()],
 )
 
-# Example: Send a template message
-# Note: Replace 'hello_world' with your actual template name
-
-# ---------------------------------------------------------------------------
-# Run Agent
-# ---------------------------------------------------------------------------
-if __name__ == "__main__":
-    agent.print_response(
-        "Send a template message using the 'hello_world' template in English to +1 123456789"
-    )
+agent.print_response(
+    "Send a template message using the 'hello_world' template in English to +1 1234567890"
+)
 ```
 
 ## Run the Example
+
 ```bash
-# Clone and setup repo
-git clone https://github.com/agno-agi/agno.git
-cd agno/cookbook/91_tools
-
-# Create and activate virtual environment
-./scripts/demo_setup.sh
-source .venvs/demo/bin/activate
-
+pip install agno google-generativeai
 python whatsapp_tools.py
 ```
-For details, see [WhatsApp cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/whatsapp_tools.py).
+
+For more examples, see the [WhatsApp cookbooks](https://github.com/agno-agi/agno/tree/main/cookbook/05_agent_os/interfaces/whatsapp).
