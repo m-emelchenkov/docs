@@ -155,19 +155,9 @@ Users can send `/new` to start a fresh session. The old session is preserved in 
 
 ## Media
 
-The WhatsApp interface handles bidirectional media automatically.
+Users can send images, video, audio, and documents to the bot. Media is downloaded from Meta's servers and passed to the agent automatically. Agents can send media back in their responses.
 
-**Incoming** (user sends to agent):
-- Images, video, audio, and documents are downloaded from [Meta's servers](https://developers.facebook.com/docs/whatsapp/cloud-api/reference/media) and passed to the agent as Agno media objects.
-- If a download fails, a notice is prepended to the text so the agent knows media was dropped.
-- Unsupported types (stickers, contacts) receive a polite "not supported yet" reply.
-
-**Outgoing** (agent sends to user):
-- Images (JPEG, PNG), video, audio, and documents in the response are uploaded to Meta and sent.
-- Audio in unsupported formats (e.g., raw PCM from TTS) is auto-converted to WAV.
-- Long text responses are split into numbered batches at WhatsApp's 4096-char limit.
-
-See the [media agent example](/agent-os/usage/interfaces/whatsapp/agent-with-media) for a complete multimodal agent.
+See the [media agent example](/agent-os/usage/interfaces/whatsapp/agent-with-media) for a complete multimodal agent, and the [reference page](/agent-os/interfaces/whatsapp/reference) for supported message types.
 
 ## WhatsAppTools
 

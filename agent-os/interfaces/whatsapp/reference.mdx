@@ -72,6 +72,19 @@ Receives all [WhatsApp webhook events](https://developers.facebook.com/docs/what
 | `/new` command | Creates a new session. Old session is preserved. Requires a `db` on the agent/team/workflow. |
 | Unsupported types | Stickers, contacts, and other types receive a "not supported yet" reply. |
 
+### Outgoing Media
+
+Agent responses containing media are automatically uploaded to [Meta's media API](https://developers.facebook.com/docs/whatsapp/cloud-api/reference/media) and sent to the user.
+
+| Format | Behavior |
+| --- | --- |
+| Images (JPEG, PNG) | Uploaded and sent. Other formats (GIF, WebP, HEIC) are skipped. |
+| Video | Uploaded and sent as `video/mp4`. |
+| Audio (AAC, MP4, MPEG, OGG, WAV) | Uploaded and sent directly. |
+| Audio (raw PCM, e.g., from TTS) | Auto-converted to WAV before upload. |
+| Documents | Uploaded with detected MIME type and filename. |
+| Long text (>4096 chars) | Split into numbered batches: `[1/3]`, `[2/3]`, `[3/3]`. |
+
 ## Developer Resources
 
 <CardGroup cols={2}>
