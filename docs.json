@@ -4232,7 +4232,6 @@
               },
               {
                 "group": "Studio",
-                "tag": "ALPHA",
                 "pages": [
                   "agent-os/studio/introduction",
                   "agent-os/studio/agents",
