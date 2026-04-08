@@ -5,25 +5,29 @@ description: "Deploy agents on WhatsApp Business for customer-facing interaction
 
 Agno and AgentOS make it easy to deploy your agents on WhatsApp with just 2 extra lines of code.
 
-This example creates a simple agent for answering questions and generating images:
+This example creates a simple agent for answering questions:
 
 ```python
 from agno.agent import Agent
+from agno.db.sqlite import SqliteDb
 from agno.models.openai import OpenAIChat
-from agno.tools.openai import OpenAITools
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 from agno.os.interfaces.whatsapp import Whatsapp
 
-image_agent = Agent(
-    model=OpenAIChat(id="gpt-5.2"), # Ensure OPENAI_API_KEY is set
-    tools=[OpenAITools(image_model="gpt-image-1")],
-    markdown=True,
+agent_db = SqliteDb(db_file="tmp/persistent_memory.db")
+basic_agent = Agent(
+    name="Basic Agent",
+    model=OpenAIChat(id="gpt-4o"),
+    db=agent_db,
     add_history_to_context=True,
+    num_history_runs=3,
+    add_datetime_to_context=True,
+    markdown=True,
 )
 
 agent_os = AgentOS(
-    agents=[image_agent],
-    interfaces=[Whatsapp(agent=image_agent)],
+    agents=[basic_agent],
+    interfaces=[Whatsapp(agent=basic_agent)],
 )
 app = agent_os.get_app()
 
@@ -32,7 +36,7 @@ if __name__ == "__main__":
 ```
 
 <Note>
-The user's phone number is automatically used as the `user_id` for runs. This ensures that sessions and memory are appropriately scoped to the user. The phone number is also used for the `session_id`, so a single WhatsApp conversation corresponds to a single session.
+The user's phone number is automatically used as the `user_id` and `session_id` for runs. Each WhatsApp conversation maps to a single session. Users can send `/new` to start a fresh session (requires a `db` on the agent).
 </Note>
 
 ## Setup and Configuration
@@ -41,51 +45,64 @@ The user's phone number is automatically used as the `user_id` for runs. This en
 
 <Step title="Prerequisites">
 Ensure you have the following:
-- A Meta Developer Account
-- A Meta Business Account
+- A [Meta Developer Account](https://developers.facebook.com/)
+- A Meta Business Account (created at [Meta Business Manager](https://business.facebook.com/))
 - A valid Facebook account
 - ngrok (for development)
-- Python 3.7+
+- Python 3.9+
 </Step>
 
 <Step title="Create a Meta App">
 1. Go to [Meta for Developers](https://developers.facebook.com/) and verify your account.
-2. Create a new app at [Meta Apps Dashboard](https://developers.facebook.com/apps/).
-3. Under "Use Case", select "Other".
-4. Choose "Business" as the app type.
+2. Create a new app at the [Apps Dashboard](https://developers.facebook.com/apps/).
+3. Under "Use Case", select **Other**.
+4. Choose **Business** as the app type.
 5. Provide:
     - App name
     - Contact email
 6. Click "Create App".
+7. In the app dashboard, find **WhatsApp** in the product list and click **Set up** to add it.
 </Step>
 
 <Step title="Set Up a Meta Business Account">
 1. Navigate to [Meta Business Manager](https://business.facebook.com/).
 2. Create a new business account or use an existing one.
-3. Verify your business by clicking on the email link.
-4. Go to your App page, navigate to "App settings / Basic", and click "Start Verification" under "Business Verification". Complete the verification process for production.
-5. Associate the app with your business account and click "Create App".
+3. Verify your business email.
+4. In your Meta App, go to **App Settings > Basic** and click "Start Verification" under Business Verification. Complete this for production access.
+5. Associate the app with your business account.
 </Step>
 
-<Step title="Setup WhatsApp Business API">
-1. Go to your app's WhatsApp Setup page.
-2. Click on "Start using the API" (API Setup).
-3. Generate an Access Token.
-4. Copy your Phone Number ID.
-5. Copy your WhatsApp Business Account ID.
-6. Add a "To" number that you will use for testing (this will likely be your personal number).
+<Step title="Configure WhatsApp Business API">
+1. In your app dashboard, go to **WhatsApp > API Setup**.
+2. Generate a **Temporary Access Token**. This token expires in ~24 hours and is suitable for development only.
+3. Copy your **Phone Number ID**, shown below the test phone number.
+4. Add a test recipient under the **To** field (your personal number for testing).
+
+For production, create a permanent token:
+1. Go to [Meta Business Manager](https://business.facebook.com/) > **Business Settings > System Users**.
+2. Click **Add** and create a new admin-level system user.
+3. Click on the system user, then **Assign Assets**.
+4. Assign your app with **Full control**.
+5. Assign your WhatsApp Business Account with **Full control**.
+6. Click **Generate Token** and select `whatsapp_business_messaging` and `whatsapp_business_management` permissions.
+7. Copy and store the token securely. This token does not expire unless revoked.
 </Step>
 
-<Step title="Setup Environment Variables">
-Create a `.env` file in your project root with the following content, replacing placeholder values with your actual credentials:
+<Step title="Set Up Environment Variables">
+Create a `.env` file or export these variables:
 ```bash
-WHATSAPP_ACCESS_TOKEN="your_whatsapp_access_token"
+WHATSAPP_ACCESS_TOKEN="your_access_token"
 WHATSAPP_PHONE_NUMBER_ID="your_phone_number_id"
-WHATSAPP_VERIFY_TOKEN="your_chosen_verify_token"  # A string you create
+WHATSAPP_VERIFY_TOKEN="your_chosen_verify_token"  # Any string you create
 ```
+
+Find these values in your Meta App:
+- **Access Token**: WhatsApp > API Setup (temporary) or System User token (permanent)
+- **Phone Number ID**: WhatsApp > API Setup, below the test phone number
+- **Verify Token**: A string you choose. Must match in both your app and Meta's webhook config.
 </Step>
 
-<Step title="Setup Webhook with ngrok">
+<Step title="Set Up Webhook with ngrok">
 1. Run ngrok to expose your local server, ensuring the port matches your app (7777):
    ```bash
    ngrok http 7777
@@ -93,31 +110,36 @@ WHATSAPP_VERIFY_TOKEN="your_chosen_verify_token"  # A string you create
    # ngrok http --domain=your-custom-domain.ngrok-free.app 7777
    ```
 2. Copy the `https://` URL provided by ngrok. This is your base ngrok URL.
-3. Construct your full webhook URL by appending `/whatsapp/webhook` to the ngrok URL (e.g., `https://<random-string>.ngrok-free.app/whatsapp/webhook`).
-4. In your Meta App's WhatsApp Setup page, navigate to the "Webhook" section and click "Edit".
-5. Configure the webhook:
-    - **Callback URL**: Enter your full ngrok webhook URL.
-    - **Verify Token**: Enter the same value you used for `WHATSAPP_VERIFY_TOKEN` in your `.env` file.
-6. Click "Verify and save". Your Agno application must be running locally for verification to succeed.
-7. After successful verification, click "Manage" next to Webhook fields. Subscribe to the `messages` field under `whatsapp_business_account`.
+3. In your Meta App, go to **WhatsApp > Configuration** and click "Edit" on the Webhook section.
+4. Configure the webhook:
+    - **Callback URL**: `https://<your-ngrok-url>/whatsapp/webhook`
+    - **Verify Token**: The same value as your `WHATSAPP_VERIFY_TOKEN`
+5. Click "Verify and save". Your Agno app must be running locally for verification to succeed.
+6. After verification, click "Manage" next to Webhook fields. Subscribe to the **messages** field under `whatsapp_business_account`.
 </Step>
 
-<Step title="Configure Application Environment">
-Set the `APP_ENV` environment variable:
-- For **Development Mode**:
-  ```bash
-  APP_ENV="development"
-  ```
-  (Webhook signature validation might be less strict or bypassed).
-- For **Production Mode**:
-  ```bash
-  APP_ENV="production"
-  ```
-  You will also need to set the `WHATSAPP_APP_SECRET` for webhook signature validation:
-  ```bash
-  WHATSAPP_APP_SECRET="your_meta_app_secret"
-  ```
-  This should be the "App Secret" found in your Meta App's "App settings > Basic" page.
+<Step title="Configure Signature Validation">
+For **development**, skip signature validation:
+```bash
+WHATSAPP_SKIP_SIGNATURE_VALIDATION="true"
+```
+
+For **production**, set your App Secret to enable webhook signature validation:
+```bash
+WHATSAPP_APP_SECRET="your_meta_app_secret"
+```
+Find the App Secret at **App Settings > Basic** in your Meta App dashboard.
+
+When `WHATSAPP_APP_SECRET` is set, every incoming webhook request is validated against the `X-Hub-Signature-256` header. Invalid requests receive a `403` response.
+</Step>
+
+<Step title="Test Your Bot">
+1. Start your app: `python whatsapp_bot.py`
+2. Ensure ngrok is running and the webhook is verified.
+3. Open WhatsApp and send a message to the test phone number.
+4. The bot should respond in the same chat.
+5. Send `/new` to start a fresh session (requires `db` on the agent).
+6. Send an image or document to test media handling.
 </Step>
 
 </Steps>
@@ -126,11 +148,20 @@ Set the `APP_ENV` environment variable:
 ngrok is used only for local development and testing. For production deployments, see the [deployment tutorials](/production/templates/overview).
 </Note>
 
+## Environment Variables Reference
+
+| Variable | Required | Description |
+| -------- | -------- | ----------- |
+| `WHATSAPP_ACCESS_TOKEN` | Yes | Bot access token from Meta App Dashboard or System User |
+| `WHATSAPP_PHONE_NUMBER_ID` | Yes | Phone number ID from WhatsApp > API Setup |
+| `WHATSAPP_VERIFY_TOKEN` | Yes | User-chosen string for webhook verification |
+| `WHATSAPP_APP_SECRET` | Production | App Secret from App Settings > Basic. Enables signature validation. |
+| `WHATSAPP_SKIP_SIGNATURE_VALIDATION` | Dev only | Set to `true` to bypass signature checks in development |
+| `WHATSAPP_ENCRYPTION_KEY` | Optional | 64 hex char (32-byte) key for AES-256-GCM phone number encryption |
+
 ## Developer Resources
 
-
 - [WhatsApp Interface](/agent-os/interfaces/whatsapp/introduction)
-- [WhatsApp Webhook API](/reference-api/schema/whatsapp/webhook)
+- [WhatsApp Cookbooks](https://github.com/agno-agi/agno/tree/main/cookbook/05_agent_os/interfaces/whatsapp)
 - [Deployment Templates](/production/templates/overview)
-- [Agent reference](/reference/agents/agent)
 - [Discord](https://agno.link/discord)

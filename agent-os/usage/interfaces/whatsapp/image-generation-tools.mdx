@@ -5,10 +5,10 @@ description: "WhatsApp agent that generates images using OpenAI's image generati
 
 ## Code
 
-```python cookbook/os/interfaces/whatsapp/image_generation_tools.py
+```python cookbook/05_agent_os/interfaces/whatsapp/image_generation_tools.py
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
-from agno.models.openai import OpenAIResponses
+from agno.models.openai import OpenAIChat
 from agno.os.app import AgentOS
 from agno.os.interfaces.whatsapp import Whatsapp
 from agno.tools.openai import OpenAITools
@@ -17,10 +17,9 @@ agent_db = SqliteDb(db_file="tmp/persistent_memory.db")
 image_agent = Agent(
     id="image_generation_tools",
     db=agent_db,
-    model=OpenAIResponses(id="gpt-5.2"),
+    model=OpenAIChat(id="gpt-5.2-mini"),
     tools=[OpenAITools(image_model="gpt-image-1")],
     markdown=True,
-    debug_mode=True,
     add_history_to_context=True,
 )
 
@@ -41,24 +40,25 @@ if __name__ == "__main__":
 
   <Step title="Set Environment Variables">
     ```bash
-    export WHATSAPP_ACCESS_TOKEN=your_whatsapp_access_token
+    export WHATSAPP_ACCESS_TOKEN=your_access_token
     export WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
-    export WHATSAPP_WEBHOOK_URL=your_webhook_url
     export WHATSAPP_VERIFY_TOKEN=your_verify_token
+    export WHATSAPP_SKIP_SIGNATURE_VALIDATION=true  # For local dev
     export OPENAI_API_KEY=your_openai_api_key
-    export APP_ENV=development
     ```
+
+    See the [WhatsApp Bot setup guide](/deploy/interfaces/whatsapp/overview) for how to get these values from the [Meta Developer Dashboard](https://developers.facebook.com/apps/).
   </Step>
 
   <Step title="Install dependencies">
     ```bash
-    uv pip install -U agno
+    uv pip install -U agno openai
     ```
   </Step>
 
   <Step title="Run Example">
     ```bash
-    python cookbook/os/interfaces/whatsapp/image_generation_tools.py
+    python cookbook/05_agent_os/interfaces/whatsapp/image_generation_tools.py
     ```
   </Step>
 </Steps>
@@ -67,7 +67,6 @@ if __name__ == "__main__":
 
 - **Tool-based Generation**: OpenAI's GPT Image-1 model via external tools
 - **High-Quality Images**: Professional-grade image generation
-- **Conversational Interface**: Natural language interaction for image requests  
+- **Conversational Interface**: Natural language interaction for image requests
 - **History Context**: Remembers previous images and conversations
 - **GPT-4o Orchestration**: Intelligent conversation and tool management
-

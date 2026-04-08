@@ -4275,7 +4275,13 @@
                 "group": "Interfaces",
                 "pages": [
                   "agent-os/interfaces/overview",
-                  "agent-os/interfaces/whatsapp/introduction",
+                  {
+                    "group": "WhatsApp",
+                    "pages": [
+                      "agent-os/interfaces/whatsapp/introduction",
+                      "agent-os/interfaces/whatsapp/reference"
+                    ]
+                  },
                   "agent-os/interfaces/a2a/introduction",
                   "agent-os/interfaces/ag-ui/introduction",
                   {

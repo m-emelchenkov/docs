@@ -5,7 +5,7 @@ description: "WhatsApp agent that generates images using Gemini's built-in capab
 
 ## Code
 
-```python cookbook/os/interfaces/whatsapp/image_generation_model.py
+```python cookbook/05_agent_os/interfaces/whatsapp/image_generation_model.py
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.google import Gemini
@@ -17,10 +17,9 @@ image_agent = Agent(
     id="image_generation_model",
     db=agent_db,
     model=Gemini(
-        id="gemini-2.0-flash-exp-image-generation",
+        id="models/gemini-2.5-flash-image",
         response_modalities=["Text", "Image"],
     ),
-    debug_mode=True,
 )
 
 agent_os = AgentOS(
@@ -40,33 +39,32 @@ if __name__ == "__main__":
 
   <Step title="Set Environment Variables">
     ```bash
-    export WHATSAPP_ACCESS_TOKEN=your_whatsapp_access_token
+    export WHATSAPP_ACCESS_TOKEN=your_access_token
     export WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
-    export WHATSAPP_WEBHOOK_URL=your_webhook_url
     export WHATSAPP_VERIFY_TOKEN=your_verify_token
+    export WHATSAPP_SKIP_SIGNATURE_VALIDATION=true  # For local dev
     export GOOGLE_API_KEY=your_google_api_key
-    export APP_ENV=development
     ```
+
+    See the [WhatsApp Bot setup guide](/deploy/interfaces/whatsapp/overview) for how to get these values from the [Meta Developer Dashboard](https://developers.facebook.com/apps/).
   </Step>
 
   <Step title="Install dependencies">
     ```bash
-    uv pip install -U agno
+    uv pip install -U agno google-generativeai
     ```
   </Step>
 
   <Step title="Run Example">
     ```bash
-    python cookbook/os/interfaces/whatsapp/image_generation_model.py
+    python cookbook/05_agent_os/interfaces/whatsapp/image_generation_model.py
     ```
   </Step>
 </Steps>
 
 ## Key Features
 
-- **Direct Image Generation**: Gemini 2.0 Flash experimental image generation
+- **Direct Image Generation**: Gemini Flash with native image generation
 - **Text-to-Image**: Converts descriptions into visual content
 - **Multimodal Responses**: Generates both text and images
 - **WhatsApp Integration**: Sends images directly through WhatsApp
-- **Debug Mode**: Enhanced logging for troubleshooting
-

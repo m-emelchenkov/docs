@@ -5,7 +5,7 @@ description: "WhatsApp agent that analyzes images, videos, and audio using multi
 
 ## Code
 
-```python cookbook/os/interfaces/whatsapp/agent_with_media.py
+```python cookbook/05_agent_os/interfaces/whatsapp/agent_with_media.py
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.google import Gemini
@@ -15,7 +15,7 @@ from agno.os.interfaces.whatsapp import Whatsapp
 agent_db = SqliteDb(db_file="tmp/persistent_memory.db")
 media_agent = Agent(
     name="Media Agent",
-    model=Gemini(id="gemini-2.0-flash"),
+    model=Gemini(id="gemini-3-flash-preview"),
     db=agent_db,
     add_history_to_context=True,
     num_history_runs=3,
@@ -40,33 +40,33 @@ if __name__ == "__main__":
 
   <Step title="Set Environment Variables">
     ```bash
-    export WHATSAPP_ACCESS_TOKEN=your_whatsapp_access_token
+    export WHATSAPP_ACCESS_TOKEN=your_access_token
     export WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
-    export WHATSAPP_WEBHOOK_URL=your_webhook_url
     export WHATSAPP_VERIFY_TOKEN=your_verify_token
+    export WHATSAPP_SKIP_SIGNATURE_VALIDATION=true  # For local dev
     export GOOGLE_API_KEY=your_google_api_key
-    export APP_ENV=development
     ```
+
+    See the [WhatsApp Bot setup guide](/deploy/interfaces/whatsapp/overview) for how to get these values from the [Meta Developer Dashboard](https://developers.facebook.com/apps/).
   </Step>
 
   <Step title="Install dependencies">
     ```bash
-    uv pip install -U agno
+    uv pip install -U agno google-generativeai
     ```
   </Step>
 
   <Step title="Run Example">
     ```bash
-    python cookbook/os/interfaces/whatsapp/agent_with_media.py
+    python cookbook/05_agent_os/interfaces/whatsapp/agent_with_media.py
     ```
   </Step>
 </Steps>
 
 ## Key Features
 
-- **Multimodal AI**: Gemini 2.0 Flash for image, video, and audio processing
+- **Multimodal AI**: Gemini Flash for image, video, and audio processing
 - **Image Analysis**: Object recognition, scene understanding, text extraction
 - **Video Processing**: Content analysis and summarization
 - **Audio Support**: Voice message transcription and response
 - **Context Integration**: Combines media analysis with conversation history
-
