@@ -1,22 +1,12 @@
 ---
 title: Agent Metrics
 sidebarTitle: Overview
-description: Agent run and session metrics for token usage and performance.
+description: Access RunMetrics, MessageMetrics, and SessionMetrics from agent runs.
 keywords: [metrics, agent metrics, run metrics, session metrics]
 ---
 
-When you run an agent in Agno, the response you get (**RunOutput**) includes detailed metrics about the run. These metrics help you understand resource usage (like **token usage** and **time**), performance, and other aspects of the model and tool calls.
+The **RunOutput** from an agent run includes detailed metrics about token usage, cost, timing, and per-model breakdowns.
 
-Metrics are available at multiple levels:
-- **Per message**: Each message (assistant, tool, etc.) has its own metrics.
-- **Per run**: Each `RunOutput` has its own metrics.
-- **Per session**: The `AgentSession` contains aggregated `session_metrics` that are the sum of all `RunOutput.metrics` for the session.
-
-
-## Example Usage
-Suppose you have an agent that performs some tasks and you want to analyze the metrics after running it. Here's how you can access and print the metrics:
-
-You run the following code to create an agent and run it with the following configuration:
 ```python
 from agno.agent import Agent
 from agno.models.openai import OpenAIResponses
@@ -31,48 +21,47 @@ agent = Agent(
     markdown=True,
 )
 
-run_response = agent.run(
-    "What are the top stories on HackerNews?"
-)
+run_response = agent.run("What are the top stories on HackerNews?")
 
-# Print metrics per message
-if run_response.messages:
-    for message in run_response.messages:
-        if message.role == "assistant":
-            if message.content:
-                print(f"Message: {message.content}")
-            elif message.tool_calls:
-                print(f"Tool calls: {message.tool_calls}")
-            print("---" * 5, "Metrics", "---" * 5)
-            pprint(message.metrics.to_dict())
-            print("---" * 20)
+# Message metrics (MessageMetrics)
+for message in run_response.messages:
+    if message.role == "assistant":
+        pprint(message.metrics.to_dict())
 
-# Print the aggregated metrics for the whole run
-print("---" * 5, "Run Metrics", "---" * 5)
+# Run metrics (RunMetrics)
 pprint(run_response.metrics.to_dict())
-# Print the aggregated metrics for the whole session
-print("---" * 5, "Session Metrics", "---" * 5)
+
+# Per-model breakdown
+if run_response.metrics.details:
+    for model_type, model_metrics_list in run_response.metrics.details.items():
+        for m in model_metrics_list:
+            print(f"{model_type}: {m.provider}/{m.id} - {m.total_tokens} tokens")
+
+# Session metrics (SessionMetrics)
 pprint(agent.get_session_metrics().to_dict())
 ```
 
-You'll see the outputs with following information:
+Metrics are available at multiple levels:
+- **Per message**: Each assistant message has `MessageMetrics` with per-API-call token counts and timing.
+- **Per run**: Each `RunOutput` has `RunMetrics` with aggregated totals and a `details` breakdown by model type.
+- **Per session**: `agent.get_session_metrics()` returns `SessionMetrics` aggregated across all runs.
 
-- `input_tokens`: The number of tokens sent to the model.
-- `output_tokens`: The number of tokens received from the model.
-- `total_tokens`: The sum of `input_tokens` and `output_tokens`.
-- `audio_input_tokens`: The number of tokens sent to the model for audio input.
-- `audio_output_tokens`: The number of tokens received from the model for audio output.
-- `audio_total_tokens`: The sum of `audio_input_tokens` and `audio_output_tokens`.
-- `cache_read_tokens`: The number of tokens read from the cache.
-- `cache_write_tokens`: The number of tokens written to the cache.
-- `reasoning_tokens`: The number of tokens used for reasoning.
-- `duration`: The duration of the run in seconds.
-- `time_to_first_token`: The time taken until the first token was generated.
-- `provider_metrics`: Any provider-specific metrics.
+| Level | Type | Access |
+|-------|------|--------|
+| Per message | `MessageMetrics` | `message.metrics` |
+| Per run | `RunMetrics` | `run_response.metrics` |
+| Per session | `SessionMetrics` | `agent.get_session_metrics()` |
 
+### Run fields (`RunMetrics`)
+
+<Snippet file="run-metrics-fields.mdx" />
+
+### Message fields (`MessageMetrics`)
+
+<Snippet file="message-metrics-fields.mdx" />
 
 ## Developer Resources
 
-- View the [RunOutput schema](/reference/agents/run-response)
-- View the [Metrics schema](/reference/agents/metrics)
-- View [Cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/03_agents/other/agent_metrics.py)
+- [RunOutput schema](/reference/agents/run-response)
+- [Metrics reference](/reference/run/metrics)
+- [Cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/02_agents/14_advanced/metrics.py)

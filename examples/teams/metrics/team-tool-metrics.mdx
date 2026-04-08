@@ -1,12 +1,10 @@
 ---
-title: Team Tool Call Metrics
+title: "Team Tool Metrics"
+description: "Track leader metrics, member metrics, and tool execution timing in teams."
 ---
+```python
+"""Leader metrics, member metrics, and tool execution timing in teams."""
 
-Access team leader metrics, member run metrics, and tool execution timing with `ToolCallMetrics`.
-
-## Code
-
-```python team_tool_metrics.py
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.team import Team
@@ -38,7 +36,7 @@ if __name__ == "__main__":
     print("=" * 50)
     pprint(run_output.metrics)
 
-    # Member metrics and tool call timing
+    # Member-level metrics and tool calls
     print("=" * 50)
     print("MEMBER METRICS AND TOOL CALLS")
     print("=" * 50)
@@ -56,40 +54,15 @@ if __name__ == "__main__":
                         pprint(tool_call.metrics)
 ```
 
-## Usage
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/03_teams/22_metrics
 
-<Steps>
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
 
-  <Step title="Create a Python file">
-    Create `team_tool_metrics.py` with the code above.
-  </Step>
-
-  <Snippet file="create-venv-step.mdx" />
-
-  <Step title="Install dependencies">
-    ```bash
-    uv pip install -U agno openai yfinance
-    ```
-  </Step>
-
-  <Step title="Export your OpenAI API key">
-
-    <CodeGroup>
-
-    ```bash Mac/Linux
-    export OPENAI_API_KEY="your_openai_api_key_here"
-    ```
-
-    ```bash Windows
-    $Env:OPENAI_API_KEY="your_openai_api_key_here"
-    ```
-    </CodeGroup>
-  </Step>
-
-  <Step title="Run Team">
-    ```bash
-    python team_tool_metrics.py
-    ```
-  </Step>
-
-</Steps>
+python 04_team_tool_metrics.py
+```

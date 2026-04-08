@@ -1,0 +1,70 @@
+---
+title: "Session Summary Metrics"
+description: "Track session summary model token usage under the session_summary_model detail key."
+---
+
+```python
+"""Session summary model token usage tracked under the "session_summary_model" detail key."""
+
+from agno.agent import Agent
+from agno.db.postgres import PostgresDb
+from agno.models.openai import OpenAIChat
+from agno.session.summary import SessionSummaryManager
+from rich.pretty import pprint
+
+db = PostgresDb(db_url="postgresql+psycopg://ai:ai@localhost:5532/ai")
+
+agent = Agent(
+    model=OpenAIChat(id="gpt-5.1"),
+    session_summary_manager=SessionSummaryManager(
+        model=OpenAIChat(id="gpt-4o-mini"),
+    ),
+    enable_session_summaries=True,
+    db=db,
+    session_id="session-summary-metrics-demo",
+)
+
+if __name__ == "__main__":
+    # First run
+    run_response_1 = agent.run("My name is Alice and I work at Google.")
+    print("=" * 50)
+    print("RUN 1 METRICS")
+    print("=" * 50)
+    pprint(run_response_1.metrics)
+
+    # Second run - triggers session summary
+    run_response_2 = agent.run("I also enjoy hiking on weekends.")
+    print("=" * 50)
+    print("RUN 2 METRICS")
+    print("=" * 50)
+    pprint(run_response_2.metrics)
+
+    print("=" * 50)
+    print("MODEL DETAILS (Run 2)")
+    print("=" * 50)
+    if run_response_2.metrics and run_response_2.metrics.details:
+        for model_type, model_metrics_list in run_response_2.metrics.details.items():
+            print(f"\n{model_type}:")
+            for model_metric in model_metrics_list:
+                pprint(model_metric)
+
+    print("=" * 50)
+    print("SESSION METRICS (accumulated)")
+    print("=" * 50)
+    session_metrics = agent.get_session_metrics()
+    if session_metrics:
+        pprint(session_metrics)
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/02_agents/14_advanced
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python session_summary_metrics.py
+```

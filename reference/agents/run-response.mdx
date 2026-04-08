@@ -22,7 +22,7 @@ sidebarTitle: Run Output & Events
 | `model`            | `Optional[str]`              | `None`                        | The model used in the run                                                                          |
 | `model_provider`   | `Optional[str]`              | `None`                        | The model provider used in the run                                                                |
 | `messages`         | `Optional[List[Message]]`    | `None`                        | A list of messages included in the response                                                       |
-| `metrics`          | `Optional[Metrics]`          | `None`                        | Usage metrics of the run                                                                          |
+| `metrics`          | `Optional[RunMetrics]`       | `None`                        | Usage metrics of the run                                                                          |
 | `additional_input` | `Optional[List[Message]]`    | `None`                        | Additional input messages                                                                          |
 | `tools`            | `Optional[List[ToolExecution]]` | `None`                        | List of tool executions                                                                           |
 | `images`           | `Optional[List[Image]]` | `None`                        | List of images attached to the response                                                           |
@@ -120,7 +120,7 @@ All events inherit from `BaseAgentRunEvent` which provides these common attribut
 | `reasoning_steps` | `Optional[List[ReasoningStep]]` | `None` | Reasoning steps |
 | `reasoning_messages` | `Optional[List[Message]]` | `None` | Reasoning messages |
 | `metadata` | `Optional[Dict[str, Any]]` | `None` | Additional metadata |
-| `metrics` | `Optional[Metrics]` | `None` | Usage metrics |
+| `metrics` | `Optional[RunMetrics]` | `None` | Usage metrics |
 
 ### RunPausedEvent
 

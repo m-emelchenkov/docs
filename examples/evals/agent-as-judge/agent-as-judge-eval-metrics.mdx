@@ -1,0 +1,66 @@
+---
+title: "Agent-as-Judge Eval Metrics"
+description: "Track eval model tokens separately from agent model tokens using metrics.details with post-hooks."
+---
+```python
+"""Eval model tokens tracked under "eval_model" via AgentAsJudgeEval post-hook."""
+
+from agno.agent import Agent
+from agno.eval.agent_as_judge import AgentAsJudgeEval
+from agno.models.openai import OpenAIChat
+from rich.pretty import pprint
+
+eval_hook = AgentAsJudgeEval(
+    name="Quality Check",
+    model=OpenAIChat(id="gpt-4o-mini"),
+    criteria="Response should be accurate, clear, and concise",
+    scoring_strategy="binary",
+)
+
+agent = Agent(
+    model=OpenAIChat(id="gpt-4o-mini"),
+    instructions="Answer questions concisely.",
+    post_hooks=[eval_hook],
+)
+
+if __name__ == "__main__":
+    result = agent.run("What is the capital of France?")
+
+    # The run metrics now include both agent model + eval model tokens
+    if result.metrics:
+        print("Total tokens (agent + eval):", result.metrics.total_tokens)
+
+        if result.metrics.details:
+            # Agent's own model call
+            if "model" in result.metrics.details:
+                agent_tokens = sum(
+                    metric.total_tokens for metric in result.metrics.details["model"]
+                )
+                print("Agent model tokens:", agent_tokens)
+
+            # Eval model call (accumulated from evaluator agent)
+            if "eval_model" in result.metrics.details:
+                eval_tokens = sum(
+                    metric.total_tokens
+                    for metric in result.metrics.details["eval_model"]
+                )
+                print("Eval model tokens:", eval_tokens)
+                for metric in result.metrics.details["eval_model"]:
+                    print(f"  Evaluator: {metric.id} ({metric.provider})")
+
+            print("\nFull metrics details:")
+            pprint(result.metrics.to_dict())
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/09_evals/agent_as_judge
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python agent_as_judge_eval_metrics.py
+```

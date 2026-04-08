@@ -12,7 +12,7 @@ The `TeamRunOutput` class represents the response from a team run, containing bo
 | `content` | `Any` | `None` | Content of the response |
 | `content_type` | `str` | `"str"` | Specifies the data type of the content |
 | `messages` | `List[Message]` | `None` | A list of messages included in the response |
-| `metrics` | `Metrics` | `None` | Usage metrics of the run |
+| `metrics` | `Optional[RunMetrics]` | `None` | Usage metrics of the run |
 | `model` | `str` | `None` | The model used in the run |
 | `model_provider` | `str` | `None` | The model provider used in the run |
 | `member_responses` | `List[Union[TeamRunOutput, RunOutput]]` | `[]` | Responses from individual team members |
@@ -222,7 +222,7 @@ All events inherit from `BaseTeamRunEvent` which provides these common attribute
 | `reasoning_messages` | `Optional[List[Message]]` | `None` | Reasoning messages |
 | `member_responses` | `List[Union[TeamRunOutput, RunOutput]]` | `[]` | Responses from individual team members |
 | `metadata` | `Optional[Dict[str, Any]]` | `None` | Additional metadata |
-| `metrics` | `Optional[Metrics]` | `None` | Usage metrics |
+| `metrics` | `Optional[RunMetrics]` | `None` | Usage metrics |
 
 ### RunErrorEvent
 

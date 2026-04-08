@@ -2123,7 +2123,12 @@
                           }
                         ]
                       },
-                      "sessions/metrics/workflow"
+                      {
+                        "group": "Workflow Metrics",
+                        "pages": [
+                          "sessions/metrics/workflow"
+                        ]
+                      }
                     ]
                   }
                 ]
@@ -4838,7 +4843,13 @@
                       "examples/agents/advanced/custom-logging",
                       "examples/agents/advanced/debug",
                       "examples/agents/advanced/manually-add-culture",
-                      "examples/agents/advanced/metrics",
+                      "examples/agents/advanced/multi-model-metrics",
+                      "examples/agents/advanced/culture-metrics",
+                      "examples/agents/advanced/session-metrics",
+                      "examples/agents/advanced/session-summary-metrics",
+                      "examples/agents/advanced/streaming-metrics",
+                      "examples/agents/advanced/tool-call-metrics",
+                      "examples/agents/advanced/background-execution-metrics",
                       "examples/agents/advanced/reasoning-agent-events",
                       "examples/agents/advanced/retries",
                       "examples/agents/advanced/tool-call-compression",
@@ -5010,6 +5021,9 @@
                       "examples/teams/dependencies/dependencies-in-tools",
                       "examples/teams/dependencies/dependencies-to-members",
                       "examples/teams/metrics/team-metrics",
+                      "examples/teams/metrics/team-streaming-metrics",
+                      "examples/teams/metrics/team-session-metrics",
+                      "examples/teams/metrics/team-tool-metrics",
                       "examples/teams/multimodal/audio-sentiment-analysis",
                       "examples/teams/multimodal/audio-to-text",
                       "examples/teams/multimodal/generate-image-with-team",
@@ -7021,7 +7035,8 @@
                       "examples/evals/accuracy/accuracy-with-given-answer",
                       "examples/evals/accuracy/accuracy-with-tools",
                       "examples/evals/accuracy/db-logging",
-                      "examples/evals/accuracy/evaluator-agent"
+                      "examples/evals/accuracy/evaluator-agent",
+                      "examples/evals/accuracy/accuracy-eval-metrics"
                     ]
                   },
                   {
@@ -7036,7 +7051,8 @@
                       "examples/evals/agent-as-judge/agent-as-judge-team",
                       "examples/evals/agent-as-judge/agent-as-judge-team-post-hook",
                       "examples/evals/agent-as-judge/agent-as-judge-with-guidelines",
-                      "examples/evals/agent-as-judge/agent-as-judge-with-tools"
+                      "examples/evals/agent-as-judge/agent-as-judge-with-tools",
+                      "examples/evals/agent-as-judge/agent-as-judge-eval-metrics"
                     ]
                   },
                   {
@@ -7241,7 +7257,8 @@
                   "reference/agents/run-response",
                   "reference/teams/team-response",
                   "reference/workflows/run-output",
-                  "reference/run/run-context"
+                  "reference/run/run-context",
+                  "reference/run/metrics"
                 ]
               },
               {

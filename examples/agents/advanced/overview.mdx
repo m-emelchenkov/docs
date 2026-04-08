@@ -21,7 +21,13 @@ description: "Advanced examples covering caching, compression, concurrency, even
 | [Custom Cancellation Manager](/examples/agents/advanced/custom-cancellation-manager) | Shows how to extend BaseRunCancellationManager to implement your own. |
 | [Custom Logging](/examples/agents/advanced/custom-logging) | Example showing how to use a custom logger with Agno. |
 | [Debug](/examples/agents/advanced/debug) | You can set the debug mode on the agent for all runs to have more verbose output. |
-| [Metrics](/examples/agents/advanced/metrics) | Track and display agent performance metrics. |
+| [Multi-Model Metrics](/examples/agents/advanced/multi-model-metrics) | Track per-model token usage with memory model breakdown in metrics.details. |
+| [Culture Metrics](/examples/agents/advanced/culture-metrics) | Track culture model token usage under the culture_model detail key. |
+| [Session Metrics](/examples/agents/advanced/session-metrics) | Accumulate metrics across multiple runs within a session using SessionMetrics. |
+| [Session Summary Metrics](/examples/agents/advanced/session-summary-metrics) | Track session summary model token usage under the session_summary_model detail key. |
+| [Streaming Metrics](/examples/agents/advanced/streaming-metrics) | Capture metrics from streaming responses using yield_run_output=True. |
+| [Tool Call Metrics](/examples/agents/advanced/tool-call-metrics) | Track tool execution timing with ToolCallMetrics on each ToolExecution. |
+| [Background Execution Metrics](/examples/agents/advanced/background-execution-metrics) | Track metrics for background (async) agent runs with full token and model details. |
 | [Reasoning Agent Events](/examples/agents/advanced/reasoning-agent-events) | Stream agent events including run lifecycle, tool calls, and content output. |
 | [Retries](/examples/agents/advanced/retries) | Example demonstrating how to set up retries with an Agent. |
 | [Tool Call Compression](/examples/agents/advanced/tool-call-compression) | Compress tool call history to reduce context size. |
