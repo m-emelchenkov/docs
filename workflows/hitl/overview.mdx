@@ -1,8 +1,8 @@
 ---
 title: Human-in-the-Loop in Workflows
 sidebarTitle: Overview
-description: Pause workflow execution for user confirmation, input, or decisions at the step level.
-keywords: [workflow, HITL, human-in-the-loop, confirmation, user input, pause, step]
+description: Pause workflow execution for user confirmation, input, review, or decisions at the step level.
+keywords: [workflow, HITL, human-in-the-loop, confirmation, user input, pause, step, human review]
 mode: wide
 ---
 
@@ -13,12 +13,13 @@ User input is currently supported for `Step` (to collect parameters) and `Router
 </Note>
 
 <Warning>
-Agent tool-level HITL (e.g., `@tool(requires_confirmation=True)`) is **not** propagated to the workflow. If an agent inside a step has tool-level HITL, the workflow will continue but the paused tool may not execute. Use workflow-level HITL (`Step.requires_confirmation`) instead.
+Agent tool-level HITL (e.g., `@tool(requires_confirmation=True)`) is **not** propagated to the workflow. If an agent inside a step has tool-level HITL, the workflow will continue but the paused tool may not execute. Use workflow-level HITL instead.
 </Warning>
 
 ```python
 from agno.workflow import Workflow, OnReject
 from agno.workflow.step import Step
+from agno.workflow.types import HumanReview
 from agno.db.sqlite import SqliteDb
 
 workflow = Workflow(
@@ -29,9 +30,11 @@ workflow = Workflow(
         Step(
             name="process_data",
             agent=process_agent,
-            requires_confirmation=True,
-            confirmation_message="Process sensitive data?",
-            on_reject=OnReject.skip,
+            human_review=HumanReview(
+                requires_confirmation=True,
+                confirmation_message="Process sensitive data?",
+                on_reject=OnReject.skip,
+            ),
         ),
         Step(name="save_results", agent=save_agent),
     ],
@@ -60,26 +63,48 @@ workflow = Workflow(db=SqliteDb(db_file="workflow.db"), ...)
 workflow = Workflow(db=PostgresDb(db_url="postgresql://..."), ...)
 ```
 
+## HumanReview Config
+
+All HITL settings are grouped into a single [`HumanReview`](/workflows/hitl/human-review) object:
+
+```python
+from agno.workflow.types import HumanReview
+
+Step(
+    name="review_step",
+    agent=review_agent,
+    human_review=HumanReview(
+        requires_output_review=True,
+        output_review_message="Check the output.",
+        on_reject=OnReject.retry,
+        max_retries=3,
+        timeout=300,
+    ),
+)
+```
+
+Flat parameters (`requires_confirmation=True`, `confirmation_message="..."`) still work for backward compatibility. See the [HumanReview Config](/workflows/hitl/human-review) page for all fields and validation rules.
+
 ## HITL Types
 
-| Type | Use Case | Flag |
-|------|----------|------|
+| Type | Use Case | Field |
+|------|----------|-------|
 | [Confirmation](#confirmation) | Approve/reject before step execution | `requires_confirmation=True` |
 | [User Input](#user-input) | Collect parameters before step execution | `requires_user_input=True` |
+| [Output Review](#output-review) | Review output after step execution | `requires_output_review=True` |
+| [Iteration Review](#iteration-review) | Review each loop iteration | `requires_iteration_review=True` |
 | [Route Selection](#route-selection) | User chooses which path(s) to execute | **Router** with `requires_user_input=True` |
 | [Error Handling](#error-handling) | Retry or skip failed steps | `on_error=OnError.pause` |
 
 ## Supported Primitives
 
-HITL is supported on all workflow primitives:
-
-| Primitive | Confirmation | User Input | Route Selection |
-|-----------|--------------|------------|-----------------|
-| [Step](/workflows/hitl/step) | ✓ | ✓ | - |
-| [Steps](/workflows/hitl/steps) | ✓ | - | - |
-| [Condition](/workflows/hitl/condition) | ✓ | - | - |
-| [Loop](/workflows/hitl/loop) | ✓ | - | - |
-| [Router](/workflows/hitl/router) | ✓ | - | ✓ |
+| Primitive | Confirmation | User Input | Output Review | Iteration Review | Route Selection |
+|-----------|--------------|------------|---------------|------------------|-----------------|
+| [Step](/workflows/hitl/step) | ✓ | ✓ | ✓ | - | - |
+| [Steps](/workflows/hitl/steps) | ✓ | - | - | - | - |
+| [Condition](/workflows/hitl/condition) | ✓ | - | - | - | - |
+| [Loop](/workflows/hitl/loop) | ✓ | - | - | ✓ | - |
+| [Router](/workflows/hitl/router) | ✓ | - | ✓ | - | ✓ |
 
 ## Run Output Properties
 
@@ -101,9 +126,11 @@ Pause before executing a step. User confirms to proceed or rejects to skip/cance
 Step(
     name="delete_records",
     agent=delete_agent,
-    requires_confirmation=True,
-    confirmation_message="Delete 1000 records?",
-    on_reject=OnReject.skip,  # cancel | skip (default)
+    human_review=HumanReview(
+        requires_confirmation=True,
+        confirmation_message="Delete 1000 records?",
+        on_reject=OnReject.skip,
+    ),
 )
 ```
 
@@ -123,17 +150,19 @@ for req in run_output.steps_requiring_confirmation:
 Collect parameters from the user before step execution.
 
 ```python
-from agno.workflow.types import UserInputField
+from agno.workflow.types import HumanReview, UserInputField
 
 Step(
     name="generate_report",
     agent=report_agent,
-    requires_user_input=True,
-    user_input_message="Configure report settings:",
-    user_input_schema=[
-        UserInputField(name="format", field_type="str", required=True),
-        UserInputField(name="include_charts", field_type="bool", required=False),
-    ],
+    human_review=HumanReview(
+        requires_user_input=True,
+        user_input_message="Configure report settings:",
+        user_input_schema=[
+            UserInputField(name="format", field_type="str", required=True),
+            UserInputField(name="include_charts", field_type="bool", required=False),
+        ],
+    ),
 )
 ```
 
@@ -151,6 +180,44 @@ for req in run_output.steps_requiring_user_input:
 User input is available in the custom function step via `step_input.additional_data["user_input"]`.
 </Tip>
 
+## Output Review
+
+Pause after a step executes so the user can review the output. Supported on Step and Router.
+
+```python
+Step(
+    name="draft_email",
+    agent=draft_agent,
+    human_review=HumanReview(
+        requires_output_review=True,
+        output_review_message="Review the draft email.",
+        on_reject=OnReject.retry,
+        max_retries=3,
+    ),
+)
+```
+
+When rejected with `on_reject=OnReject.retry`, the step re-executes up to `max_retries` times.
+
+## Iteration Review
+
+Pause after each loop iteration for review. Supported on Loop only.
+
+```python
+from agno.workflow.loop import Loop
+
+Loop(
+    name="refinement_loop",
+    steps=[Step(name="refine", executor=refine_fn)],
+    max_iterations=5,
+    human_review=HumanReview(
+        requires_iteration_review=True,
+        iteration_review_message="Review this iteration.",
+        on_reject=OnReject.retry,
+    ),
+)
+```
+
 ## Route Selection
 
 Let users choose which path(s) a Router executes.
@@ -164,8 +231,10 @@ Router(
         Step(name="quick_analysis", ...),
         Step(name="deep_analysis", ...),
     ],
-    requires_user_input=True,
-    user_input_message="Select analysis type:",
+    human_review=HumanReview(
+        requires_user_input=True,
+        user_input_message="Select analysis type:",
+    ),
     allow_multiple_selections=False,
 )
 ```
@@ -181,7 +250,7 @@ for req in run_output.steps_requiring_route:
 
 ## Error Handling
 
-Pause when a step fails, letting the user retry or skip. 
+Pause when a step fails, letting the user retry or skip.
 `This is only at the Step level.`
 
 ```python
@@ -213,7 +282,33 @@ The `on_reject` parameter controls what happens when a user rejects a step:
 |-------|----------|
 | `OnReject.skip` | Skip the step and continue with the next (default for most primitives) |
 | `OnReject.cancel` | Cancel the entire workflow |
+| `OnReject.retry` | Re-execute the step (for output review) |
 | `OnReject.else_branch` | For Condition only: execute `else_steps` (default for Condition) |
+
+## Timeout
+
+Set a timeout for HITL pauses. If the user does not respond in time, `on_timeout` determines the action.
+
+```python
+from agno.workflow import OnTimeout
+
+Step(
+    name="approve_deploy",
+    agent=deploy_agent,
+    human_review=HumanReview(
+        requires_confirmation=True,
+        confirmation_message="Approve deployment?",
+        timeout=300,  # 5 minutes
+        on_timeout=OnTimeout.approve,
+    ),
+)
+```
+
+| `OnTimeout` Value | Behavior |
+|-------------------|----------|
+| `OnTimeout.approve` | Auto-approve and continue |
+| `OnTimeout.reject` | Auto-reject |
+| `OnTimeout.cancel` | Cancel the workflow |
 
 ## Streaming
 
@@ -259,17 +354,20 @@ Step(name="process", executor=process_data)
 ## Guides
 
 <CardGroup cols={3}>
+  <Card title="HumanReview Config" icon="gear" href="/workflows/hitl/human-review">
+    All HITL settings in a single config object
+  </Card>
   <Card title="Step HITL" icon="pause" href="/workflows/hitl/step">
-    Confirmation and user input on individual steps
+    Confirmation, user input, and output review on steps
   </Card>
   <Card title="Router HITL" icon="route" href="/workflows/hitl/router">
-    User-driven route selection and confirmation
+    Route selection, confirmation, and output review
   </Card>
   <Card title="Condition HITL" icon="code-branch" href="/workflows/hitl/condition">
     User-controlled branching decisions
   </Card>
   <Card title="Loop HITL" icon="rotate" href="/workflows/hitl/loop">
-    Confirm before starting iterative execution
+    Confirmation and iteration review on loops
   </Card>
   <Card title="Steps HITL" icon="layer-group" href="/workflows/hitl/steps">
     Confirm before executing a pipeline
@@ -281,6 +379,7 @@ Step(name="process", executor=process_data)
 
 ## Developer Resources
 
+- [HumanReview Config](/workflows/hitl/human-review)
 - [Cookbooks](https://github.com/agno-agi/agno/tree/main/cookbook/04_workflows/_07_human_in_the_loop)
 - [Step reference](/reference/workflows/step)
 - [Router reference](/reference/workflows/router-steps)

@@ -1,11 +1,13 @@
 ---
 title: Step HITL
 sidebarTitle: Step
-description: Pause individual steps for confirmation or user input before execution.
-keywords: [workflow, step, HITL, confirmation, user input, pause]
+description: Pause individual steps for confirmation, user input, or output review.
+keywords: [workflow, step, HITL, confirmation, user input, output review, pause, human review]
 ---
 
-Steps support two HITL modes: confirmation (approve/reject) and user input (collect parameters).
+Steps support three HITL modes: confirmation (approve/reject before execution), user input (collect parameters before execution), and output review (review results after execution).
+
+All HITL settings are configured via [`HumanReview`](/workflows/hitl/human-review).
 
 ## Confirmation
 
@@ -14,6 +16,7 @@ Pause before executing a step. The user confirms to proceed or rejects to skip/c
 ```python
 from agno.workflow import Workflow, OnReject
 from agno.workflow.step import Step
+from agno.workflow.types import HumanReview
 from agno.db.sqlite import SqliteDb
 
 workflow = Workflow(
@@ -24,9 +27,11 @@ workflow = Workflow(
         Step(
             name="process_data",
             agent=process_agent,
-            requires_confirmation=True,
-            confirmation_message="Process sensitive data?",
-            on_reject=OnReject.skip,
+            human_review=HumanReview(
+                requires_confirmation=True,
+                confirmation_message="Process sensitive data?",
+                on_reject=OnReject.skip,
+            ),
         ),
         Step(name="save_results", agent=save_agent),
     ],
@@ -51,8 +56,8 @@ print(run_output.content)
 
 ### Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Field | Type | Description |
+|-------|------|-------------|
 | `requires_confirmation` | `bool` | Pause for user confirmation before execution |
 | `confirmation_message` | `str` | Message shown to the user |
 | `on_reject` | `OnReject` | Action when rejected: `skip` (default), `cancel` |
@@ -71,7 +76,7 @@ Collect parameters from the user before step execution. Input values are passed 
 ```python
 from agno.workflow import Workflow
 from agno.workflow.step import Step
-from agno.workflow.types import StepInput, StepOutput, UserInputField
+from agno.workflow.types import HumanReview, StepInput, StepOutput, UserInputField
 from agno.db.sqlite import SqliteDb
 
 def process_with_params(step_input: StepInput) -> StepOutput:
@@ -89,28 +94,30 @@ workflow = Workflow(
         Step(
             name="process",
             executor=process_with_params,
-            requires_user_input=True,
-            user_input_message="Configure processing:",
-            user_input_schema=[
-                UserInputField(
-                    name="threshold",
-                    field_type="float",
-                    description="Processing threshold (0.0-1.0)",
-                    required=True,
-                ),
-                UserInputField(
-                    name="mode",
-                    field_type="str",
-                    description="Mode: 'fast' or 'accurate'",
-                    required=True,
-                ),
-                UserInputField(
-                    name="batch_size",
-                    field_type="int",
-                    description="Records per batch",
-                    required=False,
-                ),
-            ],
+            human_review=HumanReview(
+                requires_user_input=True,
+                user_input_message="Configure processing:",
+                user_input_schema=[
+                    UserInputField(
+                        name="threshold",
+                        field_type="float",
+                        description="Processing threshold (0.0-1.0)",
+                        required=True,
+                    ),
+                    UserInputField(
+                        name="mode",
+                        field_type="str",
+                        description="Mode: 'fast' or 'accurate'",
+                        required=True,
+                    ),
+                    UserInputField(
+                        name="batch_size",
+                        field_type="int",
+                        description="Records per batch",
+                        required=False,
+                    ),
+                ],
+            ),
         ),
         Step(name="report", agent=report_agent),
     ],
@@ -129,7 +136,6 @@ if run_output.is_paused:
             prompt = f"{field.name}{marker} ({field.field_type}): "
             value = input(prompt)
             
-            # Convert to appropriate type
             if value:
                 if field.field_type == "int":
                     values[field.name] = int(value)
@@ -149,8 +155,8 @@ print(run_output.content)
 
 ### Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Field | Type | Description |
+|-------|------|-------------|
 | `requires_user_input` | `bool` | Pause to collect user input before execution |
 | `user_input_message` | `str` | Message shown to the user |
 | `user_input_schema` | `List[UserInputField]` | Schema defining expected input fields |
@@ -176,11 +182,92 @@ def my_step(step_input: StepInput) -> StepOutput:
     threshold = user_input.get("threshold")
     mode = user_input.get("mode")
     
-    # Process with user-provided values
     return StepOutput(content=f"Done with {threshold}, {mode}")
 ```
 
 For agent-based steps, user input is automatically appended to the message.
+
+## Output Review
+
+Pause after a step executes so the user can review the output before the workflow continues. If the user rejects, the step re-executes (up to `max_retries`).
+
+```python
+from agno.workflow import Workflow, OnReject
+from agno.workflow.step import Step
+from agno.workflow.types import HumanReview
+from agno.db.sqlite import SqliteDb
+
+workflow = Workflow(
+    name="content_pipeline",
+    db=SqliteDb(db_file="workflow.db"),
+    steps=[
+        Step(name="research", agent=research_agent),
+        Step(
+            name="draft",
+            agent=draft_agent,
+            human_review=HumanReview(
+                requires_output_review=True,
+                output_review_message="Review the draft. Approve to continue or reject to regenerate.",
+                on_reject=OnReject.retry,
+                max_retries=3,
+            ),
+        ),
+        Step(name="publish", agent=publish_agent),
+    ],
+)
+
+run_output = workflow.run("Write a blog post about AI agents")
+
+while run_output.is_paused:
+    for req in run_output.steps_requiring_confirmation:
+        print(f"Output: {req.step_output}")
+        print(f"Message: {req.confirmation_message}")
+        
+        if input("Approve? (y/n): ").lower() == "y":
+            req.confirm()
+        else:
+            req.reject()
+    
+    run_output = workflow.continue_run(run_output)
+
+print(run_output.content)
+```
+
+### Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `requires_output_review` | `bool` | Pause after execution for user review |
+| `output_review_message` | `str` | Message shown during review |
+| `on_reject` | `OnReject` | Action when rejected. Use `OnReject.retry` to re-execute |
+| `max_retries` | `int` | Max re-executions on rejection (default: `3`) |
+
+### Timeout
+
+Set a deadline for the user to respond. If it expires, `on_timeout` fires automatically.
+
+```python
+from agno.workflow import OnTimeout
+
+Step(
+    name="review_report",
+    agent=report_agent,
+    human_review=HumanReview(
+        requires_output_review=True,
+        output_review_message="Review the report.",
+        on_reject=OnReject.retry,
+        max_retries=2,
+        timeout=120,  # 2 minutes
+        on_timeout=OnTimeout.approve,
+    ),
+)
+```
+
+| `OnTimeout` Value | Behavior |
+|-------------------|----------|
+| `OnTimeout.approve` | Auto-approve and continue |
+| `OnTimeout.reject` | Auto-reject (triggers retry if `on_reject=OnReject.retry`) |
+| `OnTimeout.cancel` | Cancel the workflow |
 
 ## The @pause Decorator
 
@@ -245,5 +332,6 @@ while run_output.is_paused:
 
 ## Developer Resources
 
+- [HumanReview Config](/workflows/hitl/human-review)
 - [Workflow HITL overview](/workflows/hitl/overview)
 - [Step reference](/reference/workflows/step)

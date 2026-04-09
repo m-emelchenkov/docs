@@ -1,11 +1,13 @@
 ---
 title: Router HITL
 sidebarTitle: Router
-description: Let users select routes or confirm automated routing decisions.
-keywords: [workflow, router, HITL, route selection, confirmation, branching]
+description: Let users select routes, confirm routing decisions, or review router output.
+keywords: [workflow, router, HITL, route selection, confirmation, output review, human review]
 ---
 
-Routers support two HITL modes: user selection (user chooses routes) and confirmation (user approves automated routing).
+Routers support three HITL modes: user selection (user chooses routes), confirmation (user approves automated routing), and output review (review results after execution).
+
+All HITL settings are configured via [`HumanReview`](/workflows/hitl/human-review).
 
 ## User Selection
 
@@ -15,7 +17,7 @@ Let users choose which route(s) to execute. The router pauses and presents avail
 from agno.workflow import Workflow
 from agno.workflow.router import Router
 from agno.workflow.step import Step
-from agno.workflow.types import StepInput, StepOutput
+from agno.workflow.types import HumanReview, StepInput, StepOutput
 from agno.db.sqlite import SqliteDb
 
 def quick_analysis(step_input: StepInput) -> StepOutput:
@@ -39,8 +41,10 @@ workflow = Workflow(
                 Step(name="deep", description="Full analysis (10 min)", executor=deep_analysis),
                 Step(name="custom", description="Custom parameters", executor=custom_analysis),
             ],
-            requires_user_input=True,
-            user_input_message="Select analysis type:",
+            human_review=HumanReview(
+                requires_user_input=True,
+                user_input_message="Select analysis type:",
+            ),
             allow_multiple_selections=False,
         ),
         Step(name="report", executor=generate_report),
@@ -65,8 +69,8 @@ print(run_output.content)
 
 ### Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Field | Type | Description |
+|-------|------|-------------|
 | `requires_user_input` | `bool` | Pause for user to select route(s) |
 | `user_input_message` | `str` | Message shown to the user |
 | `allow_multiple_selections` | `bool` | Allow selecting multiple routes (default: `False`) |
@@ -92,8 +96,10 @@ Router(
         Step(name="enrich", description="Enrich data", executor=enrich_data),
         Step(name="transform", description="Transform data", executor=transform_data),
     ],
-    requires_user_input=True,
-    user_input_message="Select processing steps:",
+    human_review=HumanReview(
+        requires_user_input=True,
+        user_input_message="Select processing steps:",
+    ),
     allow_multiple_selections=True,
 )
 ```
@@ -134,8 +140,10 @@ Router(
         Step(name="general_handler", executor=handle_general),
     ],
     selector=route_by_priority,
-    requires_confirmation=True,
-    confirmation_message="Proceed with the selected route?",
+    human_review=HumanReview(
+        requires_confirmation=True,
+        confirmation_message="Proceed with the selected route?",
+    ),
 )
 ```
 
@@ -154,11 +162,43 @@ for req in run_output.steps_requiring_confirmation:
 
 ### Confirmation Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Field | Type | Description |
+|-------|------|-------------|
 | `requires_confirmation` | `bool` | Pause for user to confirm routing decision |
 | `confirmation_message` | `str` | Message shown to the user |
 | `on_reject` | `OnReject` | Action when rejected: `skip` (default), `cancel` |
+
+## Output Review
+
+Pause after the router's selected route executes so the user can review the output.
+
+```python
+Router(
+    name="content_router",
+    choices=[
+        Step(name="draft", executor=draft_content),
+        Step(name="summarize", executor=summarize_content),
+    ],
+    selector=select_route,
+    human_review=HumanReview(
+        requires_output_review=True,
+        output_review_message="Review the router output.",
+        on_reject=OnReject.retry,
+        max_retries=2,
+    ),
+)
+```
+
+When rejected with `on_reject=OnReject.retry`, the selected route re-executes up to `max_retries` times.
+
+### Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `requires_output_review` | `bool` | Pause after execution for user review |
+| `output_review_message` | `str` | Message shown during review |
+| `on_reject` | `OnReject` | Action when rejected. Use `OnReject.retry` to re-execute |
+| `max_retries` | `int` | Max re-executions on rejection (default: `3`) |
 
 ## User Selection vs Confirmation
 
@@ -168,6 +208,26 @@ for req in run_output.steps_requiring_confirmation:
 | Confirmation | Function | Approves/rejects | Oversight of automated decisions |
 
 Use **user selection** when the user should decide the path. Use **confirmation** when the system decides but needs human approval.
+
+## Timeout
+
+Set a deadline for user responses during router HITL pauses.
+
+```python
+from agno.workflow import OnTimeout
+
+Router(
+    name="timed_router",
+    choices=[...],
+    selector=select_route,
+    human_review=HumanReview(
+        requires_confirmation=True,
+        confirmation_message="Approve this route?",
+        timeout=60,
+        on_timeout=OnTimeout.approve,
+    ),
+)
+```
 
 ## Streaming
 
@@ -196,6 +256,7 @@ while run_output.is_paused:
 
 ## Developer Resources
 
+- [HumanReview Config](/workflows/hitl/human-review)
 - [Workflow HITL overview](/workflows/hitl/overview)
 - [Router reference](/reference/workflows/router-steps)
 - [Branching workflow pattern](/workflows/workflow-patterns/branching-workflow)

@@ -1,11 +1,13 @@
 ---
 title: Loop HITL
 sidebarTitle: Loop
-description: Confirm before starting iterative execution in workflows.
-keywords: [workflow, loop, HITL, confirmation, iteration]
+description: Confirm before starting loops and review each iteration.
+keywords: [workflow, loop, HITL, confirmation, iteration, iteration review, human review]
 ---
 
-Loops support confirmation HITL, pausing before the first iteration to let users decide whether to start the loop.
+Loops support two HITL modes: confirmation (approve/reject before the loop starts) and iteration review (review output after each iteration).
+
+All HITL settings are configured via [`HumanReview`](/workflows/hitl/human-review).
 
 ## Start Confirmation
 
@@ -17,7 +19,7 @@ When `requires_confirmation=True`, the loop pauses before executing:
 from agno.workflow import Workflow
 from agno.workflow.loop import Loop
 from agno.workflow.step import Step
-from agno.workflow.types import StepInput, StepOutput
+from agno.workflow.types import HumanReview, StepInput, StepOutput
 from agno.db.sqlite import SqliteDb
 
 def refine_analysis(step_input: StepInput) -> StepOutput:
@@ -32,8 +34,10 @@ workflow = Workflow(
             name="refinement_loop",
             steps=[Step(name="refine", executor=refine_analysis)],
             max_iterations=5,
-            requires_confirmation=True,
-            confirmation_message="Start refinement loop? (up to 5 iterations)",
+            human_review=HumanReview(
+                requires_confirmation=True,
+                confirmation_message="Start refinement loop? (up to 5 iterations)",
+            ),
         ),
         Step(name="finalize", executor=finalize_results),
     ],
@@ -58,15 +62,15 @@ if run_output.is_paused:
 print(run_output.content)
 ```
 
-## Parameters
+### Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Field | Type | Description |
+|-------|------|-------------|
 | `requires_confirmation` | `bool` | Pause before first iteration |
 | `confirmation_message` | `str` | Message shown to the user |
 | `on_reject` | `OnReject` | Action when rejected: `skip` (default), `cancel` |
 
-## Loop Behavior
+### Loop Behavior
 
 The confirmation happens once before the loop starts. Individual iterations do not pause for confirmation.
 
@@ -75,21 +79,104 @@ The confirmation happens once before the loop starts. Individual iterations do n
 | Confirm | Execute all iterations (up to `max_iterations` or until `should_continue` returns `False`) |
 | Reject | Skip the loop entirely |
 
+## Iteration Review
+
+Pause after each iteration so the user can review the output before continuing to the next iteration. If the user rejects, the iteration re-executes (up to `max_retries`).
+
+```python
+from agno.workflow import Workflow, OnReject
+from agno.workflow.loop import Loop
+from agno.workflow.step import Step
+from agno.workflow.types import HumanReview, StepInput, StepOutput
+from agno.db.sqlite import SqliteDb
+
+def generate_draft(step_input: StepInput) -> StepOutput:
+    return StepOutput(content="Draft v1: Introduction to AI agents...")
+
+workflow = Workflow(
+    name="iterative_drafting",
+    db=SqliteDb(db_file="workflow.db"),
+    steps=[
+        Loop(
+            name="draft_loop",
+            steps=[Step(name="draft", executor=generate_draft)],
+            max_iterations=5,
+            human_review=HumanReview(
+                requires_iteration_review=True,
+                iteration_review_message="Review this iteration. Approve to continue or reject to redo.",
+                on_reject=OnReject.retry,
+            ),
+        ),
+    ],
+)
+
+run_output = workflow.run("Draft a report")
+
+while run_output.is_paused:
+    for req in run_output.steps_requiring_confirmation:
+        print(f"Iteration output: {req.step_output}")
+        print(f"Message: {req.confirmation_message}")
+        
+        if input("Approve? (y/n): ").lower() == "y":
+            req.confirm()
+        else:
+            req.reject()
+    
+    run_output = workflow.continue_run(run_output)
+
+print(run_output.content)
+```
+
+### Parameters
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `requires_iteration_review` | `bool` | Pause after each iteration for review |
+| `iteration_review_message` | `str` | Message shown during review |
+| `on_reject` | `OnReject` | Action when rejected. Use `OnReject.retry` to re-execute the iteration |
+| `max_retries` | `int` | Max re-executions per iteration (default: `3`) |
+
+<Note>
+`requires_iteration_review` is only supported on Loop. Passing it to Step or Router raises a `ValueError`.
+</Note>
+
 ## With should_continue
 
 The `should_continue` function controls iteration. Confirmation happens before any iteration:
 
 ```python
 def check_quality(step_input: StepInput, iteration: int) -> bool:
-    # Continue if quality threshold not met
-    return iteration < 3  # Example: max 3 iterations
+    return iteration < 3
 
 Loop(
     name="quality_loop",
     steps=[Step(name="improve", executor=improve_quality)],
     should_continue=check_quality,
-    requires_confirmation=True,
-    confirmation_message="Start quality improvement loop?",
+    human_review=HumanReview(
+        requires_confirmation=True,
+        confirmation_message="Start quality improvement loop?",
+    ),
+)
+```
+
+## Timeout
+
+Set a deadline for user responses during loop HITL pauses.
+
+```python
+from agno.workflow import OnTimeout
+
+Loop(
+    name="review_loop",
+    steps=[Step(name="generate", executor=generate_fn)],
+    max_iterations=3,
+    human_review=HumanReview(
+        requires_iteration_review=True,
+        iteration_review_message="Review this iteration.",
+        on_reject=OnReject.retry,
+        timeout=120,  # 2 minutes per pause
+        on_timeout=OnTimeout.approve,
+    ),
 )
 ```
 
@@ -120,6 +207,7 @@ while run_output.is_paused:
 
 ## Developer Resources
 
+- [HumanReview Config](/workflows/hitl/human-review)
 - [Workflow HITL overview](/workflows/hitl/overview)
 - [Loop reference](/reference/workflows/loop-steps)
 - [Iterative workflow pattern](/workflows/workflow-patterns/iterative-workflow)

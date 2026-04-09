@@ -164,6 +164,7 @@
                     "group": "Human-in-the-Loop",
                     "pages": [
                       "workflows/hitl/overview",
+                      "workflows/hitl/human-review",
                       "workflows/hitl/step",
                       "workflows/hitl/router",
                       "workflows/hitl/condition",

@@ -1,0 +1,198 @@
+---
+title: HumanReview Config
+sidebarTitle: HumanReview Config
+description: Consolidate all human-in-the-loop settings into a single config object.
+keywords: [workflow, HITL, human-review, config, confirmation, output review, iteration review, timeout]
+---
+
+`HumanReview` groups all HITL settings into a single object instead of passing them as separate parameters on Step, Loop, or Router.
+
+```python
+from agno.workflow.step import Step
+from agno.workflow.types import HumanReview
+from agno.workflow import OnReject
+
+Step(
+    name="draft_email",
+    agent=draft_agent,
+    human_review=HumanReview(
+        requires_output_review=True,
+        output_review_message="Review the draft before sending.",
+        on_reject=OnReject.retry,
+        max_retries=3,
+        timeout=300,
+        on_timeout=OnTimeout.approve,
+    ),
+)
+```
+
+Flat parameters still work for backward compatibility:
+
+```python
+# Equivalent to the above
+Step(
+    name="draft_email",
+    agent=draft_agent,
+    requires_output_review=True,
+    output_review_message="Review the draft before sending.",
+    on_reject=OnReject.retry,
+    hitl_max_retries=3,
+    hitl_timeout=300,
+    on_timeout=OnTimeout.approve,
+)
+```
+
+If both `human_review` and flat parameters are provided, `human_review` takes priority.
+
+## All Fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `requires_confirmation` | `bool` | `False` | Pause for user confirmation before execution |
+| `confirmation_message` | `str` | `None` | Message shown during confirmation |
+| `requires_user_input` | `bool` | `False` | Pause to collect user input before execution |
+| `user_input_message` | `str` | `None` | Message shown when collecting input |
+| `user_input_schema` | `List[UserInputField]` | `None` | Schema defining expected input fields |
+| `requires_output_review` | `bool` | `False` | Pause after execution for output review |
+| `output_review_message` | `str` | `None` | Message shown during output review |
+| `requires_iteration_review` | `bool` | `False` | Pause after each loop iteration for review |
+| `iteration_review_message` | `str` | `None` | Message shown during iteration review |
+| `on_reject` | `OnReject` | `OnReject.skip` | Action when user rejects |
+| `on_error` | `OnError` | `None` | Action when step errors |
+| `max_retries` | `int` | `3` | Max retries on rejection (when `on_reject=OnReject.retry`) |
+| `timeout` | `int` | `None` | Seconds to wait for user response |
+| `on_timeout` | `OnTimeout` | `None` | Action when timeout expires |
+
+## Supported Fields by Component
+
+Not every field works on every component. Passing an unsupported field raises a `ValueError` at construction time.
+
+| Field | Step | Loop | Router |
+|-------|------|------|--------|
+| `requires_confirmation` | ✓ | ✓ | ✓ |
+| `requires_user_input` | ✓ | - | ✓ |
+| `requires_output_review` | ✓ | - | ✓ |
+| `requires_iteration_review` | - | ✓ | - |
+| `on_reject` | ✓ | ✓ | ✓ |
+| `on_error` | ✓ | - | - |
+| `max_retries` | ✓ | ✓ | ✓ |
+| `timeout` | ✓ | ✓ | ✓ |
+| `on_timeout` | ✓ | ✓ | ✓ |
+
+```python
+from agno.workflow.loop import Loop
+from agno.workflow.types import HumanReview
+
+# This raises ValueError: requires_output_review is not supported on Loop
+Loop(
+    name="my_loop",
+    steps=[...],
+    human_review=HumanReview(requires_output_review=True),
+)
+```
+
+## Validation Rules
+
+- `requires_output_review` and `requires_iteration_review` cannot both be `True` in the same config.
+- Each component validates at construction time. You get a clear error if a field is unsupported.
+
+## HITL Modes
+
+### Pre-execution: Confirmation
+
+Pause before a step runs. The user approves or rejects.
+
+```python
+HumanReview(
+    requires_confirmation=True,
+    confirmation_message="Delete 1000 records?",
+    on_reject=OnReject.cancel,
+)
+```
+
+### Pre-execution: User Input
+
+Collect parameters from the user before execution.
+
+```python
+from agno.workflow.types import HumanReview, UserInputField
+
+HumanReview(
+    requires_user_input=True,
+    user_input_message="Configure report settings:",
+    user_input_schema=[
+        UserInputField(name="format", field_type="str", required=True),
+        UserInputField(name="include_charts", field_type="bool", required=False),
+    ],
+)
+```
+
+### Post-execution: Output Review
+
+Pause after a step completes so the user can review the output. Supported on Step and Router.
+
+```python
+HumanReview(
+    requires_output_review=True,
+    output_review_message="Review the generated report.",
+    on_reject=OnReject.retry,
+    max_retries=3,
+)
+```
+
+### Per-iteration: Iteration Review
+
+Pause after each loop iteration for review. Supported on Loop only.
+
+```python
+HumanReview(
+    requires_iteration_review=True,
+    iteration_review_message="Review this iteration's output.",
+    on_reject=OnReject.retry,
+)
+```
+
+## Timeout
+
+Set a timeout for how long to wait for a user response. If the timeout expires, `on_timeout` determines what happens.
+
+```python
+from agno.workflow import OnTimeout
+
+HumanReview(
+    requires_confirmation=True,
+    confirmation_message="Approve deployment?",
+    timeout=300,  # 5 minutes
+    on_timeout=OnTimeout.approve,  # Auto-approve after timeout
+)
+```
+
+| `OnTimeout` Value | Behavior |
+|-------------------|----------|
+| `OnTimeout.approve` | Automatically approve and continue |
+| `OnTimeout.reject` | Automatically reject |
+| `OnTimeout.cancel` | Cancel the workflow |
+
+## Serialization
+
+`HumanReview` serializes to a single `"human_review"` key in the workflow state. Deserialization reads `"human_review"` first, then falls back to flat keys for backward compatibility with existing persisted data.
+
+```python
+config = HumanReview(
+    requires_confirmation=True,
+    confirmation_message="Proceed?",
+    timeout=60,
+)
+
+data = config.to_dict()
+# {"requires_confirmation": True, "confirmation_message": "Proceed?", "timeout": 60, ...}
+
+restored = HumanReview.from_dict(data)
+```
+
+## Developer Resources
+
+- [Step HITL](/workflows/hitl/step)
+- [Loop HITL](/workflows/hitl/loop)
+- [Router HITL](/workflows/hitl/router)
+- [Workflow HITL overview](/workflows/hitl/overview)
