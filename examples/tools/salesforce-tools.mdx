@@ -1,0 +1,95 @@
+---
+title: "Salesforce"
+description: "Use Salesforce CRM with Agno agents to query, create, and manage records."
+---
+
+## Prerequisites
+
+```shell
+uv pip install -U simple-salesforce
+```
+
+```shell
+export SALESFORCE_USERNAME="you@example.com"
+export SALESFORCE_PASSWORD="your-password"
+export SALESFORCE_SECURITY_TOKEN="token-from-email"
+export SALESFORCE_DOMAIN="login"
+```
+
+## Example
+
+```python cookbook/91_tools/salesforce_tools.py
+from agno.agent import Agent
+from agno.models.openai import OpenAIChat
+from agno.tools.salesforce import SalesforceTools
+
+# Read-only agent (default)
+read_only_agent = Agent(
+    name="Salesforce Explorer",
+    model=OpenAIChat(id="gpt-4o"),
+    tools=[SalesforceTools()],
+    instructions=[
+        "Use describe_object to understand available fields before building queries.",
+        "Use SOQL for precise structured queries, SOSL for full-text search across objects.",
+    ],
+    markdown=True,
+)
+
+# Full CRM agent with write operations enabled
+full_crm_agent = Agent(
+    name="Salesforce CRM Agent",
+    model=OpenAIChat(id="gpt-4o"),
+    tools=[
+        SalesforceTools(
+            enable_create_record=True,
+            enable_update_record=True,
+            enable_delete_record=True,
+        )
+    ],
+    instructions=[
+        "Always use describe_object to check required fields before creating records.",
+        "Confirm with the user before deleting any records.",
+    ],
+    markdown=True,
+)
+
+if __name__ == "__main__":
+    # Explore available objects
+    read_only_agent.print_response(
+        "List the queryable Salesforce objects in this org",
+        stream=True,
+    )
+
+    # Query accounts
+    read_only_agent.print_response(
+        "Find the top 5 accounts by name using SOQL",
+        stream=True,
+    )
+
+    # Describe an object's schema
+    read_only_agent.print_response(
+        "Describe the Contact object. What fields are required for creating a new contact?",
+        stream=True,
+    )
+
+    # Search across objects
+    read_only_agent.print_response(
+        "Search for anything related to 'United' across all objects",
+        stream=True,
+    )
+```
+
+## Run the Example
+
+```bash
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/91_tools
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python salesforce_tools.py
+```
+
+For details, see [Salesforce Tools cookbook](https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/salesforce_tools.py).

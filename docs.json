@@ -6622,6 +6622,7 @@
                   "examples/tools/parallel-tools",
                   "examples/tools/python-function-as-tool",
                   "examples/tools/python-tools",
+                  "examples/tools/salesforce-tools",
                   "examples/tools/shell-tools",
                   "examples/tools/shopify-tools",
                   "examples/tools/sleep-tools",
