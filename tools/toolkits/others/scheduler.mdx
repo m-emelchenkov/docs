@@ -3,7 +3,7 @@ title: Scheduler
 description: "Let agents create and manage recurring schedules through natural language."
 ---
 
-`SchedulerTools` wraps `ScheduleManager` so an agent can create, list, enable, disable, and delete cron-based schedules in response to prompts like _"Run a daily health check at 9am"_.
+`SchedulerTools` gives an agent natural-language control over the [AgentOS Scheduler](/agent-os/scheduler/overview). It wraps `ScheduleManager` so an agent can create, list, enable, disable, and delete cron-based schedules in response to prompts like _"Run a daily health check at 9am"_.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ Install the scheduler extras:
 uv pip install "agno[scheduler]"
 ```
 
-Requires a running AgentOS server with `scheduler=True` for scheduled tasks to execute.
+`SchedulerTools` persists schedules to the same database your AgentOS uses. For scheduled tasks to actually execute, run an AgentOS instance with `scheduler=True` pointed at that database. See the [Scheduler overview](/agent-os/scheduler/overview) for the AgentOS setup.
 
 ## Example
 
