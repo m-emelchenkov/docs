@@ -2,3 +2,88 @@
 title: Welcome to Agno
 description: Build, run, and manage agentic software at scale.
 ---
+
+Agno is the runtime for agentic software. Bring agents from any framework (Agno SDK, Claude Agent SDK, DSPy, LangGraph) and serve them as production APIs on your own cloud.
+
+> Model-agnostic. Framework-agnostic. Cloud-agnostic.
+
+## A minimal AgentOS
+
+The same runtime serves agents from any framework. Pick yours:
+
+<CodeGroup>
+
+```python Agno SDK
+from agno.agent import Agent
+from agno.models.openai import OpenAIChat
+from agno.os import AgentOS
+
+agent = Agent(
+    id="agno-assistant",
+    name="Agno Assistant",
+    model=OpenAIChat(id="gpt-5.4"),
+    instructions=["You are a helpful assistant."],
+)
+
+agent_os = AgentOS(agents=[agent])
+app = agent_os.get_app()
+```
+
+```python Claude Agent SDK
+from agno.agents.claude import ClaudeAgent
+from agno.os import AgentOS
+
+claude_agent = ClaudeAgent(
+    agent_id="claude-assistant",
+    agent_name="Claude Assistant",
+    model="claude-sonnet-4-20250514",
+    allowed_tools=["Read", "Bash"],
+    permission_mode="acceptEdits",
+)
+
+agent_os = AgentOS(agents=[claude_agent])
+app = agent_os.get_app()
+```
+
+```python DSPy
+import dspy
+from agno.agents.dspy import DSPyAgent
+from agno.os import AgentOS
+
+dspy.configure(lm=dspy.LM("openai/gpt-5.4"))
+
+dspy_agent = DSPyAgent(
+    agent_id="dspy-assistant",
+    agent_name="DSPy Assistant",
+    program=dspy.ChainOfThought("question -> answer"),
+)
+
+agent_os = AgentOS(agents=[dspy_agent])
+app = agent_os.get_app()
+```
+
+```python LangGraph
+from agno.agents.langgraph import LangGraphAgent
+from agno.os import AgentOS
+from langchain_openai import ChatOpenAI
+from langgraph.graph import MessagesState, StateGraph
+
+def chatbot(state: MessagesState):
+    return {"messages": [ChatOpenAI(model="gpt-5.4").invoke(state["messages"])]}
+
+graph = StateGraph(MessagesState)
+graph.add_node("chatbot", chatbot)
+graph.set_entry_point("chatbot")
+compiled = graph.compile()
+
+langgraph_agent = LangGraphAgent(
+    agent_id="langgraph-chatbot",
+    agent_name="LangGraph Chatbot",
+    graph=compiled,
+)
+
+agent_os = AgentOS(agents=[langgraph_agent])
+app = agent_os.get_app()
+```
+
+</CodeGroup>
