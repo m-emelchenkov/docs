@@ -11,7 +11,7 @@ Agno turns agents into production services.
 
 <CodeGroup>
 
-```python Agno SDK
+```python lines Agno SDK
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.os import AgentOS
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     agent_os.serve(app="agno_agent:app", reload=True)
 ```
 
-```python Claude Agent SDK
+```python lines Claude Agent SDK
 from agno.agents.claude import ClaudeAgent
 from agno.db.sqlite import SqliteDb
 from agno.os import AgentOS
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     agent_os.serve(app="claude_agent:app", reload=True)
 ```
 
-```python DSPy
+```python lines DSPy
 import dspy
 from agno.agents.dspy import DSPyAgent
 from agno.db.sqlite import SqliteDb
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     agent_os.serve(app="dspy_agent:app", reload=True)
 ```
 
-```python LangGraph
+```python lines LangGraph
 from agno.agents.langgraph import LangGraphAgent
 from agno.db.sqlite import SqliteDb
 from agno.os import AgentOS
