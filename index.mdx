@@ -1,28 +1,20 @@
 ---
 title: Welcome to Agno
-description: Build, run, and manage agentic software at scale.
+description: Build, run, and manage agents at scale.
 ---
 
-Agno is the runtime for agentic software. Bring agents from any framework (Agno SDK, Claude Agent SDK, DSPy, LangGraph) and serve them as production APIs on your own cloud.
-
-> Model-agnostic. Framework-agnostic. Cloud-agnostic.
-
-## A minimal AgentOS
-
-The same runtime serves agents from any framework. Pick yours:
+Agno is a runtime that turns agents into production services.
 
 <CodeGroup>
 
 ```python Agno SDK
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+from agno.models.openai import OpenAIResponses
 from agno.os import AgentOS
 
 agent = Agent(
-    id="agno-assistant",
-    name="Agno Assistant",
-    model=OpenAIChat(id="gpt-5.4"),
-    instructions=["You are a helpful assistant."],
+    name="Agno Agent",
+    model=OpenAIResponses(id="gpt-5.4"),
 )
 
 agent_os = AgentOS(agents=[agent])

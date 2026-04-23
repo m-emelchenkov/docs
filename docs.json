@@ -77,13 +77,8 @@
     "tabs": [
       {
         "tab": "Home",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "index"
-            ]
-          }
+        "pages": [
+          "index"
         ]
       },
       {
