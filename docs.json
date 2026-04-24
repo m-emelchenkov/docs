@@ -95,12 +95,32 @@
           {
             "group": "Production",
             "pages": [
+              "production/overview",
+              "production/context-and-state",
+              "production/human-in-the-loop",
+              "production/scheduling-and-workflows",
+              "production/interfaces",
+              "production/observability",
+              "production/security-and-auth",
+              "production/deploy",
               {
                 "group": "Demo OS",
                 "pages": [
-                  "features/demo-os/setup",
-                  "features/demo-os/feature-1",
-                  "features/demo-os/feature-2"
+                  "production/demo-os/rag",
+                  "production/demo-os/mcp",
+                  "production/demo-os/context-providers",
+                  "production/demo-os/learning",
+                  "production/demo-os/knowledge",
+                  "production/demo-os/memory",
+                  "production/demo-os/session-state",
+                  "production/demo-os/human-in-the-loop",
+                  {
+                    "group": "Multi-Agent Teams",
+                    "pages": [
+                      "production/demo-os/multi-agent-teams/text-to-sql",
+                      "production/demo-os/multi-agent-teams/investment"
+                    ]
+                  }
                 ]
               }
             ]
