@@ -1,92 +1,54 @@
 ---
 title: What is Scout?
-description: "A context agent that queries live sources to assemble answers."
+description: "A context agent that navigates information sources to assemble answers."
 ---
 
-Every team battles context sprawl. Knowledge ends up scattered across chat, drives, repos, and wikis, and no one person holds it all in their head.
+Every team battles context sprawl. Knowledge ends up scattered across chat, drives, repos, and wikis, and no one person holds it all in their head. Scout is the teammate who does.
 
-**Scout is the teammate who does.**
-
-Scout is a context agent: an agent that queries information sources to assemble context on demand. It follows the "navigation over search" pattern that makes coding agents so effective. Instead of fetching chunks from a pre-built vector index, Scout navigates live sources the same way a human would.
-
-## What you can ask it
-
-```
-What did engineering decide about the auth rewrite?
-Find the PTO policy and tell me how it works for contractors.
-What's in the q1-planning folder in Drive?
-Search the repo for where context providers get registered.
-What time is it in Tokyo right now?
-Save Sarah Chen as a contact, she's the new head of platform at Acme.
-```
-
-Each of these routes to a different source. Slack for the auth decision. Drive for the planning folder. Filesystem for the repo. The CRM for saving Sarah. The web for follow-up research. Scout picks the right source automatically.
-
-<Note>
-  🎥 **Add video:** Quick demo of asking Scout three different questions in the AgentOS UI, showing it route to different context providers.
-</Note>
+**Scout is a context agent.** It looks up information across Slack, Google Drive, your codebase, Linear, and any other MCP server you point it at. It follows the "navigation over search" pattern that makes coding agents so effective. Instead of fetching chunks from a pre-built vector index, Scout navigates live sources the same way a human would.
 
 ## Navigation over search
 
-Most "knowledge agents" embed everything into a vector index, search the index at query time, return chunks. That works for a frozen corpus. It breaks when the corpus is alive.
+Most knowledge agents embed everything into a vector index, search the index at query time, return chunks. This works for a frozen corpus. It breaks when the corpus is alive.
 
-Scout takes the opposite approach. Sources stay where they are. Scout navigates them at query time, the same way a human would: list folders, search for files, read full documents, follow links. No ingest, no embeddings, no stale index.
+Scout takes the opposite approach. It navigates sources at query time: list folders, search for files, read full documents, follow links. No ingest. No embeddings. No stale index.
 
-The trade-off: each query costs more LLM calls. The benefit: answers reflect the live state of every source, citations include exact paths, and adding a new source means registering one provider, not running an ingest pipeline.
+The downside: each query costs more LLM calls. The benefits:
 
-## What Scout sees
+- Answers reflect the live state of every source.
+- Citations include exact paths back to the source.
+- Adding a new source means registering one provider, no ingest pipeline.
 
-Scout is built around the `ContextProvider` abstraction. Six providers ship in the box. Any MCP server plugs in. Custom providers are a four-method subclass.
+## How Scout works
+
+Scout runs on AgentOS. Every question goes through the same loop:
+
+1. **Plan.** Scout interprets the question and picks a starting source based on what it knows about your workspace and what it has learned before.
+2. **Navigate.** It fetches what's relevant from that source the way a person would: opening threads, following links, jumping into linked docs.
+3. **Assemble.** When enough context is in hand, Scout composes an answer with citations back to the original sources.
+4. **Learn.** When Scout finds where an answer lives, it remembers, so the next retrieval skips the exploration.
+
+The learning loop is what makes Scout get faster over time. Scout remembers which provider answered which kind of question, and skips the exploratory hops on the next ask.
+
+## Context Providers
+
+Scout works because of an abstraction called a **Context Provider**. Each provider exposes `query_<id>` (and optionally `update_<id>`) tools on Scout. The agent calls them like any other tool. The provider handles auth, navigation, and pagination on the way to the source.
+
+This keeps two things clean. Scout doesn't carry every source's schema in its context. The know-how for navigating each source lives with the provider.
+
+### Providers that ship with Scout
 
 | Provider | What it exposes | Default |
 |----------|-----------------|---------|
 | **Web** | `web_search`, `web_fetch` | Always on (Parallel's keyless MCP) |
 | **Filesystem** | `list_files`, `search_files`, `search_content`, `read_file` | Always on (the Scout repo) |
-| **CRM** | `query_crm`, `update_crm` | Always on (your contacts, projects, notes in local Postgres) |
+| **Database** | `query_crm`, `update_crm` | Always on (local Postgres for people, projects, notes) |
 | **Slack** | `search_workspace`, `get_channel_history`, `get_thread`, `list_users` | When `SLACK_BOT_TOKEN` is set |
 | **Google Drive** | `search_files`, `list_files`, `read_file` | When `GOOGLE_SERVICE_ACCOUNT_FILE` is set |
 | **MCP servers** | `query_mcp_<slug>` per server | Wired in `scout/contexts.py` |
 
-Each provider exposes `query_<id>` (and optionally `update_<id>`) tools on Scout. The agent calls them like any other tool. The provider handles auth, navigation, and pagination on the way to the source.
+Any MCP server plugs in. Custom providers are a four-method subclass.
 
-## Why a separate identity for each source
+## Next
 
-Scout authenticates as **its own identity** against every source. A dedicated Slack bot, a dedicated Google service account, a dedicated MCP token. Not your credentials borrowed.
-
-This matters because:
-
-- **Audit trails stay clean.** Everything Scout does shows up as Scout, not as you.
-- **Multiple humans can use the same Scout safely.** Access scopes belong to Scout, not to whichever human is logged in.
-- **Permissions are explicit.** You decide what Scout can see by sharing folders / channels / repos with its identity. Nothing more.
-
-The same principle holds when more sources land (Gmail, Calendar, GitHub). Scout will always have its own seat.
-
-## How it's built
-
-```
-Scout (one agno.Agent)
-  ├─ ContextProviders[]
-  │    ├─ WebContextProvider     → query_web
-  │    ├─ FilesystemContext...   → list_files / search_content / read_file
-  │    ├─ DatabaseContext (CRM)  → query_crm / update_crm
-  │    ├─ SlackContextProvider   → search_workspace / get_channel_history / ...
-  │    ├─ GDriveContextProvider  → search_files / read_file
-  │    └─ MCPContextProvider[]   → query_mcp_<slug> per server
-  └─ list_contexts (built-in)
-```
-
-One agent, N providers, one LLM hop per turn. No router, no specialists. Each provider exposes namespaced tools. Scout picks which to call based on the question.
-
-The whole repo: [github.com/agno-agi/scout](https://github.com/agno-agi/scout).
-
-## Try it
-
-```bash
-git clone https://github.com/agno-agi/scout && cd scout
-cp example.env .env  # set OPENAI_API_KEY
-docker compose up -d --build
-```
-
-Then chat with it via [os.agno.com](https://os.agno.com).
-
-Next: [Setup →](/tutorials/scout/setup)
+Follow the [Setup →](/tutorials/scout/setup) guide to get Scout working.
