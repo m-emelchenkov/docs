@@ -118,14 +118,14 @@ if __name__ == "__main__":
 
 </CodeGroup>
 
-Three imports, ten lines. You now have a FastAPI service with 50+ endpoints, persisted sessions, tracing, scheduling and RBAC. Wrap it in a container and deploy.
+You now have a FastAPI service with 50+ endpoints, persisted sessions, tracing, scheduling and RBAC. Wrap it in a container and deploy.
 
 ## Three layers, one architecture
 
 | Layer | Use it to | What it does |
 |-------|------|--------------|
 | **SDK** | Build | Define agents, teams, and workflows with memory, knowledge, guardrails, and 100+ integrations. |
-| **Runtime** | Run | AgentOS is a secure, stateless FastAPI backend with sessions, scheduling, and interfaces. |
+| **Runtime** | Run | Secure, stateless FastAPI backend with sessions, scheduling, and interfaces. |
 | **Control Plane** | Manage | Monitor and operate your system from the [AgentOS UI](https://os.agno.com). |
 
 ## What AgentOS gives you
@@ -136,20 +136,20 @@ Three imports, ten lines. You now have a FastAPI service with 50+ endpoints, per
 - [**Human approval.**](/runtime/human-approval) Pause runs for user confirmation, admin approval, or external execution.
 - [**Observability.**](/runtime/observability) OpenTelemetry tracing, run history, and audit logs out of the box.
 - [**Security & auth.**](/runtime/security-and-auth) JWT-based RBAC and multi-user, multi-tenant isolation.
-- [**Interfaces.**](/runtime/interfaces) Slack, Telegram, WhatsApp, Discord, AG-UI, or your own custom interface.
+- [**Interfaces.**](/runtime/interfaces) Slack, Telegram, WhatsApp, Discord, AG-UI, or roll your own.
 - [**Scheduling.**](/runtime/scheduling) Cron-based scheduling and background jobs without any external infra.
 - [**Deploy.**](/runtime/deploy) Docker, Railway, AWS, GCP. Any container host works.
 
 ## Pick a path
 
-<CardGroup cols={3}>
+<CardGroup cols={1}>
   <Card title="Build your first agent" icon="bolt" iconType="duotone" href="/first-agent">
-    Build, run and chat with your first agent in 20 lines of code.
+    Spin up an agent with memory and tools in 20 lines of code.
   </Card>
   <Card title="Build a real product" icon="rocket-launch" iconType="duotone" href="/pick-a-template">
-    Three production templates (Scout, Dash, Coda) that you can deploy today.
+    Three production templates (Scout, Dash, Coda) you can deploy today.
   </Card>
   <Card title="Understand the runtime" icon="cubes" iconType="duotone" href="/runtime/overview">
-    Dive deeper into what is a runtime and core features.
+    Why AgentOS exists and the work it handles for you.
   </Card>
 </CardGroup>
