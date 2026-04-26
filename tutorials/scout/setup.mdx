@@ -1,14 +1,14 @@
 ---
 title: Setup
-description: "Run Scout locally in five minutes."
+description: "Run Scout locally using Docker."
 ---
 
-This page gets Scout running on your machine with a local Postgres and four always-on contexts: the web, the filesystem, your own CRM, and a `time` MCP server. New to Scout? Read [What is Scout?](/tutorials/scout/overview) first.
+This page gets Scout running on your machine with a local Postgres and three always-on contexts: the web, the filesystem (the Scout repo itself), and a local database for remembering people, projects, and notes (the CRM).
 
 ## Prerequisites
 
 - Docker Desktop ([install](https://docs.docker.com/desktop/))
-- OpenAI API key
+- OpenAI API key ([get one](https://platform.openai.com/api-keys))
 
 <Tabs>
   <Tab title="Manual">
@@ -39,16 +39,18 @@ This page gets Scout running on your machine with a local Postgres and four alwa
       </Step>
 
       <Step title="Chat with Scout">
-        1. Open [os.agno.com](https://os.agno.com) and log in.
-        2. Click **Add OS**, choose **Local**, enter `http://localhost:8000`, click **Connect**.
-        3. Try the pre-configured prompt: *"Which contexts are you connected to?"*
+        <Snippet file="connect-agent-os-ui.mdx" />
 
-        Scout calls `list_contexts` and reports back web, filesystem, CRM, and `mcp_time`.
+        Try the pre-configured prompt: *"Which contexts are you connected to?"*
+
+        Scout calls `list_contexts` and reports back web, filesystem, and CRM.
       </Step>
     </Steps>
   </Tab>
 
   <Tab title="Agentic">
+    The prompt below never asks the agent to read or transmit your API key. The agent opens `.env` for you to edit, then waits for you to confirm before continuing.
+
     If you have a coding agent like [Claude Code](https://claude.com/product/claude-code) or [Codex](https://openai.com/index/introducing-codex/), paste this prompt into a fresh session in an empty directory. The agent clones the repo, starts Scout, and verifies it's running.
 
     ````
@@ -72,23 +74,24 @@ This page gets Scout running on your machine with a local Postgres and four alwa
 
 ## What you have now
 
-Scout is running with four always-on context providers:
+Scout is running with three always-on context providers. Each surfaces as a `query_<id>` tool (plus `update_<id>` where writes are allowed):
 
-| Provider | Tools | Backed by |
-|----------|-------|-----------|
-| **Web** | `web_search`, `web_fetch` | Parallel's public MCP (keyless). Set `PARALLEL_API_KEY` to upgrade to the Parallel SDK. |
-| **Filesystem** | `list_files`, `search_files`, `search_content`, `read_file` | The Scout repo itself, read-only. |
+| Provider | Tool(s) | Backed by |
+|----------|---------|-----------|
+| **Web** | `query_web` | Parallel's public MCP (keyless). Set `PARALLEL_API_KEY` to upgrade to the Parallel SDK. |
+| **Filesystem** | `query_fs` | The Scout repo itself, read-only. |
 | **CRM** | `query_crm`, `update_crm` | Your own contacts, projects, and notes in the local Postgres. |
-| **Time MCP** | `get_current_time`, `convert_time` | The `mcp-server-time` stdio server, registered by default. |
 
-Try asking Scout to use them:
+## Try it
 
-> *"What time is it in Tokyo right now?"* calls the time MCP.
->
-> *"Save Sarah Chen as a contact, she's the head of platform at Acme."* writes to the CRM.
->
+Ask Scout to put each provider to work:
+
 > *"Look up the latest benchmark numbers for Claude Sonnet 4.6."* hits the web.
->
+
 > *"Search the repo for where context providers get registered."* navigates the filesystem.
 
-Next: [Connect Slack →](/tutorials/scout/connect-slack)
+> *"Save Sarah Chen as a contact, she's the head of platform at Acme."* writes to the CRM. (Yes, Scout can mutate state. `update_<id>` tools are real writes.)
+
+## Next
+
+[Connect to Slack →](/tutorials/scout/connect-slack)

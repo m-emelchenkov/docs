@@ -9,16 +9,17 @@ Scout ships with three Railway scripts. One provisions the project, one syncs en
 
 - A Scout repo set up locally ([setup](/tutorials/scout/setup))
 - A [Railway](https://railway.app) account
-- The [Railway CLI](https://docs.railway.app/guides/cli) installed
-- `railway login` run once
+- The [Railway CLI](https://docs.railway.app/guides/cli) installed and authenticated (`railway login`)
 
 ## Step 1: Provision the project
 
-Use `.env.production` to keep production credentials separate from local dev. Copy your local `.env` and adjust as needed:
+Use `.env.production` to keep production credentials separate from local dev. Copy your local `.env` as the starting point:
 
 ```bash
 cp .env .env.production
 ```
+
+Don't set `DB_*` in `.env.production`. The deploy script points Scout at the Railway Postgres service automatically. Setting `DB_HOST` here would break the deploy when env vars sync in Step 2.
 
 Then run:
 
@@ -30,10 +31,10 @@ This script:
 
 1. Creates a Railway project called `scout`.
 2. Adds a `pgvector` service with a persistent volume at `/var/lib/postgresql`.
-3. Creates the `scout` application service and forwards a starter set of env vars (`OPENAI_API_KEY`, `PARALLEL_API_KEY`, `DB_*`, `PORT`).
+3. Creates the `scout` application service and forwards a starter set of env vars from your shell or `.env.production`.
 4. Deploys the app and assigns a public domain.
 
-The domain takes ~5 minutes to come live. The script prints the URL when it's ready.
+The script prints the assigned URL right away. The domain takes ~5 minutes to start resolving.
 
 ## Step 2: Sync the rest of your env vars
 
@@ -69,6 +70,17 @@ Then connect the AgentOS UI:
 2. Click **Add OS**, choose **Live**, paste your Railway URL.
 3. Click **Connect**.
 
+## Update Slack to point at production
+
+If you set up [Slack](/tutorials/scout/connect-slack) against an ngrok URL, swap it for your Railway domain:
+
+1. Open your Slack app at [api.slack.com/apps](https://api.slack.com/apps).
+2. Go to **Event Subscriptions**.
+3. Update the Request URL to `https://your-scout.up.railway.app/slack/events`.
+4. Wait for the green **Verified** check, then **Save Changes**.
+
+You can stop ngrok now. Slack delivers all events to Railway.
+
 ## Redeploys
 
 Code changes:
@@ -82,17 +94,6 @@ Env var changes:
 ```bash
 ./scripts/railway/env.sh
 ```
-
-## Update Slack to point at production
-
-If you set up [Slack](/tutorials/scout/connect-slack) against an ngrok URL, swap it for your Railway domain:
-
-1. Open your Slack app at [api.slack.com/apps](https://api.slack.com/apps).
-2. Go to **Event Subscriptions**.
-3. Update the Request URL to `https://your-scout.up.railway.app/slack/events`.
-4. Wait for the green **Verified** check, then **Save Changes**.
-
-You can stop ngrok now. Slack delivers all events to Railway.
 
 ## What you get
 
@@ -110,7 +111,8 @@ You can stop ngrok now. Slack delivers all events to Railway.
 | Tail logs | `railway logs --service scout` |
 | Open the dashboard | `railway open` |
 | Run a command in the container | `railway ssh --service scout` |
+| Scale CPU, memory, replicas | Edit `railway.json` |
 
-Adjust CPU, memory, and replicas in `railway.json`.
+## Next
 
-Next: [Add more sources →](/tutorials/scout/next-steps)
+[Add more sources →](/tutorials/scout/next-steps)
