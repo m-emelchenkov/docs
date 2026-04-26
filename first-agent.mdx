@@ -4,11 +4,7 @@ description: "Build and run your first agent in 20 lines of code."
 keywords: [agno, agent, quickstart, tutorial]
 ---
 
-In this guide, you'll build an agent that:
-
-- Reads, edits, and runs commands in a local workspace
-- Remembers what you tell it across sessions
-- Runs as a production API
+An agent that works in your filesystem, remembers you across sessions, and runs as a production API with persistent sessions and state management out of the box.
 
 ## 1. Define the Agent
 
@@ -23,14 +19,14 @@ from agno.tools.workspace import Workspace
 workbench = Agent(
     name="Workbench",
     model="openai:gpt-5.4",
-    db=SqliteDb(db_file="agno.db"),  # session storage
-    tools=[Workspace(".")],          # read/write/edit/shell in this directory
-    enable_agentic_memory=True,      # remembers across sessions
-    add_history_to_context=True,     # include past runs
-    num_history_runs=3,              # last 3 conversations
+    db=SqliteDb(db_file="agno.db"), # one DB persists sessions and memories
+    tools=[Workspace(".")],         # read, write, edit, shell
+    enable_agentic_memory=True,     # remembers across sessions
+    add_history_to_context=True,    # last few turns flow into every run
+    num_history_runs=3,
 )
 
-# Serve via AgentOS. Get streaming, auth, session isolation
+# Serve via AgentOS. Get streaming, auth, session isolation, API endpoints
 agent_os = AgentOS(agents=[workbench], tracing=True)
 app = agent_os.get_app()
 ```
@@ -88,7 +84,7 @@ app = agent_os.get_app()
   </Step>
 </Steps>
 
-You now have:
+Now you have:
   - A stateful agent served as a production API.
   - Tracing and session monitoring enabled out of the box.
   - Per-session storage and isolation, with JWT-based RBAC available for multi-user isolation.
@@ -103,10 +99,7 @@ Use it to test, monitor, and manage your agents in real time.
 
 1. Open [os.agno.com](https://os.agno.com) and sign in.
 2. Click **"Add new OS"** in the top navigation.
-3. Select **"Local"** to connect to a local AgentOS.
-4. Enter your endpoint URL (default: `http://localhost:8000`).
-5. Name it something like "Dev AgentOS".
-6. Click **"Connect"**.
+3. Select **"Local"**, enter your endpoint URL (default: `http://localhost:8000`), name it "Dev AgentOS", and click **"Connect"**.
 
 <Frame>
   <video
@@ -142,12 +135,10 @@ Try a follow-up like "summarize the README" or "create a NOTES.md with three bul
   </video>
 </Frame>
 
-Click Sessions or Traces in the sidebar to inspect stored conversations. All session data is stored in your local database. No third-party tracing or hosted services required.
+Click Sessions or Traces in the sidebar to inspect stored conversations.
 
 <Tip>
-
-This same architecture scales to full production deployments with multi-agent teams and scheduled workflows.
-
+All session data is stored in your local database, no data leaves your system.
 </Tip>
 
 ## Next
