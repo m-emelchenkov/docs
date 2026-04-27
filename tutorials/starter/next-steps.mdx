@@ -1,9 +1,9 @@
 ---
 title: Next Steps
-description: "Extend Blank Canvas into your own product."
+description: "Extend the Starter template into your own product."
 ---
 
-Blank Canvas gives you AgentOS, Postgres, Docker, and Railway as scaffolding. The sections below cover the most common moves for turning it into your own product: adding agents, swapping models, wiring up tools and knowledge, exposing it through Slack.
+The Starter template gives you AgentOS, Postgres, Docker, and Railway as scaffolding. The sections below cover the most common moves for turning it into your own product: adding agents, swapping models, wiring up tools and knowledge, exposing it through Slack.
 
 ## Add your own agent
 
@@ -85,7 +85,7 @@ The same pattern works for Google (`google-genai`), Mistral (`mistralai`), and t
 
 ## Add a Slack interface
 
-Blank Canvas doesn't ship a Slack manifest, but Agno does ship a Slack interface. Wire it up by setting `SLACK_BOT_TOKEN` and `SLACK_SIGNING_SECRET`, then:
+The Starter template doesn't ship a Slack manifest, but Agno does ship a Slack interface. Wire it up by setting `SLACK_BOT_TOKEN` and `SLACK_SIGNING_SECRET`, then:
 
 ```python
 from agno.os.interfaces.slack import Slack
@@ -160,6 +160,6 @@ The Coda template uses this pattern for daily digests, issue triage, and repo sy
 |----------|-----|
 | The full AgentOS feature set | [Demo OS](/demo-os/overview) |
 | How knowledge and Agentic RAG work | [Knowledge](/knowledge/overview) |
-| How MCP integrates with Agno | [MCP](/agent-os/mcp) |
+| How MCP integrates with Agno | [MCP](/agent-os/mcp/mcp) |
 | Comparable templates | [Scout](/tutorials/scout/overview), [Dash](/tutorials/dash/overview), [Coda](/tutorials/coda/overview) |
 | Building a fully custom AgentOS app | [Build a Product](/runtime/build-a-product) |
