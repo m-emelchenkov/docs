@@ -3,9 +3,25 @@ title: Serve as an API
 description: "Everything you need to run agents as a service, behind one HTTP API."
 ---
 
-To ship an agent as a product, you need a lot more than a `/run` endpoint. You need endpoints to run agents as streaming tasks and as background jobs. To manage sessions, memory, and the learnings your agents accumulate. To upload and search knowledge. To inspect runs, traces, and metrics. To schedule recurring work, gate sensitive tool calls on human approval, version your agents, and migrate your database.
+To ship an agent you need a lot more than a `/run` endpoint. You need endpoints to:
 
-That is what serving an agent as an API really means. AgentOS gives you all of this and more.
+- Run agents in streaming mode and as background jobs
+- Manage the sessions, memory, and learnings your agents accumulate
+- Inspect runs, traces, and metrics
+- Schedule recurring work
+- Gate sensitive tool calls on human approval
+- Resume paused runs once that approval comes back
+
+AgentOS gives you all of this and more.
+
+<video
+  autoPlay
+  loop
+  muted
+  playsInline
+  className="w-full rounded-lg"
+  src="/videos/agentos-api-scroll.mp4"
+/>
 
 ## The surface area
 
@@ -23,16 +39,7 @@ That is what serving an agent as an API really means. AgentOS gives you all of t
 | **Components** | Version your agents, teams, and workflows. Manage drafts, publish, roll back to a previous version. |
 | **Database** | Migrate one or all database schemas to a target version. |
 
-Browse the live OpenAPI spec at the `/docs` endpoint of your AgentOS:
-
-<video
-  autoPlay
-  loop
-  muted
-  playsInline
-  className="w-full rounded-lg"
-  src="/videos/agentos-api-scroll.mp4"
-/>
+Browse the live OpenAPI spec at the `/docs` endpoint of your AgentOS.
 
 ## How a request looks
 
