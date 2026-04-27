@@ -11,12 +11,12 @@ from agno.os import AgentOS
 agent_os = AgentOS(
     agents=[agent],
     db=db,
-    scheduler=True,                # turn it on
+    scheduler=True,
     scheduler_poll_interval=15,    # check for due jobs every N seconds
 )
 ```
 
-That's it. The scheduler polls `agno_schedules` every `scheduler_poll_interval` seconds, fires due jobs, retries failures, and persists state. No external worker fleet, no Celery, no separate cron container.
+The scheduler polls `agno_schedules` every `scheduler_poll_interval` seconds, fires due jobs, retries failures, and persists state. No external worker fleet, no Celery, no separate cron container.
 
 ## Schedules created by an agent
 
@@ -62,9 +62,7 @@ async def lifespan(app):
 agent_os = AgentOS(..., scheduler=True, lifespan=lifespan)
 ```
 
-Idempotent. Re-registering with the same name updates the existing schedule. Restarts don't duplicate.
-
-This is the pattern Coda uses for [daily digest, issue triage, and repo sync](/tutorials/coda/next-steps#turn-on-scheduled-tasks).
+Idempotent. Re-registering with the same name updates the existing schedule. Restarts don't duplicate. This is the pattern Coda uses for [daily digest, issue triage, and repo sync](/tutorials/coda/next-steps#turn-on-scheduled-tasks).
 
 ## Workflows for multi-step jobs
 
@@ -90,10 +88,8 @@ workflow = Workflow(
 
 Workflows are first-class AgentOS citizens. `/workflows/<id>/runs` POST endpoint, schedulable, traced, persisted in the same `db`.
 
-## Workflow patterns
-
-| Pattern | Use when | Example in demo |
-|---------|----------|-----------------|
+| Pattern | Use when | Example |
+|---------|----------|---------|
 | **Sequential** | Steps depend on each other | Most workflows |
 | **Parallel** | Steps are independent | [Morning Brief](/demo-os/overview) (calendar + email + news fanout) |
 | **Loop with condition** | Quality threshold or max iterations | [Content Pipeline](/demo-os/overview) (draft, review, repeat until 8/10) |
@@ -116,15 +112,6 @@ agent = Agent(..., post_hooks=[notify_oncall])
 ```
 
 The user gets the response immediately. The hook runs as a FastAPI background task. See [Background Hooks](/agent-os/background-tasks/overview).
-
-## When to schedule vs trigger
-
-| Need | Use |
-|------|-----|
-| Run something on a recurring cadence | Scheduler |
-| Run something when an external event fires | Webhook to `POST /agents/<id>/runs` |
-| Run multi-step work end-to-end | Workflow |
-| Side effect after a run, no response gating | `post_hooks` with `run_in_background=True` |
 
 ## Scheduler in HA
 

@@ -15,7 +15,7 @@ if __name__ == "__main__":
     agent_os.serve(app="my_app:app", reload=False)
 ```
 
-That's the entrypoint. Anything that can run `uvicorn my_app:app` can run AgentOS.
+Anything that can run `uvicorn my_app:app` can run AgentOS.
 
 ## What you need to ship
 
@@ -23,14 +23,12 @@ That's the entrypoint. Anything that can run `uvicorn my_app:app` can run AgentO
 |----------|-----|
 | **Container host** | Runs the FastAPI process |
 | **PostgreSQL** | Sessions, memory, knowledge, traces, schedules |
-| **Public hostname** | Required for Slack/Telegram/WhatsApp interfaces |
+| **Public hostname** | Required for Slack, Telegram, WhatsApp interfaces |
 | **Env vars** | At minimum `OPENAI_API_KEY` and `JWT_VERIFICATION_KEY` (in prod) |
 
-That's it. AgentOS handles queues, worker pools, the scheduler, and JWT auth in-process, so there's no separate worker fleet or auth server to operate.
+AgentOS handles queues, worker pools, the scheduler, and JWT auth in-process, so there's no separate worker fleet or auth server to operate.
 
 ## Local with Docker Compose
-
-The fastest local setup:
 
 ```yaml
 services:
@@ -77,10 +75,7 @@ railway login
 
 `up.sh` provisions the project, adds `pgvector` with a persistent volume, creates the app service with env vars, and assigns a public domain. The whole thing takes under five minutes (the domain takes ~5 more to resolve).
 
-Walkthroughs:
-- [Scout deploy](/tutorials/scout/deploy-to-railway)
-- [Dash deploy](/tutorials/dash/deploy-to-railway) (includes JWT key setup)
-- [Coda deploy](/tutorials/coda/deploy-to-railway) (includes JWT key setup)
+Walkthroughs: [Scout deploy](/tutorials/scout/deploy-to-railway), [Dash deploy](/tutorials/dash/deploy-to-railway), [Coda deploy](/tutorials/coda/deploy-to-railway).
 
 ## AWS, GCP, Azure
 
@@ -111,15 +106,15 @@ For the leader-election pattern with multiple replicas, see [Scheduler HA](/agen
 
 ## Production checklist
 
-- [ ] `RUNTIME_ENV=prd`. Enables JWT auth.
-- [ ] `JWT_VERIFICATION_KEY` set. See [Security & Auth](/runtime/security-and-auth).
-- [ ] `OPENAI_API_KEY` (or other model keys) in a secret manager, not in source
-- [ ] Postgres has a persistent volume / managed backup
-- [ ] Health check pointed at `/health`
-- [ ] Tracing on (`tracing=True`) so you can debug bad runs
-- [ ] At least one [interface](/runtime/interfaces) wired up (Slack, custom HTTP, etc.)
-- [ ] [Pre-hooks](/runtime/human-approval) for PII / injection guarding if you handle untrusted input
-- [ ] `requires_confirmation` on irreversible tools
+- `RUNTIME_ENV=prd` enables JWT auth
+- `JWT_VERIFICATION_KEY` set (see [Security & Auth](/runtime/security-and-auth))
+- `OPENAI_API_KEY` (or other model keys) in a secret manager, not in source
+- Postgres has a persistent volume or managed backup
+- Health check pointed at `/health`
+- Tracing on (`tracing=True`) so you can debug bad runs
+- At least one [interface](/runtime/interfaces) wired up
+- [Pre-hooks](/runtime/human-approval) for PII / injection guarding if you handle untrusted input
+- `requires_confirmation` on irreversible tools
 
 ## Updating your deployment
 
@@ -138,7 +133,7 @@ Env var change:
 # Railway auto-redeploys when env values change.
 ```
 
-Database migration: AgentOS creates the tables it needs on first boot. Schema changes are additive (new columns, new tables) and forward-compatible, so no migration tool is required for stock AgentOS tables. Your own tables you migrate however you like.
+Database migration: AgentOS creates the tables it needs on first boot. Schema changes are additive and forward-compatible, so no migration tool is required for stock AgentOS tables. Your own tables you migrate however you like.
 
 ## Next
 

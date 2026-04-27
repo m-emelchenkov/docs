@@ -3,7 +3,16 @@ title: Interfaces
 description: "Expose your agent through Slack, Telegram, WhatsApp, Discord, and protocol surfaces."
 ---
 
-An agent that only speaks HTTP is half an agent. The other half is meeting users where they already are, so AgentOS ships interfaces for the channels your team actually uses.
+An agent that only speaks HTTP is half an agent. The other half is meeting users where they already are. AgentOS ships interfaces for the channels your team actually uses.
+
+| Interface | Use case | Setup |
+|-----------|----------|-------|
+| **Slack** | Team chat, DMs, channel mentions, thread sessions | [Slack](/agent-os/interfaces/slack/introduction) |
+| **Telegram** | Personal assistants, mobile chat | [Telegram](/agent-os/interfaces/telegram/introduction) |
+| **WhatsApp** | Customer support, mobile chat with E2E encryption support | [WhatsApp](/agent-os/interfaces/whatsapp/introduction) |
+| **Discord** | Community servers, gaming, custom commands. Uses `agno.integrations.discord`, runs in its own process. | [Discord](/deploy/interfaces/discord/overview) |
+| **A2A** | Other agents talk to yours over a standardized protocol | [A2A](/agent-os/interfaces/a2a/introduction) |
+| **AG-UI** | Browser clients consuming SSE streams of run output | [AG-UI](/agent-os/interfaces/ag-ui/introduction) |
 
 ```python
 from agno.os import AgentOS
@@ -22,17 +31,6 @@ agent_os = AgentOS(
 
 Each interface registers its own routes on the FastAPI app. Slack lands events at `/slack/events`. Telegram at `/telegram/webhook`. The agent stays the same.
 
-## Available interfaces
-
-| Interface | Use case | Setup |
-|-----------|----------|-------|
-| **Slack** | Team chat, DMs, channel mentions, thread sessions | [Slack](/agent-os/interfaces/slack/introduction) |
-| **Telegram** | Personal assistants, mobile chat | [Telegram](/agent-os/interfaces/telegram/introduction) |
-| **WhatsApp** | Customer support, mobile chat with E2E encryption support | [WhatsApp](/agent-os/interfaces/whatsapp/introduction) |
-| **Discord** | Community servers, gaming, custom commands. Uses `agno.integrations.discord`, runs in its own process. | [Discord](/deploy/interfaces/discord/overview) |
-| **A2A (Agent-to-Agent)** | Other agents talk to yours over a standardized protocol | [A2A](/agent-os/interfaces/a2a/introduction) |
-| **AG-UI** | Browser clients consuming SSE streams of run output | [AG-UI](/agent-os/interfaces/ag-ui/introduction) |
-
 ## Sessions per surface
 
 Every interface maps surface state to AgentOS sessions:
@@ -45,7 +43,7 @@ Every interface maps surface state to AgentOS sessions:
 | A2A | Caller-supplied | Caller-supplied |
 | AG-UI | Browser session | JWT subject |
 
-That means a Slack thread carries forward like any other conversation. The next reply in the same thread reuses the same session and history, with no re-mentioning required.
+A Slack thread carries forward like any other conversation. The next reply in the same thread reuses the same session and history, no re-mentioning required.
 
 ## Composing interfaces
 
@@ -67,7 +65,7 @@ if TELEGRAM_TOKEN:
 agent_os = AgentOS(agents=[agent], db=db, interfaces=interfaces)
 ```
 
-This is the pattern the [Scout](/tutorials/scout/connect-slack), [Dash](/tutorials/dash/connect-slack), and [Coda](/tutorials/coda/connect-slack) tutorials use. The Slack interface only loads when both env vars are set, so dev runs without credentials don't crash.
+The [Scout](/tutorials/scout/connect-slack), [Dash](/tutorials/dash/connect-slack), and [Coda](/tutorials/coda/connect-slack) tutorials use this pattern. The Slack interface only loads when both env vars are set, so dev runs without credentials don't crash.
 
 ## Custom interfaces
 
