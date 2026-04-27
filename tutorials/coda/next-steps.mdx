@@ -3,7 +3,7 @@ title: Next Steps
 description: "Add repos, schedule digests, write code in worktrees."
 ---
 
-A teammate that only responds is a bot. Coda becomes useful when it shows up on its own. The Coda repo has the canonical setup for each piece below.
+Coda is most useful when it shows up on its own. Posting digests, triaging issues, flagging stale PRs. The Coda repo has canonical setup docs for each piece below.
 
 ## Add more repos
 
@@ -38,7 +38,9 @@ Coda ships three scheduled tasks. Two are gated on env vars:
 |------|----------|--------------|---------------|
 | **Repo Sync** | Every 5 minutes | Pulls latest changes from every configured repo | On by default |
 | **Daily Digest** | Each morning | Posts what merged yesterday, what PRs are waiting, what issues opened, what's gone stale | Set `DIGEST_CHANNEL` |
-| **Issue Triage** | Daily | Reviews open issues against the actual codebase, labels them, posts a summary | Set `TRIAGE_CHANNEL` |
+| **Issue Triage** | Daily | Reviews open issues against the actual codebase, labels them, flags AI-generated slop, posts a summary | Set `TRIAGE_CHANNEL` |
+
+For maintainers of popular open-source repos, the volume of low-quality, AI-generated issues has exploded: vague titles, generic descriptions, "improve error handling" with zero specifics. The Triager checks each issue against the actual code and tags the slop, so a maintainer can scan the digest in 10 seconds and know what's worth attention.
 
 Channel IDs come from Slack: right-click the channel → **View details** → copy the ID at the bottom (looks like `C0123456789`).
 
@@ -50,13 +52,9 @@ TRIAGE_CHANNEL=C0987654321
 
 Restart, and the schedules pick up. You can also trigger triage on-demand with `POST /triage-issues`.
 
-<Note>
-  🎥 **Add video:** Daily digest landing in a Slack channel showing yesterday's merges, open PRs, new issues.
-</Note>
-
 ## How the code-writing flow stays out of main
 
-When you ask Coda to write code, the Coder agent works in a git worktree, not on your main branch:
+When you ask Coda to write code, the Coder works in a git worktree off main:
 
 ```
 @Coda add rate limiting to /api/v1/users using the same pattern as /orders
@@ -85,12 +83,6 @@ Coda's tasks live in [`tasks/`](https://github.com/agno-agi/coda/tree/main/tasks
 
 The [Scheduling](/runtime/scheduling) page has the API reference for the runtime side.
 
-## Coda's learning loop
-
-Coda gets sharper the more you use it. First time you ask for a new endpoint: generic patterns. After a few weeks of use on your codebase: it follows your service layer conventions, your error handling, your naming style, your logging.
-
-Powered by [Agno's Learning Machine](/learning/overview). Patterns Coda discovers get stored as learnings and surfaced on future runs. No prompt engineering, no manual feedback collection.
-
 ## Going deeper
 
 | To learn | See |
@@ -98,6 +90,6 @@ Powered by [Agno's Learning Machine](/learning/overview). Patterns Coda discover
 | The team architecture | [`coda/team.py`](https://github.com/agno-agi/coda/blob/main/coda/team.py) and [`coda/agents/`](https://github.com/agno-agi/coda/tree/main/coda/agents) |
 | Run evals | `python -m evals.run --category security` |
 | Use Parallel for premium web research | Set `PARALLEL_API_KEY` from [parallel.ai](https://parallel.ai) |
-| Run local + production in parallel (separate Slack apps) | [Coda README](https://github.com/agno-agi/coda#running-local--production) |
+| Run local + production in parallel (separate Slack apps) | [Deploy to Railway](/tutorials/coda/deploy-to-railway#run-local-and-production-in-parallel) |
 | Comparable templates | [Scout](/tutorials/scout/overview), [Dash](/tutorials/dash/overview) |
 | Building a fully custom AgentOS app | [Build a Product](/runtime/build-a-product) |

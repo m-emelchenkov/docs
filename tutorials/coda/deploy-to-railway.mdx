@@ -9,12 +9,11 @@ Coda ships with three Railway scripts. Production also enables RBAC, so the depl
 
 - A Coda repo set up locally ([setup](/tutorials/coda/setup))
 - A [Railway](https://railway.app) account
-- The [Railway CLI](https://docs.railway.app/guides/cli) installed
-- `railway login` run once
+- The [Railway CLI](https://docs.railway.app/guides/cli) installed and authenticated (`railway login`)
 
 ## Step 1: Provision the project
 
-The Coda script reads your local `.env` directly, but you'll usually want a separate production env file:
+Use `.env.production` to keep production credentials separate from local dev:
 
 ```bash
 cp .env .env.production
@@ -33,11 +32,11 @@ This script:
 3. Creates the `coda` application service and forwards every env var from your shell (`OPENAI_API_KEY`, `GITHUB_ACCESS_TOKEN`, `SLACK_*`, `TRIAGE_CHANNEL`, `DIGEST_CHANNEL`, `JWT_VERIFICATION_KEY`, `DB_*`).
 4. Deploys the app and assigns a public domain.
 
-Copy the Railway domain from the output. The app will crash-loop until Step 2 lands. **That's expected.** Production requires a `JWT_VERIFICATION_KEY`.
+Copy the Railway domain from the output. The app will crash-loop until Step 2 lands. **That's expected.** Production rejects all requests until a `JWT_VERIFICATION_KEY` is set.
 
 ## Step 2: Get a JWT key from AgentOS
 
-Production endpoints reject all requests until a valid `JWT_VERIFICATION_KEY` is set.
+The key comes from AgentOS:
 
 1. Open [os.agno.com](https://os.agno.com) and log in.
 2. Click **Add OS** → **Live**, paste your Railway URL, click **Connect**.
@@ -73,7 +72,18 @@ curl https://your-coda.up.railway.app/health
 
 Then talk to Coda through the AgentOS UI you connected in Step 2.
 
-## Production operations
+## Update Slack to point at production
+
+If you set up [Slack](/tutorials/coda/connect-slack) against an ngrok URL, swap it for your Railway URL:
+
+1. Open your Slack app at [api.slack.com/apps](https://api.slack.com/apps).
+2. Go to **Event Subscriptions**.
+3. Update the Request URL to `https://your-coda.up.railway.app/slack/events`.
+4. Wait for the green **Verified** check, then **Save Changes**.
+
+You can stop ngrok now. Slack delivers events to Railway from now on.
+
+## Operations
 
 | Task | Command |
 |------|---------|
@@ -85,18 +95,7 @@ Then talk to Coda through the AgentOS UI you connected in Step 2.
 
 Adjust CPU, memory, and replicas in `railway.json`.
 
-## Update Slack to point at production
-
-If you set up [Slack](/tutorials/coda/connect-slack) against an ngrok URL, swap it for your Railway URL:
-
-1. Open your Slack app at [api.slack.com/apps](https://api.slack.com/apps).
-2. Go to **Event Subscriptions**.
-3. Update the Request URL to `https://your-coda.up.railway.app/slack/events`.
-4. Wait for the green **Verified** check, then **Save Changes**.
-
-Stop ngrok. Slack delivers events to Railway from now on.
-
-## Run local + production in parallel
+## Run local and production in parallel
 
 If Coda is already deployed and you want to keep iterating locally, you'll need a separate Slack app. Each Slack app delivers events to one URL.
 
@@ -113,4 +112,6 @@ Production keeps using `.env.production` and the production Slack app. Local use
 
 Add `.env.local` to `.gitignore` if it isn't already.
 
-Next: [Add scheduled tasks →](/tutorials/coda/next-steps)
+## Next
+
+[Add scheduled tasks →](/tutorials/coda/next-steps)

@@ -3,32 +3,11 @@ title: What is Coda?
 description: "A code companion that lives in Slack and works alongside your team."
 ---
 
-Coding agents help us write code faster. But most engineering work isn't writing code. It's understanding how things work, reviewing PRs, figuring out what broke and why, triaging the backlog, and deciding what's safe to change. That work happens in Slack and GitHub, not in an editor.
+Coding agents write code. Coda handles the work around it: PR reviews, issue triage, feature planning, debugging. It lives in Slack as a teammate and works against your codebase on disk.
 
-**Coda fills the gap.**
+## The system
 
-Coda lives in Slack as a teammate. It answers architecture questions about your codebase, reviews PRs, triages issues, plans work, and writes code in isolated worktrees that never touch main.
-
-## What you can ask it
-
-```
-@Coda where is the webhook handler for Stripe events?
-@Coda walk me through the signup flow
-@Coda what changed on the feature/payments branch?
-@Coda review PR #42
-@Coda triage the open issues and label them
-@Coda plan adding webhook support to the payments service
-@Coda add rate limiting to /api/v1/users using the same pattern as /orders
-@Coda what's the recommended way to handle rate limiting in Redis?
-```
-
-Each routes to a different specialist on the team. The Explorer reads code. The Coder writes in worktrees. The Planner breaks features into issues. The Researcher hits the web. The Triager labels and closes issues.
-
-<Note>
-  🎥 **Add video:** Asking Coda three different questions in Slack (an architecture question, a PR review, an issue triage) and seeing each route to a different specialist.
-</Note>
-
-## A team, not an agent
+Coda is a multi-agent system:
 
 | Member | Role | Tools |
 |--------|------|-------|
@@ -39,40 +18,20 @@ Each routes to a different specialist on the team. The Explorer reads code. The 
 | **Triager** | Labels, comments, closes issues based on the actual code | `CodingTools` (read-only), `GithubTools` (issues), `ReasoningTools` |
 | **Leader** | Routes the request, posts to Slack | `SlackTools` |
 
-The Leader picks who handles what. Each member has a charter and a focused tool set, so the right thing happens for the right kind of question.
+The Coder works in a `coda/<branch>` git worktree off main. A human reviews and merges. Coda never merges. Worktrees clean up on restart.
 
-## Three things make Coda useful
+## How Coda runs
 
-**It lives in Slack.** No new tool to adopt. The codebase comes to where the conversation already happens.
+Code is searched on disk. Grep, find, read against actual files, synced every five minutes. No vector indexing. No stale embeddings. Three scheduled tasks ship by default:
 
-**It shows up on its own.** Three scheduled tasks ship by default:
-- **Daily Digest** posts what merged yesterday, what PRs are waiting, what issues opened, what's gone stale.
-- **Issue Triage** reviews open issues against the actual codebase, labels them, posts a summary.
-- **Repo Sync** pulls latest changes every 5 minutes so Coda is always working with current code.
+| Task | Cadence | What it does |
+|------|---------|--------------|
+| **Repo Sync** | Every 5 minutes | Pulls latest changes from every configured repo |
+| **Daily Digest** | Each morning | Posts what merged yesterday, PRs waiting, issues opened, what's gone stale |
+| **Issue Triage** | Daily | Reviews open issues against the actual code, labels them, posts a summary |
 
-**It learns your conventions.** First time you ask for a new endpoint, generic patterns. After a few weeks of use, it follows your service layer conventions, your error handling, your naming style, your logging patterns. Powered by [Agno's Learning Machine](/learning/overview).
+Coda learns your conventions through [Agno's Learning Machine](/learning/overview). Week 1 you get generic patterns. Week 4 it follows your service layer style, error handling, naming, and logging.
 
-## What Coda doesn't do
+## Next
 
-- **Auto-merge.** Coda opens PRs. A human merges them.
-- **Touch your main branch.** All code work happens in isolated git worktrees off main. If something goes wrong, the worktree gets removed on the next restart.
-- **Send code outside your environment.** Coda runs in your infrastructure. The only external calls are to your configured LLM provider.
-
-## How it's built
-
-Built on [Agno](https://github.com/agno-agi/agno) and [AgentOS](/runtime/overview). Reads from a `repos.yaml` you configure. Authenticates to GitHub via a Fine-grained Personal Access Token scoped to the repos you grant.
-
-The whole repo: [github.com/agno-agi/coda](https://github.com/agno-agi/coda).
-
-## Try it
-
-```bash
-git clone https://github.com/agno-agi/coda && cd coda
-cp example.env .env  # set OPENAI_API_KEY and GITHUB_ACCESS_TOKEN
-# edit repos.yaml to point at your repo (or just use the agno repo)
-docker compose up -d --build
-```
-
-Then chat with it via [os.agno.com](https://os.agno.com). Once that works, [connect Slack](/tutorials/coda/connect-slack) and Coda starts living where your team does.
-
-Next: [Setup →](/tutorials/coda/setup)
+[Setup →](/tutorials/coda/setup) takes about five minutes and points at the agno repo by default.
