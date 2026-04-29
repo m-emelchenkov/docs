@@ -1,9 +1,9 @@
 ---
 title: Connect to Slack
-description: "Put Scout in your Slack as a teammate."
+description: "Put Scout in your Slack workspace as a teammate."
 ---
 
-Scout reads and posts in your Slack workspace and responds to DMs and `@mentions` as a teammate. Each Slack thread becomes its own session so follow-ups carry forward.
+Scout reads Slack and responds to DMs and `@mentions` as a teammate. Each Slack thread becomes its own session so follow-ups carry forward without re-mentioning Scout.
 
 The full setup, including the Slack app manifest and the complete scope list, lives in the Scout repo: [SLACK_CONNECT.md](https://github.com/agno-agi/scout/blob/main/docs/SLACK_CONNECT.md).
 
@@ -33,20 +33,20 @@ Copy the `https://...ngrok-free.app` URL. For production, use your deployed Rail
 
 A Slack app is configured by a JSON manifest that declares its identity, scopes, and the events it should receive. A manifest keeps scopes explicit and reproducible.
 
-The manifest requests the scopes Scout needs to read the workspace (search, channel and group history, IMs, user lookups) and to post replies. No admin scopes. The full list is in the manifest. **Review it before installing.**
+The manifest requests the scopes Scout needs to read the workspace (search, channel and group history, IMs, user lookups) and to post replies. No admin scopes. **Review the full list before installing.**
 
 Copy the manifest from [SLACK_CONNECT.md](https://github.com/agno-agi/scout/blob/main/docs/SLACK_CONNECT.md), paste into Slack's **Create New App → From a manifest** flow, and replace the placeholder URL with your URL from Step 1.
 
 ## Step 3: Install Scout into your workspace
 
-Installing the App creates the bot identity in your workspace and issues the credentials Scout uses to authenticate every event and call. Two values to copy after install:
+Installing the app creates the bot identity and issues the credentials Scout uses to authenticate every event and call. Two values to copy after install:
 
 | What | Where in Slack | Becomes |
 |------|----------------|---------|
 | **Bot User OAuth Token** | Install App page | `SLACK_BOT_TOKEN` (`xoxb-...`) |
 | **Signing Secret** | Basic Information → App Credentials | `SLACK_SIGNING_SECRET` |
 
-The signing secret is what Slack uses to sign every incoming event. Scout verifies the signature on every request, which is how it knows the event actually came from Slack and not someone spoofing your endpoint.
+The signing secret is what Slack uses to sign every incoming event. Scout verifies the signature on every request, which is how it knows the event came from Slack and not someone spoofing your endpoint.
 
 ## Step 4: Wire credentials and restart
 
@@ -92,12 +92,12 @@ For everything else, see [SLACK_CONNECT.md](https://github.com/agno-agi/scout/bl
 
 ## How it works
 
-Scout uses [Agno's Slack interface](/agent-os/interfaces/slack/introduction). Each Slack thread timestamp becomes an AgentOS session ID, so threads stay isolated and follow-ups in the same thread don't need to re-mention `@Scout`.
+Two things light up when both Slack env vars are set.
 
-Scout maps Slack user IDs to display names, so it can address you by name.
+**Slack as an interface.** Scout uses [Agno's Slack interface](/agent-os/interfaces/slack/introduction). Each Slack thread timestamp becomes an AgentOS session ID, so threads stay isolated and follow-ups in the same thread don't need to re-mention `@Scout`. Scout maps Slack user IDs to display names, so it can address you by name.
 
-Setting `SLACK_BOT_TOKEN` also activates Slack as a context provider. Scout gets `query_slack` and `update_slack` tools, which work from any surface: the AgentOS UI, evals, Cron jobs, or Slack itself.
+**Slack as a context provider.** Setting `SLACK_BOT_TOKEN` alone activates the Slack context provider. Scout gets a `query_slack` tool that works from any surface (the AgentOS UI, evals, scheduled tasks, or Slack itself). The provider is read-only by design. Slack posts go through the interface, not the context provider, so message authorship stays clean.
 
 ## Next
 
-[Deploy to Railway →](/tutorials/scout/deploy-to-railway)
+[Connect Google Drive →](/tutorials/scout/connect-google-drive)

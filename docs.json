@@ -94,9 +94,11 @@
                 "pages": [
                   "tutorials/scout/overview",
                   "tutorials/scout/setup",
+                  "tutorials/scout/knowledge-and-crm",
                   "tutorials/scout/connect-slack",
-                  "tutorials/scout/deploy-to-railway",
-                  "tutorials/scout/next-steps"
+                  "tutorials/scout/connect-google-drive",
+                  "tutorials/scout/connect-mcp-servers",
+                  "tutorials/scout/deploy-to-railway"
                 ]
               },
               {

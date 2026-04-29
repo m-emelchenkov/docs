@@ -1,9 +1,9 @@
 ---
 title: Setup
-description: "Run Scout locally using Docker."
+description: "Run Scout locally with Docker."
 ---
 
-This page gets Scout running on your machine with three context providers: the web, the filesystem (the Scout repo itself), and a CRM (people, projects, notes) backed by Postgres.
+Five context providers come up out of the box: web, workspace (the Scout repo), CRM, knowledge wiki, and voice wiki. Slack, Drive, and MCP servers light up later when you wire credentials.
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ This page gets Scout running on your machine with three context providers: the w
         docker compose up -d --build
         ```
 
-        First run pulls the base image and builds the Scout container. Takes a minute or two. Subsequent starts come up in seconds.
+        First run pulls the base image and builds the container. Subsequent starts come up in seconds.
       </Step>
 
       <Step title="Verify it's running">
@@ -41,9 +41,9 @@ This page gets Scout running on your machine with three context providers: the w
   </Tab>
 
   <Tab title="Agentic">
-    If you have a coding agent like [Claude Code](https://claude.com/product/claude-code) or [Codex](https://openai.com/index/introducing-codex/), paste this prompt into a fresh session in an empty directory. The agent clones the repo, starts Scout, and verifies it's running.
+    If you have a coding agent like [Claude Code](https://claude.com/product/claude-code) or [Codex](https://openai.com/index/introducing-codex/), paste this prompt into a fresh session in an empty directory.
 
-    The prompt below never asks the agent to read or transmit your API key. The agent opens `.env` for you to edit, then waits for you to confirm before continuing.
+    The prompt below never asks the agent to read or transmit your API key. The agent opens `.env` for you to edit, then waits for confirmation before continuing.
 
     ````
     Set up Scout locally for me.
@@ -66,30 +66,36 @@ This page gets Scout running on your machine with three context providers: the w
 
 <Snippet file="connect-agent-os-ui.mdx" />
 
-Try the pre-configured prompt: *"Which contexts are you connected to?"*
+Then ask Scout: *"Which contexts are you connected to?"*
 
-Scout reports back web, filesystem, and CRM.
+Scout reports back web, workspace, CRM, knowledge, and voice.
 
 ## What you have now
 
-Scout is running with three context providers. Each surfaces as a `query_<id>` tool (plus `update_<id>` where writes are allowed):
+Five providers active. Each surfaces as `query_<id>` (and `update_<id>` where writes are allowed):
 
 | Provider | Tool(s) | Backed by |
 |----------|---------|-----------|
 | **Web** | `query_web` | Parallel's public MCP (keyless). Set `PARALLEL_API_KEY` to upgrade to the Parallel SDK. |
-| **Filesystem** | `query_fs` | The Scout repo itself, read-only. |
-| **CRM** | `query_crm`, `update_crm` | Your own contacts, projects, and notes in the local Postgres. |
+| **Workspace** | `query_workspace` | The Scout repo, read-only. Re-point at your own repo by editing `SCOUT_FS_ROOT` in [`scout/contexts.py`](https://github.com/agno-agi/scout/blob/main/scout/contexts.py). |
+| **CRM** | `query_crm`, `update_crm` | Local Postgres. Ships with `scout_contacts`, `scout_projects`, `scout_notes`, `scout_followups`. New `scout_*` tables on demand. |
+| **Knowledge wiki** | `query_knowledge`, `update_knowledge` | Filesystem at `wiki/knowledge/`. Swap to a Git repo for durable storage in production. |
+| **Voice wiki** | `query_voice` | Filesystem at `wiki/voice/`. Read-only, code-managed style guide. |
 
 ## Try it
 
-Ask Scout to put each provider to work:
+Each prompt routes through a different provider:
 
-> *"Look up the latest pricing for Anthropic's models."* hits the web.
+> *"Walk me through your codebase."* → `query_workspace`
 
-> *"Search the repo for where context providers get registered."* navigates the filesystem.
+> *"Look up the latest pricing for Anthropic's models."* → `query_web`
 
-> *"Save Sarah Chen as a contact, she's the head of platform at Acme."* writes to the CRM.
+> *"Save Sarah Chen as a contact, head of platform at Acme."* → `update_crm`
+
+> *"Track my coffee consumption. First one: flat white, extra shot."* → `update_crm` creates `scout_coffee_orders` and inserts the row.
+
+> *"File a runbook for incident response: page on-call first, post status in #incidents, capture timeline as you go."* → `update_knowledge`
 
 ## Next
 
-[Connect to Slack →](/tutorials/scout/connect-slack)
+[Use the knowledge wiki and CRM →](/tutorials/scout/knowledge-and-crm)

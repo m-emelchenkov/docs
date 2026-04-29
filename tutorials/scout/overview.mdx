@@ -1,58 +1,74 @@
 ---
 title: What is Scout?
-description: "A context agent that navigates information sources to assemble answers."
+description: "An open-source context agent that navigates live information sources to assemble answers."
 ---
 
-Every team battles context sprawl. Knowledge ends up scattered across chat, drives, repos, and wikis, and no one person holds it all in their head. Scout is the teammate who does.
+Scout is an open-source context agent. It navigates Slack, Google Drive, the web, your codebase, and any MCP server you point it at to answer questions about your company. As it works, Scout files what it learns into its own wiki and CRM so the next answer is faster.
 
-**Scout looks up information across Slack, Google Drive, your codebase, the web, and any MCP server you point it at.** It follows the "navigation over search" pattern that makes coding agents so effective. Scout navigates live sources the same way a human would.
+## Why Scout exists
 
-Ask Scout: "Who owns the payments integration?"
+Every company has critical know-how scattered across Slack threads, support tickets, shared drives, and people's heads. The default playbook for a "company brain" is to ingest everything into a vector database, embed, and retrieve top-k chunks. The index is always stale, the chunks land at the wrong boundaries, and citations point at fragments that were true last Tuesday.
 
-Scout searches Linear, finds the project, surfaces the assigned engineer, and pulls the Slack thread where they answered design questions last week. The answer comes back with links to the ticket and the thread.
+Coding agents figured out a better pattern. Don't search, navigate. `ls` a directory, `grep` for a function, open the file, follow the import. Scout applies the same pattern to your information sources.
 
 ## Navigation over search
 
-Most knowledge agents embed everything into a vector index, search the index at query time, and return chunks. This works for a frozen corpus. It breaks when the corpus is alive.
+Every source has the equivalent of `ls`, `grep`, and `cat`. Slack has search and `conversations.replies`. Drive has folder listings and file fetches. Postgres has SQL. Scout walks these primitives at query time instead of pre-indexing.
 
-Scout navigates sources at query time. List folders, search for files, read full documents, follow links. No ingest. No embeddings. No stale index.
+The trade is more LLM calls per query. The wins:
 
-The downside: each query costs more LLM calls. The benefits:
+| Win | What you get |
+|-----|--------------|
+| Live state | The Slack message you sent thirty seconds ago is queryable. |
+| Real citations | Every reference is a path you can open. No fragment from an embedding boundary. |
+| Permissions stay where they live | Drive enforces who can read what. Slack enforces channel membership. Scout sees what its credentials see. |
 
-- Answers reflect the live state of every source.
-- Citations include exact paths back to the source.
-- Adding a new source means registering one provider, no ingest pipeline.
+## Context providers
 
-## How Scout works
+Each source is a `ContextProvider` that exposes two natural-language tools to Scout:
 
-Scout runs on AgentOS. Every question goes through the same loop:
+- `query_<source>` for reads
+- `update_<source>` for writes (when supported)
 
-1. **Plan.** Scout interprets the question and picks a starting source based on what it knows about your workspace and what it has learned before.
-2. **Navigate.** It fetches what's relevant from that source the way a person would: opening threads, following links, jumping into linked docs.
-3. **Assemble.** When enough context is in hand, Scout composes an answer with citations back to the original sources.
-4. **Learn.** When Scout finds where an answer lives, it remembers, so the next retrieval skips the exploration.
+A sub-agent behind each provider owns the source's quirks. Scout sees `query_slack`. Behind it, a sub-agent knows to look up the user before DMing, paginate by cursor, and prefer `conversations.replies` for threads. Scout's context never sees any of that.
 
-The learning loop is what makes Scout get faster over time. Scout remembers which provider answered which kind of question, and skips the exploratory hops on the next ask.
+This solves three problems that hit any agent with a diverse tool surface:
 
-## Context Providers
+| Problem | What context providers do |
+|---------|----------------------------|
+| Context pollution from too many tools | Scout sees `query_slack`, not Slack's twelve tools. |
+| Degrading performance from overlapping scopes | Each sub-agent owns one scope. Routing is one tool call. |
+| Main agent forgets its job | Tool quirks and intermediate results stay in the sub-agent. |
 
-Scout works because of an abstraction called **Context Providers**. Each provider exposes `query_<id>` (and optionally `update_<id>`) tools on Scout. The agent calls them like any other tool. The provider handles auth, navigation, and pagination on the way to the source.
+Skills don't solve this. Skills move task knowledge out of the always-on prompt, but when the skill loads, the source's tools and intermediate results still land on the main agent's context. Two skills with search capabilities will degrade the agent fast.
 
-This keeps two things clean. Scout doesn't carry every source's schema in its context. The know-how for navigating each source lives with the provider.
+## Providers that ship with Scout
 
-### Providers that ship with Scout
+Five always on. Three opt in via env vars or config.
 
-| Provider | What it exposes | Default |
-|----------|-----------------|---------|
-| **Web** | `web_search`, `web_fetch` | Always on (hosted web search MCP) |
-| **Filesystem** | `list_files`, `search_files`, `search_content`, `read_file` | Always on (the Scout codebase, so Scout can answer questions about itself) |
-| **Database** | `query_crm`, `update_crm` | Always on (local Postgres for people, projects, notes) |
-| **Slack** | `search_workspace`, `get_channel_history`, `get_thread`, `list_users` | When `SLACK_BOT_TOKEN` is set |
-| **Google Drive** | `search_files`, `list_files`, `read_file` | When `GOOGLE_SERVICE_ACCOUNT_FILE` is set |
-| **MCP servers** | `query_mcp_<slug>` per server | Wired in `scout/contexts.py` |
+| Provider | Tools | Trigger |
+|----------|-------|---------|
+| **Web** | `query_web` | Always on. Parallel's public MCP by default; upgrades to the Parallel SDK when `PARALLEL_API_KEY` is set. |
+| **Workspace** | `query_workspace` | Always on. Read-only, scoped to the Scout repo so Scout can answer questions about its own codebase. |
+| **CRM** | `query_crm`, `update_crm` | Always on. Local Postgres with `scout_contacts`, `scout_projects`, `scout_notes`, `scout_followups`. |
+| **Knowledge wiki** | `query_knowledge`, `update_knowledge` | Always on. Prose memory Scout files into. Filesystem by default; swap to a Git repo for production. |
+| **Voice wiki** | `query_voice` | Always on. Read-only style guide for how Scout writes external content. |
+| **Slack** | `query_slack` | When `SLACK_BOT_TOKEN` is set. Read-only. The Slack interface handles posting. |
+| **Google Drive** | `query_gdrive` | When `GOOGLE_SERVICE_ACCOUNT_FILE` is set. Read-only, scoped to folders shared with Scout's service account. |
+| **MCP servers** | `query_mcp_<slug>` per server | Wired in `scout/contexts.py`. Linear, GitHub, Notion, anything with an MCP server. |
 
-Linear, Notion, GitHub, and any other MCP server plug in through the **MCP servers** row. Add the URL and credentials in `scout/contexts.py` and Scout exposes a `query_mcp_<slug>` tool for it.
+## The closed loop
+
+Some context doesn't have a natural source home. *"Josh from Anthropic shared a new RLM paper"* belongs in a CRM and a wiki, not in a Slack search.
+
+Scout's CRM and wiki fill that gap. As Scout works:
+
+- *"Josh from Anthropic shared a paper"* → Josh becomes a contact, the paper becomes a wiki page linked from his note.
+- *"The v3 schema migration decision is pending"* → a follow-up in `scout_followups` with `status='pending'`.
+- *"Track my coffee orders"* → the CRM write sub-agent creates `scout.scout_coffee_orders` with the right columns. Schema on demand.
+
+Put a daily cron on `scout_followups` and the loop tightens. Pending items surface every morning.
 
 ## Next
 
-Follow the [Setup →](/tutorials/scout/setup) guide to get Scout working.
+[Run Scout locally →](/tutorials/scout/setup)
