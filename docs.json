@@ -91,6 +91,18 @@
             "pages": [
               "tutorials/pick-a-template",
               {
+                "group": "Agent Platform",
+                "pages": [
+                  "tutorials/agent-platform/overview",
+                  "tutorials/agent-platform/setup",
+                  "tutorials/agent-platform/create-an-agent",
+                  "tutorials/agent-platform/improve-an-agent",
+                  "tutorials/agent-platform/evals",
+                  "tutorials/agent-platform/deploy-to-railway",
+                  "tutorials/agent-platform/next-steps"
+                ]
+              },
+              {
                 "group": "Scout",
                 "pages": [
                   "tutorials/scout/overview",
@@ -120,18 +132,6 @@
                   "tutorials/coda/connect-slack",
                   "tutorials/coda/deploy-to-railway",
                   "tutorials/coda/next-steps"
-                ]
-              },
-              {
-                "group": "Agent Platform",
-                "pages": [
-                  "tutorials/agent-platform/overview",
-                  "tutorials/agent-platform/setup",
-                  "tutorials/agent-platform/create-an-agent",
-                  "tutorials/agent-platform/improve-an-agent",
-                  "tutorials/agent-platform/evals",
-                  "tutorials/agent-platform/deploy-to-railway",
-                  "tutorials/agent-platform/next-steps"
                 ]
               }
             ]
