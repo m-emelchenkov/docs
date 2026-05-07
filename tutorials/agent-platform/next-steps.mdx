@@ -122,6 +122,16 @@ my_agent = Agent(
 
 The same pattern works for Google (`google-genai`), Mistral (`mistralai`), and the other [supported providers](/models/overview).
 
+## Keep the repo coherent
+
+As you ship more agents, docs drift, env vars rot, and new agents miss imports. The template ships a fourth Claude Code prompt for the recurring sweep:
+
+```
+Run docs/review-and-improve.md
+```
+
+It auto-fixes mechanical drift (stale paths, missing `example.env` entries, agents on disk not registered in `app/main.py`) and surfaces the rest as a punch list. Run it before public releases and periodically during active development.
+
 ## Going deeper
 
 | To learn                          | See                                                                                                |

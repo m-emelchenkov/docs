@@ -1,14 +1,22 @@
 ---
 title: Welcome to Agno
-description: The cleanest way to build an agent platform.
+description: Build, run, and manage your agent platform.
 mode: wide
 ---
 
-**Agno is software for building agent platforms.**
+**Agno provides software for building, running, and managing agent platforms.**
 
 - Build agents using any agent framework.
 - Run them as production services with session management, tracing, scheduling, and RBAC.
 - Manage your platform using a single control plane.
+
+Agno has a 3-layer architecture. Everything except the control plane is free and open-source.
+
+| Layer | Use it to | What it does |
+|-------|------|--------------|
+| **SDK** | Build | Build agents, multi-agent teams, and agentic workflows. |
+| **Runtime** | Run | Run your agents, teams, and workflows as a service. |
+| **Control Plane** | Manage | Manage your platform using the [AgentOS UI](https://os.agno.com). |
 
 <CodeGroup>
 
@@ -108,44 +116,34 @@ app = agent_os.get_app()
 
 20 lines of code and you have a FastAPI backend with 50+ endpoints, persisted sessions, tracing, scheduling and RBAC. Interact using the AgentOS UI, Slack, Discord or build a product on top.
 
-Run native Agno agents next to Claude Code, LangGraph and DSPy agents in the same AgentOS. See [Multi-Framework Support](/agent-os/multi-framework/overview).
-
-## Three layers, one architecture
-
-Everything except the control plane is free and open-source.
-
-| Layer | Use it to | What it does |
-|-------|------|--------------|
-| **SDK** | Build | Agents, multi-agent teams, and agentic workflows with memory, knowledge, guardrails, and 100+ integrations. |
-| **Runtime** | Run | A stateless, secure FastAPI backend with sessions, scheduling, and interfaces. |
-| **Control Plane** | Manage | Operate your platform from the [AgentOS UI](https://os.agno.com). |
+Run native Agno agents next to Claude Code, LangGraph and DSPy agents in the same AgentOS.
 
 ## Agno features
 
-- [**Production API.**](/runtime/serve-as-api) 50+ endpoints with SSE and websockets to build a product on top of your agent platform.
-- [**Storage.**](/runtime/storage) Sessions, memory, knowledge, and traces in your own database. Postgres for sessions and memory, ClickHouse for OLAP traces.
-- [**100+ integrations.**](/tools/toolkits/overview) Pre-built toolkits for the systems your agents need to reach.
-- [**Context Providers.**](/runtime/context) Live data from Slack, Drive, wikis, MCP, and custom sources.
-- [**Human approval.**](/runtime/human-approval) Pause runs for user confirmation, admin approval, or external execution.
-- [**Observability.**](/runtime/observability) OpenTelemetry tracing, run history, and audit logs out of the box.
-- [**Security.**](/runtime/security-and-auth) JWT-based RBAC and multi-user, multi-tenant isolation.
-- [**Interfaces.**](/runtime/interfaces) Slack, Telegram, WhatsApp, Discord, AG-UI, A2A.
-- [**Scheduling.**](/runtime/scheduling) Cron-based scheduling and background jobs without external infra.
-- [**Deploy anywhere.**](/runtime/deploy) Docker, Railway, AWS, GCP. Any container host works.
+- [**Production API.**](/runtime/serve-as-api) 50+ endpoints with SSE and websockets make it easy to build a product on top of your agent platform.
+- [**Storage.**](/runtime/storage) Store sessions, memory, knowledge, and traces in your own database. Use postgres for quick read/write data like sessions and memory. Use clickhouse for OLAP data like traces.
+- [**100+ integrations.**](/tools/toolkits/overview) Integrate with 100+ tools using pre-built toolkits.
+- [**Context Providers.**](/runtime/context) Use strategies like context providers to access live data stored in Slack, Drive, wikis, MCP, and custom sources.
+- [**Human approval.**](/runtime/human-approval) Built in mechanisms for pausing runs for user confirmation up to blocking tools that require admin approval.
+- [**Observability.**](/runtime/observability) Get monitoring via OpenTelemetry tracing, run history, and audit logs out of the box.
+- [**Security.**](/runtime/security-and-auth) Get JWT-based RBAC and multi-user, multi-tenant isolation out of the box.
+- [**Interfaces.**](/runtime/interfaces) Expose your agents via Slack, Telegram, WhatsApp, Discord, AG-UI, A2A.
+- [**Scheduling.**](/runtime/scheduling) Cron-based scheduling and background jobs with no external infrastructure.
+- [**Deploy anywhere.**](/runtime/deploy) Run on any cloud platform that can run a containerized image.
 
 ## Pick a path
 
 <CardGroup cols={1}>
-  <Card title="Build an agent platform" icon="layer-group" iconType="duotone" href="/tutorials/agent-platform/overview">
-    The full tutorial: clone the template, ship your first agent with Claude Code, deploy to Railway.
-  </Card>
   <Card title="Build your first agent" icon="bolt" iconType="duotone" href="/first-agent">
     A model, tools, and instructions in 20 lines of code.
   </Card>
-  <Card title="Use Agno with your coding agent" icon="terminal" iconType="duotone" href="/coding-agents">
-    Index the docs in Cursor or wire them up as an MCP server.
+  <Card title="Build an agent platform" icon="layer-group" iconType="duotone" href="/tutorials/agent-platform/overview">
+    The full tutorial: clone the template, ship your first agent with Claude Code, deploy to Railway.
   </Card>
   <Card title="Start from a template" icon="rocket-launch" iconType="duotone" href="/tutorials/pick-a-template">
     Production templates (Scout, Dash, Coda) you can clone and deploy.
+  </Card>
+  <Card title="Use Agno with your coding agent" icon="terminal" iconType="duotone" href="/coding-agents">
+    Wire up agno documentation with your favorite coding agent.
   </Card>
 </CardGroup>
