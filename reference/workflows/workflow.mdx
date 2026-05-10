@@ -80,6 +80,31 @@ Execute the workflow asynchronously with optional streaming.
 
 - `Union[WorkflowRunOutput, AsyncIterator[WorkflowRunOutputEvent]]`: Either a WorkflowRunOutput or an iterator of WorkflowRunOutputEvents, depending on the `stream` parameter
 
+### `continue_run`
+
+Resume a paused workflow run after HITL requirements have been resolved. Used for both step-level and executor-level pauses. See [HITL overview](/workflows/hitl/overview).
+
+**Parameters:**
+
+- `run_response` (Optional[WorkflowRunOutput]): The paused `WorkflowRunOutput` to continue. If not provided, `run_id` and `session_id` must be supplied to load it from the database.
+- `run_id` (Optional[str]): The run_id of the paused run. Required if `run_response` is not provided.
+- `session_id` (Optional[str]): The session_id of the paused run. Required if `run_response` is not provided.
+- `step_requirements` (Optional[List[StepRequirement]]): Updated step requirements with confirmation status. Defaults to the requirements from `run_response`.
+- `stream` (bool): Whether to stream the response. Defaults to the workflow's stream setting.
+- `stream_events` (Optional[bool]): Whether to stream events. Defaults to the workflow's `stream_events` setting.
+
+**Returns:**
+
+- `Union[WorkflowRunOutput, Iterator[WorkflowRunOutputEvent]]`: A `WorkflowRunOutput` if `stream=False`, otherwise an iterator of events.
+
+**Raises:**
+
+- `ValueError`: If neither `run_response` nor (`run_id` + `session_id`) are provided, the run is not paused, or step requirements have not been resolved.
+
+### `acontinue_run`
+
+Asynchronous variant of `continue_run`. Required when the workflow's database is async. Same parameters and return shape as `continue_run`.
+
 ### `print_response`
 
 Print workflow execution with rich formatting and optional streaming.
