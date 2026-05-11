@@ -233,10 +233,10 @@ Providers with both read and write support can be restricted to one direction:
 
 ```python
 # Read-only: agent can search emails but not send
-gmail = GmailContextProvider(id="gmail", write=False)
+gmail = GmailContextProvider(write=False)
 
 # Write-only: agent can send but not read inbox
-gmail = GmailContextProvider(id="gmail", read=False)
+gmail = GmailContextProvider(read=False)
 ```
 
 At least one of `read` or `write` must be `True`. This is infrastructure-level: even if the model hallucinates a write call, the tool isn't exposed.
@@ -353,10 +353,10 @@ Agno includes four Google-specific providers. All support two auth methods:
     ```python
     from agno.context.gmail import GmailContextProvider
 
-    gmail = GmailContextProvider(id="gmail")
+    gmail = GmailContextProvider()
 
     # Read-only variant
-    gmail = GmailContextProvider(id="gmail", write=False)
+    gmail = GmailContextProvider(write=False)
     ```
 
     | Sub-agent | Tools |
@@ -370,10 +370,10 @@ Agno includes four Google-specific providers. All support two auth methods:
     ```python
     from agno.context.calendar import GoogleCalendarContextProvider
 
-    calendar = GoogleCalendarContextProvider(id="calendar")
+    calendar = GoogleCalendarContextProvider()
 
     # Read-only: agent can check availability but not create events
-    calendar = GoogleCalendarContextProvider(id="calendar", write=False)
+    calendar = GoogleCalendarContextProvider(write=False)
     ```
 
     | Sub-agent | Tools |
@@ -401,7 +401,7 @@ Agno includes four Google-specific providers. All support two auth methods:
     ```python
     from agno.context.workspace import WorkspaceContextProvider
 
-    workspace = WorkspaceContextProvider(id="workspace")
+    workspace = WorkspaceContextProvider()
 
     agent = Agent(
         model=...,
