@@ -129,8 +129,11 @@ The agent sees four tools: `query_slack`, `query_drive`, `query_crm`, `update_cr
 | `WebContextProvider` | Web search and fetch (Exa or Parallel; SDK or MCP) | `query_<id>` | — |
 | `DatabaseContextProvider` | Any SQL database via SQLAlchemy | `query_<id>` | `update_<id>` |
 | `SlackContextProvider` | A Slack workspace | `query_<id>` | `update_<id>` |
-| `GDriveContextProvider` | Google Drive via service account; all-drives aware | `query_<id>` | — |
-| `GitHubContextProvider` | A cloned GitHub repo | `query_<id>` | `update_<id>` (PR-scoped) |
+| `GmailContextProvider` | Gmail via OAuth or service account | `query_<id>` | `update_<id>` |
+| `GoogleCalendarContextProvider` | Google Calendar via OAuth or service account | `query_<id>` | `update_<id>` |
+| `GoogleDriveContextProvider` | Google Drive; all-drives + Office extraction | `query_<id>` | `update_<id>` |
+| `WikiContextProvider` | Git-backed markdown wiki (FS or Git backend) | `query_<id>` | `update_<id>` |
+| `WorkspaceContextProvider` | Composite: Drive + Gmail + Calendar | `query_<id>` | `update_<id>` |
 | `MCPContextProvider` | Any MCP server (stdio, SSE, streamable-HTTP) | `query_<id>` | — |
 
 ### Web has multiple backends
@@ -177,6 +180,65 @@ In an AgentOS app, register providers with the runtime and they're set up and to
 
 Providers without async resources (`FilesystemContextProvider`, `DatabaseContextProvider` with sync engines, the SDK-based web backends) work without `asetup` / `aclose`.
 
+### Mode: how tools surface
+
+Every provider has a `mode` parameter that controls how it exposes tools to the calling agent:
+
+| Mode | What happens |
+|------|--------------|
+| `ContextMode.default` | Provider's recommended exposure. Read/write providers typically expose two tools: `query_<id>` + `update_<id>`. Read-only providers expose `query_<id>` only. |
+| `ContextMode.agent` | Single `query_<id>` tool wrapping a sub-agent. Good for complex sources that need internal orchestration. |
+| `ContextMode.tools` | Expose the underlying tools directly (flat). Calling agent orchestrates raw tools itself. Use for fine-grained control. |
+
+```python
+from agno.context.mode import ContextMode
+from agno.context.web import WebContextProvider, ExaBackend
+
+# Default: provider decides optimal exposure
+web = WebContextProvider(backend=ExaBackend(), id="web")
+
+# Tools mode: expose raw web_search + web_fetch
+web = WebContextProvider(backend=ExaBackend(), id="web", mode=ContextMode.tools)
+```
+
+Why this matters: In `default` mode, `WebContextProvider` wraps its backend in a sub-agent that synthesizes cited answers. In `tools` mode, your agent calls `web_search` and `web_fetch` directly and does its own synthesis. The tradeoff is control vs. complexity.
+
+### RunContext propagation
+
+When a provider runs a sub-agent, it extracts auth and framework state from the caller's `RunContext` and forwards it:
+
+```
+Calling Agent
+  ↓ tool call with run_context
+_query_tool() / _update_tool()
+  ↓ passes run_context to aquery() / aupdate()
+Provider.aquery()
+  ↓ extracts via _run_kwargs_for_sub_agent(run_context)
+Sub-agent arun(question, user_id=..., session_id=..., metadata=..., dependencies=...)
+```
+
+The forwarded fields are `user_id`, `session_id`, `metadata`, and `dependencies`. This ensures:
+
+- **Per-user auth tokens** reach the sub-agent's tools
+- **Framework-injected state** (e.g., Slack's `action_token` in `metadata`) survives the hop
+- **User/session isolation** works across provider boundaries
+
+Message history and `session_state` stay with the outer agent. Sub-agents run isolated.
+
+### Read/write flags
+
+Providers with both read and write support can be restricted to one direction:
+
+```python
+# Read-only: agent can search emails but not send
+gmail = GmailContextProvider(id="gmail", write=False)
+
+# Write-only: agent can send but not read inbox
+gmail = GmailContextProvider(id="gmail", read=False)
+```
+
+At least one of `read` or `write` must be `True`. This is infrastructure-level: even if the model hallucinates a write call, the tool isn't exposed.
+
 ### Multi-provider in one agent
 
 Three providers on one agent compose cleanly because each provider has its own namespace:
@@ -197,18 +259,46 @@ The agent sees `query_cookbooks`, `query_web`, `query_releases` and picks the ri
 
 ### Custom providers
 
-When the built-ins don't fit, subclass `ContextProvider`. The base class handles tool wrapping, name derivation, and error shaping. You implement `aquery` and `astatus`:
+When the built-ins don't fit, subclass `ContextProvider`. The base class handles tool wrapping, name derivation, and error shaping.
+
+**Required methods (abstract):**
+
+| Method | Purpose |
+|--------|---------|
+| `query(question, *, run_context=None) -> Answer` | Sync read |
+| `aquery(question, *, run_context=None) -> Answer` | Async read |
+| `status() -> Status` | Sync health check |
+| `astatus() -> Status` | Async health check |
+
+**Optional methods (override to customize):**
+
+| Method | Default | Override when |
+|--------|---------|---------------|
+| `update()` / `aupdate()` | Raises `NotImplementedError` | Provider supports writes |
+| `asetup()` | No-op | Need async init (MCP sessions, cache priming) |
+| `aclose()` | No-op | Hold long-lived state (watches, connections) |
+| `instructions()` | Generic guidance | Want source-specific usage hints |
+| `_default_tools()` | `[_query_tool()]` | Custom tool surface for `mode=default` |
+| `_all_tools()` | `[_query_tool()]` | Custom surface for `mode=tools` |
+
+Minimal read-only example:
 
 ```python
 from agno.context import Answer, ContextProvider, Status
 
 class FAQContextProvider(ContextProvider):
-    async def astatus(self) -> Status:
+    def status(self) -> Status:
         return Status(ok=True, detail=f"{len(FAQ)} entries")
 
-    async def aquery(self, question: str) -> Answer:
+    async def astatus(self) -> Status:
+        return self.status()
+
+    def query(self, question: str, *, run_context=None) -> Answer:
         key = next((k for k in FAQ if k in question.lower()), None)
         return Answer(text=FAQ[key] if key else "No FAQ entry matches that.")
+
+    async def aquery(self, question: str, *, run_context=None) -> Answer:
+        return self.query(question, run_context=run_context)
 
 faq = FAQContextProvider(id="faq")
 agent = Agent(model=..., tools=faq.get_tools())
@@ -230,6 +320,123 @@ agent = Agent(model=OpenAIResponses(id="gpt-5.4"), tools=slack.get_tools())
 
 The sub-agent does the tool work; the calling agent does the reasoning. On most workloads this is cheaper *and* faster than putting every source's tools on one big agent.
 
+### Google providers
+
+Agno includes four Google-specific providers. All support two auth methods:
+
+1. **Service Account + domain-wide delegation** (headless, for workspace accounts):
+   - Set `GOOGLE_SERVICE_ACCOUNT_FILE` and `GOOGLE_DELEGATED_USER`
+   - Gmail requires `delegated_user` because service accounts have no inbox
+
+2. **OAuth** (interactive, for personal accounts):
+   - Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_PROJECT_ID`
+   - Opens browser on first use, caches token locally
+
+#### GmailContextProvider
+
+Search, read, draft, send, reply, and manage labels.
+
+```python
+from agno.context.gmail import GmailContextProvider
+
+gmail = GmailContextProvider(id="gmail")
+
+# Read-only variant
+gmail = GmailContextProvider(id="gmail", write=False)
+```
+
+Read sub-agent gets: `search_emails`, `get_message`, `list_labels`.
+Write sub-agent gets: `draft_email`, `send_email`, `reply_to_email`, `create_label`, `apply_label`.
+
+#### GoogleCalendarContextProvider
+
+Query events, check availability, create/update/delete events.
+
+```python
+from agno.context.calendar import GoogleCalendarContextProvider
+
+calendar = GoogleCalendarContextProvider(id="calendar")
+
+# Read-only: agent can check availability but not create events
+calendar = GoogleCalendarContextProvider(id="calendar", write=False)
+```
+
+Read sub-agent gets: `list_events`, `get_event`, `list_calendars`.
+Write sub-agent gets: `create_event`, `update_event`, `delete_event`.
+
+#### GoogleDriveContextProvider
+
+Search files, read content (including Office formats), upload files.
+
+```python
+from agno.context.gdrive import GoogleDriveContextProvider
+
+drive = GoogleDriveContextProvider(id="drive")
+
+# Include shared drives
+drive = GoogleDriveContextProvider(id="drive", include_shared_drives=True)
+```
+
+Supports Office file extraction (docx, xlsx, pptx) when the appropriate readers are installed.
+
+#### WorkspaceContextProvider
+
+Composite provider combining Drive, Gmail, and Calendar in one surface.
+
+```python
+from agno.context.workspace import WorkspaceContextProvider
+
+workspace = WorkspaceContextProvider(id="workspace")
+
+# Pass through to underlying providers
+agent = Agent(
+    model=...,
+    tools=workspace.get_tools(),
+    instructions=workspace.instructions(),
+)
+```
+
+This is the recommended approach for personal assistant agents that need full Google Workspace access.
+
+### WikiContextProvider
+
+Read/write access to a directory of markdown files with two backend options:
+
+```python
+from agno.context.wiki import WikiContextProvider
+from agno.context.wiki.backend import FileSystemBackend, GitBackend
+
+# Local filesystem (no versioning)
+wiki = WikiContextProvider(
+    backend=FileSystemBackend(root="./docs"),
+    id="wiki",
+)
+
+# Git-backed (auto-commit, rebase, push)
+wiki = WikiContextProvider(
+    backend=GitBackend(
+        repo_url="git@github.com:org/wiki.git",
+        local_path="./wiki-clone",
+        branch="main",
+    ),
+    id="wiki",
+)
+```
+
+The `GitBackend` runs `commit_after_write` after every update, optionally pushing to remote. This turns any markdown directory into a version-controlled wiki the agent can edit.
+
+Optional web ingestion: pass a `web` backend to let the write sub-agent pull content from URLs before writing:
+
+```python
+from agno.context.web import ExaBackend
+
+wiki = WikiContextProvider(
+    backend=FileSystemBackend(root="./docs"),
+    web=ExaBackend(),
+    id="wiki",
+)
+```
+
 ### Worked examples
 
 The full cookbook set is in [`cookbook/12_context`](https://github.com/agno-agi/agno/tree/main/cookbook/12_context). Notable examples:
@@ -238,10 +445,16 @@ The full cookbook set is in [`cookbook/12_context`](https://github.com/agno-agi/
 |----------|---------------|
 | [`00_filesystem.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/00_filesystem.py) | Browse local files via `FilesystemContextProvider` |
 | [`04_database_read_write.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/04_database_read_write.py) | End-to-end SQLite round trip: write through `update_<id>`, read through `query_<id>`, verify via direct SQL |
+| [`06_mcp_server.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/06_mcp_server.py) | MCPContextProvider with `mode=ContextMode.tools` |
 | [`08_multi_provider.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/08_multi_provider.py) | Three providers on one agent, no name collisions |
 | [`09_web_plus_slack.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/09_web_plus_slack.py) | Compositional: Slack topics feed per-topic web searches, agent synthesizes |
 | [`10_custom_provider.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/10_custom_provider.py) | Subclass `ContextProvider` for your own source |
-| [`12_github.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/12_github.py) | GitHub: read public repo + edit-via-PR with branch-prefix safety |
+| [`13_workspace.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/13_workspace.py) | WorkspaceContextProvider for local directories |
+| [`14_wiki_filesystem.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/14_wiki_filesystem.py) | WikiContextProvider with filesystem backend |
+| [`15_wiki_git.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/15_wiki_git.py) | WikiContextProvider with git backend (auto-commit) |
+| [`18_gmail.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/18_gmail.py) | GmailContextProvider: search, read, draft, send |
+| [`19_calendar.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/19_calendar.py) | GoogleCalendarContextProvider: events and availability |
+| [`20_google_workspace.py`](https://github.com/agno-agi/agno/blob/main/cookbook/12_context/20_google_workspace.py) | Full Google Workspace: Drive + Gmail + Calendar |
 
 The [Scout tutorial](/tutorials/scout/setup) is a full agent built on context providers from the ground up.
 
