@@ -6,6 +6,12 @@ description: "Reconnect to a background agent stream after disconnection using t
 
 Test SSE stream reconnection for agent runs using `background=True, stream=True`. The agent runs in a detached task that survives client disconnections. Events are buffered so the client can reconnect via `/resume` and catch up on missed events.
 
+## Prerequisites
+
+1. An [AgentOS server](/agent-os/run-your-os) running on `http://localhost:7777` with at least one agent registered (e.g., `python cookbook/05_agent_os/basic.py`).
+2. The agent must have a `db` configured. Background runs require persistent storage.
+3. Run the script.
+
 ```python
 import asyncio
 import json
@@ -136,12 +142,6 @@ async def test_sse_reconnection():
 if __name__ == "__main__":
     asyncio.run(test_sse_reconnection())
 ```
-
-## Prerequisites
-
-1. An [AgentOS server](/agent-os/run-your-os) running on `http://localhost:7777` with at least one agent registered (e.g., `python cookbook/05_agent_os/basic.py`).
-2. The agent must have a `db` configured. Background runs require persistent storage.
-3. Run the script.
 
 ## Run the Example
 ```bash
