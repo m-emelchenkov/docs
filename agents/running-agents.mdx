@@ -315,6 +315,12 @@ Cancel a run with `Agent.cancel_run()`.
 
 See [Cancelling a Run](/run-cancellation/overview) for more details.
 
+## Background Execution
+
+Run agents in the background with `background=True`. The agent continues running even if the client disconnects. Combine with `stream=True` for resumable SSE streaming with automatic event buffering and reconnection.
+
+See [Background Execution](/background-execution/overview) for polling, resumable streaming, and the `/resume` endpoint.
+
 ## Developer Resources
 
 - [Agent reference](/reference/agents/agent)
