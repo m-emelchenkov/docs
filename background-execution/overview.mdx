@@ -193,7 +193,7 @@ Client reconnects   → /resume reads from subscriber queue ← Background task 
 Resumable streaming requires a running [AgentOS server](/agent-os/run-your-os). Pass `background=true` and `stream=true` in the request. The pattern is the same for agents, teams, and workflows. Only the URL path differs.
 
 <Note>
-For workflows, SSE is the default reconnection transport. Workflows also support WebSocket-based reconnection. See the [WebSocket reconnect example](/examples/workflows/advanced-concepts/long-running/websocket-reconnect).
+Workflows also support WebSocket-based reconnection. See the [WebSocket reconnect example](/examples/workflows/advanced-concepts/long-running/websocket-reconnect).
 </Note>
 
 ```python
