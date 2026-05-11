@@ -470,44 +470,43 @@ Read/write access to a directory of markdown files. Choose a backend based on yo
 
 ### Worked examples
 
-The full cookbook set is in [`cookbook/12_context`](https://github.com/agno-agi/agno/tree/main/cookbook/12_context).
+<Card title="Scout" icon="rocket" href="/tutorials/scout/overview">
+  Open-source company intelligence agent. Navigates live information sources (web, Slack, Drive, wiki, CRM, MCP servers) to assemble context on demand — and builds its own wiki and CRM as it learns.
+</Card>
 
 <CardGroup cols={2}>
   <Card title="Filesystem" icon="folder" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/00_filesystem.py">
-    Browse local files via `FilesystemContextProvider`
+    Agent explores your codebase or docs folder
   </Card>
   <Card title="Database" icon="database" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/04_database_read_write.py">
-    SQLite round trip with read/write separation
+    Read and write with separate engines for safety
   </Card>
   <Card title="MCP Server" icon="plug" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/06_mcp_server.py">
-    `MCPContextProvider` with `mode=ContextMode.tools`
+    Raw MCP tools on the agent, no sub-agent wrapper
   </Card>
   <Card title="Multi-provider" icon="layer-group" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/08_multi_provider.py">
-    Three providers on one agent, no collisions
+    Three sources on one agent, no tool collisions
   </Card>
   <Card title="Web + Slack" icon="arrows-split-up-and-left" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/09_web_plus_slack.py">
-    Slack topics feed web searches, agent synthesizes
+    Pull topics from Slack, research on web, synthesize
   </Card>
   <Card title="Custom provider" icon="code" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/10_custom_provider.py">
-    Subclass `ContextProvider` for your own source
+    Build your own provider for any data source
   </Card>
   <Card title="Gmail" icon="envelope" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/18_gmail.py">
     Search, read, draft, send emails
   </Card>
   <Card title="Calendar" icon="calendar" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/19_calendar.py">
-    Events and availability
+    Query events, check availability, create meetings
   </Card>
   <Card title="Wiki (filesystem)" icon="book" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/14_wiki_filesystem.py">
-    WikiContextProvider with local backend
+    Prose memory backed by local markdown files
   </Card>
   <Card title="Wiki (git)" icon="code-branch" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/15_wiki_git.py">
-    WikiContextProvider with auto-commit
+    Prose memory with automatic git commits
   </Card>
   <Card title="Google Workspace" icon="google" href="https://github.com/agno-agi/agno/blob/main/cookbook/12_context/20_google_workspace.py">
-    Full Drive + Gmail + Calendar
-  </Card>
-  <Card title="Scout tutorial" icon="graduation-cap" href="/tutorials/scout/setup">
-    Full agent built on context providers
+    Drive, Gmail, and Calendar in one surface
   </Card>
 </CardGroup>
 
