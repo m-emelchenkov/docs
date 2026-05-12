@@ -4364,8 +4364,7 @@
                   "agent-os/factories/overview",
                   "agent-os/factories/agent-factory",
                   "agent-os/factories/team-factory",
-                  "agent-os/factories/workflow-factory",
-                  "agent-os/factories/request-context"
+                  "agent-os/factories/workflow-factory"
                 ]
               },
               {
@@ -6911,6 +6910,16 @@
                     ]
                   },
                   {
+                    "group": "Factories",
+                    "pages": [
+                      "examples/agent-os/factories/overview",
+                      "examples/agent-os/factories/tenant-agent-factory",
+                      "examples/agent-os/factories/input-schema-factory",
+                      "examples/agent-os/factories/jwt-role-factory",
+                      "examples/agent-os/factories/hitl-factory"
+                    ]
+                  },
+                  {
                     "group": "Integrations",
                     "pages": [
                       "examples/agent-os/integrations/overview",
@@ -6987,16 +6996,6 @@
                       "examples/agent-os/middleware/custom-fastapi-app-with-jwt-middleware",
                       "examples/agent-os/middleware/extract-content-middleware",
                       "examples/agent-os/middleware/guardrails-demo"
-                    ]
-                  },
-                  {
-                    "group": "Factories",
-                    "pages": [
-                      "examples/agent-os/factories/overview",
-                      "examples/agent-os/factories/tenant-agent-factory",
-                      "examples/agent-os/factories/input-schema-factory",
-                      "examples/agent-os/factories/jwt-role-factory",
-                      "examples/agent-os/factories/hitl-factory"
                     ]
                   },
                   {

@@ -79,7 +79,7 @@ curl -X POST http://localhost:7777/workflows/content-pipeline/runs \
 
 See the [Factories reference](/reference/agent-os/factories) for the full constructor signature and parameter list.
 
-## Step Shape That Varies By Tier
+## Step Shape That Varies by Tier
 
 The step graph can change per request. A common pattern: add or drop steps based on a tier read from `ctx.trusted.claims`.
 
@@ -97,7 +97,7 @@ def build_article_pipeline(ctx: RequestContext) -> Workflow:
     return Workflow(name="Article Pipeline", db=db, steps=steps)
 ```
 
-The `tier` claim is read from verified middleware, so a client cannot escalate themselves by editing a request body. See [RequestContext](/agent-os/factories/request-context) for the trust model and [JWT Role Factory](/examples/agent-os/factories/jwt-role-factory) for an end-to-end JWT example.
+The `tier` claim is read from verified middleware, so the `tier` cannot be changed by the request body. See [Authorization From Verified Context](/agent-os/factories/agent-factory#authorization-from-verified-context) for the trust model and [JWT Role Factory](/examples/agent-os/factories/jwt-role-factory) for an end-to-end JWT example.
 
 ## Async Factories
 
@@ -172,6 +172,6 @@ curl "http://localhost:7777/workflows/content-pipeline/runs/RUN_ID?session_id=SE
 ## Developer Resources
 
 - [Factories overview](/agent-os/factories/overview)
-- [RequestContext and TrustedContext](/agent-os/factories/request-context)
+- [RequestContext fields](/reference/agent-os/factories#requestcontext)
 - [Factories reference](/reference/agent-os/factories)
 - [Factory examples](/examples/agent-os/factories/overview)

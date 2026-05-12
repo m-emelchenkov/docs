@@ -4,9 +4,9 @@ sidebarTitle: "JWT Role Factory"
 description: "RBAC tool grants from trusted claims. Authorization from verified JWT, customization from client input."
 ---
 
-The trust split: authorization decisions (which tools to grant) come from `ctx.trusted.claims` (set by verified JWT middleware), while non-privileged customization comes from `ctx.input` (untrusted client input).
+The trust split: authorization decisions (which tools to grant) come from `ctx.trusted.claims` (set by verified JWT middleware), while non-privileged customization comes from `ctx.input` (the client request body).
 
-This is the most realistic multi-tenant pattern. The factory uses the JWT role to decide tool access, and the client can customize the theme but cannot escalate privileges.
+This is the most realistic multi-tenant pattern. The factory uses the JWT role to decide tool access, and the client can customize the theme, but tool access stays driven by the JWT role.
 
 ### Caller-State Truth Table
 
@@ -15,7 +15,7 @@ The behavior depends on JWT middleware configuration. With `validate=True`:
 | Caller state | Result |
 |--------------|--------|
 | No `Authorization` header | 401 from middleware. Factory not invoked. |
-| `Bearer <garbage>` | 401 from middleware. |
+| `Bearer <invalid>` | 401 from middleware. |
 | Valid token, expired | 401. |
 | Valid token, no `role` claim | Factory raises `FactoryPermissionError` → 403. |
 | Valid token, valid signature, role present | Factory runs. `role` drives tool grants. |
@@ -24,7 +24,7 @@ With `validate=False` (as written below):
 
 | Caller state | Result |
 |--------------|--------|
-| `Bearer <garbage>` | Factory invoked with empty `ctx.trusted.claims` → `FactoryPermissionError` → 403. |
+| `Bearer <invalid>` | Factory invoked with empty `ctx.trusted.claims` → `FactoryPermissionError` → 403. |
 | Bearer wrong-secret token | **Accepted as legitimate.** Signature is not verified. |
 | Bearer expired token | **Accepted as legitimate.** Skipping signature verification also bypasses the `exp` check. |
 

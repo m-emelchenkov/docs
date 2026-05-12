@@ -145,7 +145,7 @@ curl -X POST http://localhost:7777/agents/research-agent/runs \
     -F 'stream=false'
 ```
 
-If `factory_input` does not validate, AgentOS returns 400 before the factory runs. If `factory_input` is omitted entirely, AgentOS validates the empty object `{}` against the schema: the request succeeds when every field has a default (like `ResearchInput` above), and 400s otherwise.
+If `factory_input` does not validate, AgentOS returns 400 before the factory runs. If `factory_input` is omitted entirely, AgentOS validates `{}` against the schema: the request succeeds when every field has a default (like `ResearchInput` above), and 400s otherwise. Without an `input_schema`, omitted `factory_input` leaves `ctx.input` as `None`.
 
 ## Authorization From Verified Context
 
@@ -162,7 +162,7 @@ def build_workspace_agent(ctx: RequestContext) -> Agent:
     return Agent(model=OpenAIResponses(id="gpt-5.4"), db=db, tools=tools)
 ```
 
-The trust split keeps authorization decisions visible at code review time. See [RequestContext](/agent-os/factories/request-context) for the full model and [JWT Role Factory](/examples/agent-os/factories/jwt-role-factory) for an end-to-end example.
+The trust split keeps authorization decisions visible at code review time. See [RequestContext fields](/reference/agent-os/factories#requestcontext) for the full schema and [JWT Role Factory](/examples/agent-os/factories/jwt-role-factory) for an end-to-end example.
 
 ## Error Handling
 
@@ -178,11 +178,11 @@ def build_agent(ctx: RequestContext) -> Agent:
     ...
 ```
 
-See the [Factories reference](/reference/agent-os/factories) for the full exception hierarchy and the post-resolve behavior (id enforcement, db fallback, `store_events`, `/continue` re-invocation).
+See the [Factories reference](/reference/agent-os/factories) for the full exception hierarchy and the post-resolve behavior.
 
 ## Developer Resources
 
 - [Factories overview](/agent-os/factories/overview)
-- [RequestContext and TrustedContext](/agent-os/factories/request-context)
+- [RequestContext fields](/reference/agent-os/factories#requestcontext)
 - [Factories reference](/reference/agent-os/factories) for the full API surface.
 - [Factory examples](/examples/agent-os/factories/overview) for runnable cookbooks.

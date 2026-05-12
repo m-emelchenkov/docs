@@ -1,5 +1,5 @@
 ---
-title: AgentOS Factories
+title: Dynamic Agents
 sidebarTitle: Overview
 description: Build agents, teams, and workflows dynamically per request from verified middleware claims, user input, and other request-time context.
 keywords: [agent factory, team factory, workflow factory, multi-tenant, per-request agents, dynamic agent construction, factory pattern, request context, trusted context, jwt claims, factory input schema, agentos factories]
@@ -49,7 +49,11 @@ if __name__ == "__main__":
     agent_os.serve(app="tenant_factory:app", port=7777)
 ```
 
-Hit `POST /agents/tenant-agent/runs` and the factory is invoked with a [`RequestContext`](/agent-os/factories/request-context) for that request.
+Hit `POST /agents/tenant-agent/runs` and the factory is invoked with a [`RequestContext`](/reference/agent-os/factories#requestcontext) for that request.
+
+<Note>
+`id` and `db` are required on `AgentFactory`. The factory's `id` overrides any `id` set on the `Agent` returned by the callable.
+</Note>
 
 ## When to Use a Factory
 
@@ -65,7 +69,7 @@ Hit `POST /agents/tenant-agent/runs` and the factory is invoked with a [`Request
 
 1. Register a factory in `AgentOS(agents=[...])`, `teams=[...]`, or `workflows=[...]`.
 2. The client calls the same endpoint as a prototype component (`POST /agents/{id}/runs`).
-3. AgentOS builds a `RequestContext`. `user_id` and `session_id` come from `request.state` (set by verified middleware) and fall back to the form field; the form value is overridden with a warning if they disagree. `claims` and `scopes` come from `request.state` only. `factory_input` is parsed from the form, the query string (workflow GETs), or the WebSocket message body (workflow WebSocket runs), depending on the endpoint.
+3. AgentOS builds a `RequestContext`. `user_id` and `session_id` come from `request.state` (set by verified middleware) and fall back to the form field; on `POST /runs`, a conflict between the two logs a warning. `claims` and `scopes` come from `request.state` only. `factory_input` is parsed from the form, the query string (workflow GETs), or the WebSocket message body (workflow WebSocket runs), depending on the endpoint.
 4. AgentOS validates `factory_input` against the factory's `input_schema`, if set.
 5. AgentOS invokes the factory with the validated context and gets a fresh component back.
 6. The component's `id` is forced to match the factory's `id`. Its `db` is filled in from the factory if falsy. `store_events=True` is set. The relevant `initialize_agent()` / `initialize_team()` / `initialize_workflow()` runs. Then the request runs.
@@ -88,8 +92,8 @@ The prototype path (a plain `Agent` / `Team` / `Workflow` in the same list) is u
   <Card title="WorkflowFactory" icon="diagram-project" href="/agent-os/factories/workflow-factory">
     Compose pipelines whose step graph depends on the request.
   </Card>
-  <Card title="RequestContext" icon="shield" href="/agent-os/factories/request-context">
-    Trusted vs untrusted fields, claim plumbing, and authorization.
+  <Card title="RequestContext" icon="shield" href="/reference/agent-os/factories#requestcontext">
+    Fields, sources, and identity precedence.
   </Card>
   <Card title="JWT Middleware" icon="key" href="/agent-os/middleware/jwt">
     Populate `ctx.trusted.claims` from verified JWTs.

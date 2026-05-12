@@ -78,7 +78,7 @@ curl -X POST http://localhost:7777/teams/support-team/runs \
 
 See the [Factories reference](/reference/agent-os/factories) for the full constructor signature and parameter list.
 
-## Members That Scale With the Caller
+## Members That Scale with the Caller
 
 Member composition can change per request. A common pattern: scale team size and model quality with a subscription tier from `ctx.trusted.claims`.
 
@@ -94,7 +94,7 @@ def build_research_team(ctx: RequestContext) -> Team:
     return Team(name="Research Team", model=OpenAIResponses(id=model_id), members=members, db=db)
 ```
 
-The `tier` claim comes from verified middleware, so a client cannot escalate themselves to enterprise by editing a request body. See [RequestContext](/agent-os/factories/request-context) for the trust model and [JWT Role Factory](/examples/agent-os/factories/jwt-role-factory) for an end-to-end JWT example.
+The `tier` claim comes from verified middleware, so the `tier` cannot be changed by the request body. See [Authorization From Verified Context](/agent-os/factories/agent-factory#authorization-from-verified-context) for the trust model and [JWT Role Factory](/examples/agent-os/factories/jwt-role-factory) for an end-to-end JWT example.
 
 ## Async Factories
 
@@ -143,7 +143,7 @@ team_factory = TeamFactory(
 ```
 
 <Note>
-Team members must be concrete `Agent` or `Team` instances. Build any per-member customization inside the team's factory.
+`AgentFactory` and `TeamFactory` instances cannot be passed inside `members`. Build per-member customization inside the team's factory.
 </Note>
 
 ## Error Handling
@@ -160,11 +160,11 @@ def build_team(ctx: RequestContext) -> Team:
     ...
 ```
 
-See the [Factories reference](/reference/agent-os/factories) for the full exception hierarchy and the post-resolve behavior (id enforcement, db fallback, `store_events`).
+See the [Factories reference](/reference/agent-os/factories) for the full exception hierarchy and the post-resolve behavior.
 
 ## Developer Resources
 
 - [Factories overview](/agent-os/factories/overview)
-- [RequestContext and TrustedContext](/agent-os/factories/request-context)
+- [RequestContext fields](/reference/agent-os/factories#requestcontext)
 - [Factories reference](/reference/agent-os/factories)
 - [Factory examples](/examples/agent-os/factories/overview)
