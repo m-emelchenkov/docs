@@ -4359,7 +4359,7 @@
                 ]
               },
               {
-                "group": "Factories",
+                "group": "Dynamic Agents",
                 "pages": [
                   "agent-os/factories/overview",
                   "agent-os/factories/agent-factory",
