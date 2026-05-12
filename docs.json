@@ -6910,7 +6910,7 @@
                     ]
                   },
                   {
-                    "group": "Factories",
+                    "group": "Dynamic Agents",
                     "pages": [
                       "examples/agent-os/factories/overview",
                       "examples/agent-os/factories/tenant-agent-factory",
