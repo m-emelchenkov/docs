@@ -14978,10 +14978,6 @@
       "destination": "/cookbook/agents/deep_knowledge"
     },
     {
-      "source": "/examples/agents/overview",
-      "destination": "/cookbook/agents/overview"
-    },
-    {
       "source": "/examples/agents/quickstart/agent-with-instructions",
       "destination": "/examples/agents/basics/agent-with-instructions"
     },
@@ -15034,20 +15030,12 @@
       "destination": "/cookbook/knowledge/embedders"
     },
     {
-      "source": "/examples/knowledge/overview",
-      "destination": "/cookbook/knowledge/overview"
-    },
-    {
       "source": "/examples/knowledge/readers",
       "destination": "/cookbook/knowledge/readers"
     },
     {
       "source": "/examples/knowledge/vector-databases",
       "destination": "/cookbook/knowledge/vector-databases"
-    },
-    {
-      "source": "/examples/learning/overview",
-      "destination": "/cookbook/learning/overview"
     },
     {
       "source": "/examples/learning/personal-assistant",
@@ -15118,10 +15106,6 @@
       "destination": "/examples/basics/sequential-workflow"
     },
     {
-      "source": "/examples/storage/overview",
-      "destination": "/cookbook/storage/overview"
-    },
-    {
       "source": "/examples/streamlit/agentic-rag",
       "destination": "/cookbook/streamlit/agentic-rag"
     },
@@ -15152,10 +15136,6 @@
     {
       "source": "/examples/teams/news_agency_team",
       "destination": "/cookbook/teams/news_agency_team"
-    },
-    {
-      "source": "/examples/teams/overview",
-      "destination": "/cookbook/teams/overview"
     },
     {
       "source": "/examples/teams/quickstart/basic-coordination",
@@ -15222,16 +15202,8 @@
       "destination": "/cookbook/tools/built-in"
     },
     {
-      "source": "/examples/tools/custom-tools",
-      "destination": "/cookbook/tools/custom-tools"
-    },
-    {
       "source": "/examples/tools/mcp",
       "destination": "/cookbook/tools/mcp"
-    },
-    {
-      "source": "/examples/tools/overview",
-      "destination": "/cookbook/tools/overview"
     },
     {
       "source": "/examples/tools/tool-calls-accesing-agent",
@@ -15364,10 +15336,6 @@
     {
       "source": "/examples/workflows/notion-knowledge-manager",
       "destination": "/cookbook/workflows/notion-knowledge-manager"
-    },
-    {
-      "source": "/examples/workflows/overview",
-      "destination": "/cookbook/workflows/overview"
     },
     {
       "source": "/features/evals/telemetry",
