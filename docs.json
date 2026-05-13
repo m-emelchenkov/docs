@@ -4630,7 +4630,8 @@
               "deploy/introduction",
               "deploy/templates",
               "deploy/apps",
-              "deploy/interfaces"
+              "deploy/interfaces",
+              "deploy/verify"
             ]
           },
           {
@@ -4737,6 +4738,12 @@
                 "group": "Gcode",
                 "pages": [
                   "deploy/templates/gcode/overview"
+                ]
+              },
+              {
+                "group": "Infra CLI",
+                "pages": [
+                  "deploy/infra/overview"
                 ]
               }
             ]

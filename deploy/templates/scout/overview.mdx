@@ -1,7 +1,115 @@
 ---
-title: "Overview"
+title: "Scout"
+sidebarTitle: "Overview"
+description: "Company intelligence agent that navigates your workspace, builds context, and answers questions."
 ---
 
-<Info>
-  This page is coming soon. If you have any questions or need help, see [getting help](/get-help).
-</Info>
+**Scout is a company intelligence agent that gets smarter as it explores your systems.**
+
+Most AI assistants require you to upload documents or paste context. Scout navigates to the source: it connects to your Slack, Google Drive, databases, and wikis, then builds a knowledge graph of your company as it works.
+
+## How It Works
+
+Scout uses **Context Providers** to connect to your systems and retrieve information on demand:
+
+| Provider | What It Accesses |
+|----------|------------------|
+| Web | Public URLs, documentation sites |
+| Slack | Channel history, threads, search |
+| Google Drive | Documents, spreadsheets, presentations |
+| Database | CRM records, product data |
+| Wiki | Internal documentation (Git-backed or Notion) |
+| MCP | Any tool exposed via Model Context Protocol |
+
+Scout doesn't just search. It **navigates**: following links between systems, resolving references, and building a map of how information connects.
+
+### Self-Building Knowledge
+
+As Scout answers questions, it maintains two internal systems:
+
+| System | Purpose |
+|--------|---------|
+| **Wiki** | Curated facts about your company: org structure, product names, key metrics |
+| **CRM** | People and relationships: who works on what, who to ask about X |
+
+These start empty and grow with use. Scout learns that "the API" means your REST API, not a generic concept. It learns that Sarah owns billing and Marcus handles infrastructure.
+
+## Run Locally
+
+```bash
+git clone https://github.com/agno-agi/scout.git && cd scout
+
+cp example.env .env
+# Edit .env: add OPENAI_API_KEY and configure providers
+
+docker compose up -d --build
+```
+
+Confirm Scout is running at `http://localhost:8000/docs`.
+
+### Connect to the Control Plane
+
+1. Open [os.agno.com](https://os.agno.com)
+2. Click **Connect OS** → **Local**
+3. Enter `http://localhost:8000`
+
+## Deploy to Railway
+
+```bash
+railway login
+./scripts/railway_up.sh
+```
+
+The script provisions PostgreSQL, configures environment variables, and deploys Scout.
+
+Then connect via the control plane:
+
+1. Open [os.agno.com](https://os.agno.com)
+2. Click **Connect OS** → **Live**
+3. Enter your Railway domain
+
+## Configure Providers
+
+Scout's power comes from the providers you connect. Start with one or two, then add more as needed.
+
+### Slack
+
+```bash
+# Add to .env
+SLACK_BOT_TOKEN=xoxb-...
+SLACK_SIGNING_SECRET=...
+```
+
+Scout can search messages, read channel history, and understand who said what.
+
+### Google Drive
+
+```bash
+# Add to .env
+GOOGLE_SERVICE_ACCOUNT_FILE=/path/to/service-account.json
+```
+
+Scout can read documents, spreadsheets, and presentations shared with the service account.
+
+### MCP Servers
+
+Connect any MCP-compatible tool:
+
+```python
+from agno.tools.mcp import MCPTools
+
+mcp_tools = MCPTools(servers=["npx -y @anthropic/mcp-server-filesystem"])
+```
+
+## Example Prompts
+
+Try these after connecting your providers:
+
+- What's the status of Project Phoenix?
+- Who should I talk to about billing issues?
+- Summarize last week's engineering discussions
+- What decisions were made in the Q3 planning doc?
+
+## Source
+
+For setup guides, provider configuration, and architecture details, see the [GitHub repo](https://github.com/agno-agi/scout).
