@@ -1,0 +1,257 @@
+---
+title: Gemini Interactions
+sidebarTitle: Interactions API
+description: Use Google's Interactions API for server-side conversation history, implicit caching, and background execution.
+---
+
+The Interactions API is an alternative to Gemini's `generateContent` endpoint. Instead of sending the full conversation history on every turn, it stores prior turns server-side and references them via `previous_interaction_id`. This reduces token costs and latency through implicit caching.
+
+See the [Interactions API documentation](https://ai.google.dev/gemini-api/docs/interactions) for more details.
+
+<Warning>
+The Interactions API is experimental and may change in future versions. You will see the following warning when using it:
+
+```
+UserWarning: Interactions usage is experimental and may change in future versions.
+```
+
+Requires `google-genai>=1.55.0`.
+</Warning>
+
+## Installation
+
+```bash
+uv pip install "google-genai>=1.55.0" agno
+```
+
+## Authentication
+
+`GeminiInteractions` uses the same authentication as the `Gemini` class. Set the `GOOGLE_API_KEY` environment variable or configure Vertex AI credentials.
+
+<CodeGroup>
+
+```bash Mac
+export GOOGLE_API_KEY=***
+```
+
+```bash Windows
+setx GOOGLE_API_KEY ***
+```
+
+</CodeGroup>
+
+For Vertex AI setup, see the [Vertex AI guide](/models/providers/native/google/usage/vertexai).
+
+## Example
+
+```python
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+
+agent = Agent(
+    model=GeminiInteractions(id="gemini-2.5-flash"),
+    markdown=True,
+)
+
+agent.print_response("Share a 2 sentence horror story.")
+```
+
+<Note>View more examples [here](/models/providers/native/google/usage/interactions-basic).</Note>
+
+## How It Works
+
+1. On the first turn, the agent sends the user message and receives a response along with an `interaction_id`.
+2. On subsequent turns, only the new message is sent with `previous_interaction_id` referencing the prior turn.
+3. The server reconstructs the full context from stored history, applying implicit caching to reduce cost.
+
+This is transparent to the user. The `Agent` class handles `interaction_id` tracking automatically.
+
+## Capabilities
+
+<CardGroup cols={3}>
+  <Card title="Multi-turn" icon="messages" href="#multi-turn-conversations">
+    Server-side history management
+  </Card>
+  <Card title="Thinking" icon="brain" href="#thinking">
+    Reasoning with thinking levels
+  </Card>
+  <Card title="Google Search" icon="magnifying-glass" href="#google-search">
+    Built-in web search
+  </Card>
+  <Card title="Tool Use" icon="wrench" href="#tool-use">
+    Function calling
+  </Card>
+  <Card title="Structured Output" icon="brackets-curly" href="#structured-output">
+    Pydantic schema enforcement
+  </Card>
+  <Card title="Background Execution" icon="clock" href="#background-execution">
+    Long-running tasks
+  </Card>
+</CardGroup>
+
+## Multi-turn Conversations
+
+The key advantage of the Interactions API. Prior turns are stored server-side and referenced by ID, so only the new message is sent each turn.
+
+```python
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+
+agent = Agent(
+    model=GeminiInteractions(id="gemini-2.5-flash"),
+    add_history_to_context=True,
+    markdown=True,
+)
+
+agent.print_response("My name is Alice and I love hiking in the mountains.")
+agent.print_response("What did I just tell you about myself?")
+agent.print_response("Suggest a hiking destination based on what you know about me.")
+```
+
+Read more about multi-turn conversations [here](/models/providers/native/google/usage/interactions-multi-turn).
+
+## Thinking
+
+Enable extended reasoning with the `thinking_level` parameter. Accepts `"low"` or `"high"`.
+
+```python
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+
+agent = Agent(
+    model=GeminiInteractions(
+        id="gemini-2.5-flash",
+        thinking_level="high",
+    ),
+    markdown=True,
+)
+
+agent.print_response("Explain why the sum of angles in a triangle is always 180 degrees.")
+```
+
+Read more about thinking [here](/models/providers/native/google/usage/interactions-thinking).
+
+## Google Search
+
+Enable built-in Google Search by setting `search=True`. No external tool needed.
+
+```python
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+
+agent = Agent(
+    model=GeminiInteractions(
+        id="gemini-2.5-flash",
+        search=True,
+    ),
+    markdown=True,
+)
+
+agent.print_response("What are the latest developments in quantum computing?")
+```
+
+Read more about Google Search [here](/models/providers/native/google/usage/interactions-search).
+
+## Tool Use
+
+Function calling works the same as with the `Gemini` class.
+
+```python
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+from agno.tools.websearch import WebSearchTools
+
+agent = Agent(
+    model=GeminiInteractions(id="gemini-2.5-flash"),
+    tools=[WebSearchTools()],
+    markdown=True,
+)
+
+agent.print_response("Whats happening in France?")
+```
+
+Read more about tool use [here](/models/providers/native/google/usage/interactions-tool-use).
+
+## Structured Output
+
+Use Pydantic models to enforce a JSON schema on the response.
+
+```python
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+from pydantic import BaseModel, Field
+
+class MovieReview(BaseModel):
+    title: str = Field(description="The movie title")
+    year: int = Field(description="Release year")
+    genre: str = Field(description="Primary genre")
+    rating: float = Field(description="Rating out of 10")
+    summary: str = Field(description="Brief review summary")
+
+agent = Agent(
+    model=GeminiInteractions(id="gemini-2.5-flash"),
+    output_schema=MovieReview,
+)
+
+response = agent.run("Write a review of The Matrix (1999)")
+```
+
+Read more about structured output [here](/models/providers/native/google/usage/interactions-structured-output).
+
+## Background Execution
+
+For long-running tasks like Deep Research, enable background execution. The API offloads the task and returns results when complete.
+
+```python
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+
+agent = Agent(
+    model=GeminiInteractions(
+        id="gemini-2.5-flash",
+        background=True,
+    ),
+    markdown=True,
+)
+
+agent.print_response("Research the history of quantum computing.")
+```
+
+## Interactions API vs generateContent
+
+| Feature | GeminiInteractions | Gemini |
+|---------|-------------------|--------|
+| Conversation history | Server-side, referenced by ID | Client-side, resent each turn |
+| Caching | Implicit on prior turns | Manual via context caching API |
+| Token cost on multi-turn | Lower (only new message sent) | Higher (full history resent) |
+| Background execution | Supported | Not supported |
+| Response format | Typed execution steps | Generic content parts |
+
+## Params
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `id` | `str` | `"gemini-3-flash-preview"` | The model identifier |
+| `name` | `str` | `"GeminiInteractions"` | The name of the model |
+| `provider` | `str` | `"Google"` | The provider of the model |
+| `api_key` | `Optional[str]` | `None` | Google API key (defaults to `GOOGLE_API_KEY` env var) |
+| `vertexai` | `bool` | `False` | Use Vertex AI instead of AI Studio |
+| `project_id` | `Optional[str]` | `None` | Google Cloud project ID for Vertex AI |
+| `location` | `Optional[str]` | `None` | Google Cloud region for Vertex AI |
+| `temperature` | `Optional[float]` | `None` | Controls randomness (0.0-2.0) |
+| `top_p` | `Optional[float]` | `None` | Nucleus sampling threshold |
+| `max_output_tokens` | `Optional[int]` | `None` | Maximum tokens in response |
+| `stop_sequences` | `Optional[list[str]]` | `None` | Sequences that stop generation |
+| `seed` | `Optional[int]` | `None` | Random seed for reproducibility |
+| `response_modalities` | `Optional[list[str]]` | `None` | Output types (e.g., `["text", "image"]`) |
+| `store` | `Optional[bool]` | `None` | Persist interactions server-side (default: True) |
+| `background` | `Optional[bool]` | `None` | Offload to background execution |
+| `thinking_level` | `Optional[str]` | `None` | Reasoning intensity: `"low"` or `"high"` |
+| `search` | `bool` | `False` | Enable built-in Google Search |
+| `url_context` | `bool` | `False` | Enable URL context extraction |
+| `code_execution` | `bool` | `False` | Enable code execution |
+| `service_tier` | `Optional[str]` | `None` | Inference tier: `"flex"`, `"standard"`, or `"priority"` |
+| `timeout` | `Optional[float]` | `None` | Request timeout in seconds |
+| `client_params` | `Optional[Dict[str, Any]]` | `None` | Additional client parameters |
+
+`GeminiInteractions` is a subclass of the [Model](/reference/models/model) class and has access to the same params.

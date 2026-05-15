@@ -1,0 +1,64 @@
+---
+title: Structured Output (Interactions)
+---
+
+## Code
+
+```python cookbook/90_models/google/gemini_interactions/structured_output.py
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+from pydantic import BaseModel, Field
+
+
+class MovieReview(BaseModel):
+    title: str = Field(description="The movie title")
+    year: int = Field(description="Release year")
+    genre: str = Field(description="Primary genre")
+    rating: float = Field(description="Rating out of 10")
+    summary: str = Field(description="Brief review summary")
+
+
+agent = Agent(
+    model=GeminiInteractions(id="gemini-3-flash-preview"),
+    output_schema=MovieReview,
+    markdown=True,
+)
+
+if __name__ == "__main__":
+    response = agent.run("Write a review of The Matrix (1999)")
+
+    if response.content:
+        review = response.content
+        if isinstance(review, MovieReview):
+            print(f"Title: {review.title}")
+            print(f"Year: {review.year}")
+            print(f"Genre: {review.genre}")
+            print(f"Rating: {review.rating}/10")
+            print(f"Summary: {review.summary}")
+        else:
+            print(f"Raw response: {review}")
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your API key">
+    ```bash
+    export GOOGLE_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U "google-genai>=1.55.0" agno
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash
+    python cookbook/90_models/google/gemini_interactions/structured_output.py
+    ```
+  </Step>
+</Steps>

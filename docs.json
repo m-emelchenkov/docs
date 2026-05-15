@@ -1188,6 +1188,18 @@
                                   "models/providers/native/google/usage/video-input-file-upload",
                                   "models/providers/native/google/usage/video-input-local-file-upload"
                                 ]
+                              },
+                              "models/providers/native/google/gemini-interactions",
+                              {
+                                "group": "Interactions Usage",
+                                "pages": [
+                                  "models/providers/native/google/usage/interactions-basic",
+                                  "models/providers/native/google/usage/interactions-tool-use",
+                                  "models/providers/native/google/usage/interactions-multi-turn",
+                                  "models/providers/native/google/usage/interactions-thinking",
+                                  "models/providers/native/google/usage/interactions-search",
+                                  "models/providers/native/google/usage/interactions-structured-output"
+                                ]
                               }
                             ]
                           },
@@ -2956,6 +2968,18 @@
                               "models/providers/native/google/usage/video-input-bytes-content",
                               "models/providers/native/google/usage/video-input-file-upload",
                               "models/providers/native/google/usage/video-input-local-file-upload"
+                            ]
+                          },
+                          "models/providers/native/google/gemini-interactions",
+                          {
+                            "group": "Interactions Usage",
+                            "pages": [
+                              "models/providers/native/google/usage/interactions-basic",
+                              "models/providers/native/google/usage/interactions-tool-use",
+                              "models/providers/native/google/usage/interactions-multi-turn",
+                              "models/providers/native/google/usage/interactions-thinking",
+                              "models/providers/native/google/usage/interactions-search",
+                              "models/providers/native/google/usage/interactions-structured-output"
                             ]
                           }
                         ]
