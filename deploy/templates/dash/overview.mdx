@@ -6,15 +6,21 @@ description: "Self-learning data agent that grounds answers in 6 layers of conte
 
 **Dash is a self-learning data agent that gets better with every query.**
 
-Most Text-to-SQL agents are stateless. They make mistakes, you fix them, then they make the same mistake again because every session starts fresh. Dash fixes this by grounding its answers in 6 layers of context and learning from every run.
+Most Text-to-SQL agents are stateless. They make mistakes, you fix them, then they make the same mistake again. Dash solves this with 6 layers of grounded context and a learning loop that improves with every run.
 
 Checkout the [repo](https://github.com/agno-agi/dash) for more details.
 
 ## How It Works
 
-Dash retrieves relevant context at query time via hybrid search, generates grounded SQL, executes it, and delivers insights.
+Dash is a team of three agents coordinated by a leader:
 
-### The Six Layers of Context
+| Agent | Role |
+|-------|------|
+| **Analyst** | Reads company data (read-only), generates SQL, interprets results |
+| **Engineer** | Builds reusable views and summary tables in the `dash` schema |
+| **Leader** | Routes queries, coordinates the team, posts to Slack |
+
+### Six Layers of Context
 
 | Layer | Purpose | Source |
 |-------|---------|--------|
@@ -22,19 +28,19 @@ Dash retrieves relevant context at query time via hybrid search, generates groun
 | **Human Annotations** | Metrics, definitions, business rules | `knowledge/business/*.json` |
 | **Query Patterns** | SQL that is known to work | `knowledge/queries/*.sql` |
 | **Institutional Knowledge** | Docs, wikis, external references | MCP (optional) |
-| **Learnings** | Error patterns and discovered fixes | Agno `LearningMachine` |
+| **Learnings** | Error patterns and discovered fixes | `LearningMachine` |
 | **Runtime Context** | Live schema changes | `introspect_schema` tool |
 
 ### Self-Learning
 
-Dash improves without retraining or fine-tuning through two complementary systems:
+Two complementary systems that evolve with use:
 
-| System | Stores | How it evolves |
+| System | Stores | How It Evolves |
 |--------|--------|----------------|
-| **Knowledge** | Validated queries, table schemas, business rules | Curated by your team and refined by Dash |
-| **Learnings** | Error patterns, column quirks, team conventions | Managed automatically by the Learning Machine |
+| **Knowledge** | Validated queries, business context | Curated by you + Dash |
+| **Learnings** | Error patterns and fixes | Managed automatically |
 
-When a query fails because `position` is TEXT and not INTEGER, Dash saves that. Next time, it knows. When your team is focused on IPO prep, Dash learns that "revenue" means ARR, not bookings, and that the board wants cohort retention broken out by enterprise vs SMB.
+When a query fails because `position` is TEXT and not INTEGER, Dash saves that. Next time, it knows.
 
 ### Insights, Not Just Rows
 
@@ -56,17 +62,17 @@ cp example.env .env
 
 docker compose up -d --build
 
-# Load sample data (F1 races 1950-2020) and knowledge base
-docker exec -it dash-api python -m dash.scripts.load_data
-docker exec -it dash-api python -m dash.scripts.load_knowledge
+# Generate sample data and load knowledge
+docker exec -it dash-api python scripts/generate_data.py
+docker exec -it dash-api python scripts/load_knowledge.py
 ```
 
 Confirm Dash is running at `http://localhost:8000/docs`.
 
-### Connect to the control plane
+### Connect to the Control Plane
 
-1. Open [os.agno.com](https://os.agno.com) and sign in
-2. Click **Add OS** → **Local**
+1. Open [os.agno.com](https://os.agno.com)
+2. Click **Connect OS** → **Local**
 3. Enter `http://localhost:8000`
 
 <Frame>
@@ -84,61 +90,117 @@ Confirm Dash is running at `http://localhost:8000/docs`.
 
 ## Deploy to Railway
 
+Railway deployment uses `.env.production` to keep production credentials separate.
+
+```bash
+cp example.env .env.production
+# Edit .env.production — set OPENAI_API_KEY
+```
+
+<Steps>
+  <Step title="Deploy infrastructure">
+
 ```bash
 railway login
 ./scripts/railway_up.sh
 ```
 
-The script provisions PostgreSQL, configures environment variables, and deploys your application.
+The app will crash-loop until the JWT key is added in the next step. That's expected.
 
-Then load your data and knowledge in production:
+  </Step>
+
+  <Step title="Get your JWT key">
+
+1. Copy your Railway domain from the output (e.g. `dash-production-xxxx.up.railway.app`)
+2. Open [os.agno.com](https://os.agno.com) → **Connect OS** → **Live**
+3. Paste your Railway URL
+4. Go to **Settings** and generate a key pair
+5. Add the public key to `.env.production`:
 
 ```bash
-railway run python -m dash.scripts.load_data
-railway run python -m dash.scripts.load_knowledge
+JWT_VERIFICATION_KEY='-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkq...
+-----END PUBLIC KEY-----'
 ```
 
-Connect via the control plane:
+  </Step>
 
-1. Open [os.agno.com](https://os.agno.com)
-2. Click **Add OS** → **Live**
-3. Enter your Railway domain
+  <Step title="Push environment and redeploy">
+
+```bash
+./scripts/railway_env.sh
+./scripts/railway_redeploy.sh
+```
+
+  </Step>
+</Steps>
+
+### Production Operations
+
+Database scripts must run inside Railway's network:
+
+```bash
+railway ssh --service dash
+# Inside the container:
+python scripts/generate_data.py
+python scripts/load_knowledge.py
+```
+
+## Connect to Slack
+
+Dash can receive DMs, @mentions, and thread replies, and can post to channels proactively.
+
+1. Run Dash with a public URL (ngrok locally, or your Railway domain)
+2. Create the Slack app from the manifest in `docs/SLACK_CONNECT.md`
+3. Set `SLACK_TOKEN` and `SLACK_SIGNING_SECRET` in `.env`
+4. Restart Dash
+
+See [Slack setup](/deploy/interfaces/slack/overview) for details.
 
 ## Example Prompts
 
-Try these on the sample F1 dataset:
+Try these on the sample SaaS metrics dataset:
 
-- Who won the most F1 World Championships?
-- How many races has Lewis Hamilton won?
-- Compare Ferrari vs Mercedes points 2015-2020
+- What's our current MRR?
+- Which plan has the highest churn rate?
+- Show me revenue trends by plan over the last 6 months
+- Which customers are at risk of churning?
 
 ## Adding Your Own Data
 
-Dash works best when it understands how your organization talks about data. The knowledge base lives in three directories:
+Dash works best when it understands how your organization talks about data:
 
-**`knowledge/tables/`** for table metadata: schema descriptions, column meanings, data quality notes.
-
-**`knowledge/queries/`** for validated SQL patterns that are known to work.
-
-**`knowledge/business/`** for metric definitions, business rules, and common gotchas.
+| Directory | Content |
+|-----------|---------|
+| `knowledge/tables/` | Table schemas, column meanings, data quality notes |
+| `knowledge/queries/` | Validated SQL patterns that are known to work |
+| `knowledge/business/` | Metric definitions, business rules, common gotchas |
 
 Load or update knowledge at any time:
 
 ```bash
-python -m dash.scripts.load_knowledge            # upsert changes
-python -m dash.scripts.load_knowledge --recreate  # fresh start
+python scripts/load_knowledge.py            # Upsert changes
+python scripts/load_knowledge.py --recreate  # Fresh start
 ```
 
 ## Run Evals
 
-Dash ships with an evaluation suite: string matching, LLM grading, and golden SQL comparison.
+Five eval categories using Agno's eval framework:
+
+| Category | What It Tests |
+|----------|---------------|
+| **accuracy** | Correct data and meaningful insights |
+| **routing** | Team routes to correct agent/tools |
+| **security** | No credential or secret leaks |
+| **governance** | Refuses destructive SQL operations |
+| **boundaries** | Schema access boundaries respected |
 
 ```bash
-docker exec -it dash-api python -m dash.evals.run_evals         # string matching
-docker exec -it dash-api python -m dash.evals.run_evals -g      # LLM grader
-docker exec -it dash-api python -m dash.evals.run_evals -g -r   # both + golden SQL
+python -m evals                      # Run all evals
+python -m evals --category accuracy  # Run specific category
+python -m evals --verbose            # Show response details
 ```
 
 ## Source
 
-For architecture details, knowledge format reference, and local development setup, see the [GitHub repo](https://github.com/agno-agi/dash).
+For architecture details, data model reference, and security configuration, see the [GitHub repo](https://github.com/agno-agi/dash).
