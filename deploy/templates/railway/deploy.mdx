@@ -4,7 +4,7 @@ sidebarTitle: "Deploy"
 description: "Deploy AgentOS to Railway with PostgreSQL, automatic HTTPS, and a public domain."
 ---
 
-This template deploys AgentOS and PostgreSQL to Railway. It includes example agents ready to use after deployment, automatic HTTPS, and a public domain.
+This template deploys AgentOS and PostgreSQL to Railway. It includes agents you can extend with Claude Code, automatic HTTPS, and a public domain.
 
 ## Prerequisites
 
@@ -27,10 +27,10 @@ cd agentos
 
 The template includes the following agents:
 
-| Agent | Description |
-| :--- | :--- |
-| Knowledge Agent | Answers questions from your documents using Agentic RAG. |
-| MCP Agent | Connects to external tools via Model Context Protocol. |
+| Agent | Pattern | Description |
+| :--- | :--- | :--- |
+| WebSearch | Direct tools | Search the web using Parallel SDK or keyless MCP. |
+| CodeSearch | Context provider | Answer questions about this codebase. |
   </Step>
 
   <Step title="Set your API key">
@@ -45,15 +45,6 @@ Edit `.env` and add your `OPENAI_API_KEY`.
 ```bash
 docker compose up -d --build
 ```
-  </Step>
-
-  <Step title="Load knowledge">
-```bash
-docker exec -it agentos-api python -m agents.knowledge_agent
-```
-
-This loads the default documents into the Knowledge Agent's vector database. You can add your own documents as needed.
-
   </Step>
 
   <Step title="Confirm it's running">
@@ -82,7 +73,6 @@ Deploy to Railway when you're ready to go live.
 - [Railway account](https://railway.app) (free tier works)
 - [Railway CLI](https://docs.railway.com/cli#installing-the-cli)
 
-
 <Steps>
   <Step title="Login to Railway">
 ```bash
@@ -91,36 +81,67 @@ railway login
 
   </Step>
 
+  <Step title="Set up production env">
+```bash
+cp .env .env.production
+```
+
+Edit `.env.production` with production values. The deploy scripts read `.env.production` first and fall back to `.env`.
+
+  </Step>
+
   <Step title="Deploy">
 ```bash
-./scripts/railway_up.sh
+./scripts/railway/up.sh
 ```
 
 Takes ~2 minutes. The script creates your Railway project, provisions PostgreSQL with pgvector, and deploys AgentOS.
 
   </Step>
 
-  <Step title="Load knowledge">
-```bash
-railway run python -m agents.knowledge_agent
-```
+  <Step title="Get your verification key">
 
-  </Step>
-
-  <Step title="Get your domain">
-```bash
-railway open
-```
-
-Find your URL in the Railway dashboard (e.g., `my-agentos.up.railway.app`). Navigate to `<your-domain>/docs` to confirm the API is running.
-
-  </Step>
-
-  <Step title="Connect to the control plane">
+Your first deploy will fail by design. Token-Based Authorization is on by default.
 
 1. Go to [os.agno.com](https://os.agno.com)
 2. Click **Connect OS** → Select **Live**
-3. Paste your Railway domain
+3. Enter your Railway domain
+4. Enable **Token Based Authorization**
+5. Copy the public key into `.env.production`:
+
+```bash
+JWT_VERIFICATION_KEY=-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkq...
+-----END PUBLIC KEY-----
+```
+
+  </Step>
+
+  <Step title="Sync env and verify">
+
+Point the scheduler at your Railway domain:
+
+```bash
+# In .env.production
+AGENTOS_URL=https://<your-app>.up.railway.app
+```
+
+Push variables to Railway:
+
+```bash
+./scripts/railway/env-sync.sh
+```
+
+Railway auto-deploys when env values change.
+
+  </Step>
+
+  <Step title="Confirm it's live">
+```bash
+railway logs --service agent-os
+```
+
+Navigate to `<your-domain>/docs` to confirm the API is running.
 
 <Frame>
   <img
@@ -140,13 +161,28 @@ Find your URL in the Railway dashboard (e.g., `my-agentos.up.railway.app`). Navi
 
 <Check>Your AgentOS is live on Railway.</Check>
 
+## Environment Variables
+
+| Variable | Required | Description |
+| :--- | :--- | :--- |
+| `OPENAI_API_KEY` | Yes | OpenAI API key |
+| `RUNTIME_ENV` | No | `dev` enables hot-reload and disables JWT |
+| `JWT_VERIFICATION_KEY` | Production | Public key from os.agno.com |
+| `AGENTOS_URL` | No | Scheduler base URL (default: `http://127.0.0.1:8000`) |
+| `SLACK_BOT_TOKEN` | No | Enable Slack interface |
+| `SLACK_SIGNING_SECRET` | No | Enable Slack interface |
+| `PARALLEL_API_KEY` | No | Parallel SDK key for WebSearch |
+
 ## Next Steps
 
-<CardGroup cols={2}>
-  <Card title="Add apps" icon="grid-2" href="/deploy/apps">
-    Browse agents, teams, and workflows for your deployment.
+<CardGroup cols={3}>
+  <Card title="Extend" icon="wand-magic-sparkles" href="/deploy/templates/extending">
+    Build and improve agents with Claude Code and evals.
   </Card>
-  <Card title="Connect interfaces" icon="comments" href="/deploy/interfaces">
-    Expose your agents on Slack, Discord, WhatsApp, or MCP.
+  <Card title="Interfaces" icon="comments" href="/deploy/interfaces">
+    Connect Slack, Discord, WhatsApp, or MCP.
+  </Card>
+  <Card title="Reference" icon="book" href="/deploy/templates/railway/reference">
+    Manage, customize, and troubleshoot.
   </Card>
 </CardGroup>

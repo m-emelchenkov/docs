@@ -39,22 +39,18 @@ Each solution ships with capabilities that typically take weeks to build:
 | **Production infrastructure** | PostgreSQL, pgvector, webhook endpoints. Deploy to Docker, Railway, or AWS. |
 | **Interfaces** | Slack, Telegram, WhatsApp ready. Add more with a few lines of config. |
 
-## The Auto-Improvement Loop
+## Improving Your Agents
 
-Setting up the platform correctly unlocks recursive improvement:
+Each solution includes tools for iterating on agent quality:
 
-<Steps>
-  <Step title="Create">
-    Start with a solution or build a new agent. Define instructions, tools, and knowledge sources.
-  </Step>
-  <Step title="Run">
-    Deploy and use the agent. It logs every interaction, tool call, and outcome.
-  </Step>
-  <Step title="Improve">
-    The platform derives test probes from the agent's instructions, runs them, and fixes failures. The agent is the spec.
-  </Step>
-</Steps>
+| Solution | Improvement Tools |
+|----------|-------------------|
+| Dash | Automated improvement loop (`python -m evals improve`) |
+| Scout | Probe library with `/loop` support |
+| Coda | Eval suite for routing and synthesis |
+| PAL | Smoke tests and behavioral evals |
+| Gcode | LearningMachine for persistent context |
 
 ## Build Your Own
 
-Don't see what you need? Start from a [starter template](/deploy/introduction#templates) and add your agents, or build from scratch with the [Agent Development Guide](/agents/introduction).
+Don't see what you need? Start from a [starter template](/deploy/introduction#templates) and add your agents.

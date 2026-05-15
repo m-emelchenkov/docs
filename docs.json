@@ -4635,7 +4635,7 @@
             ]
           },
           {
-            "group": "Templates",
+            "group": "Platforms",
             "pages": [
               {
                 "group": "Docker",
@@ -4699,7 +4699,8 @@
                         "group": "Advanced",
                         "pages": [
                           "deploy/templates/aws/configure/efs",
-                          "deploy/templates/aws/configure/ssh-access"
+                          "deploy/templates/aws/configure/ssh-access",
+                          "deploy/infra/overview"
                         ]
                       }
                     ]
@@ -4721,7 +4722,12 @@
                     ]
                   }
                 ]
-              },
+              }
+            ]
+          },
+          {
+            "group": "Solutions",
+            "pages": [
               {
                 "group": "Dash",
                 "pages": [
@@ -4740,12 +4746,7 @@
                   "deploy/templates/gcode/overview"
                 ]
               },
-              {
-                "group": "Infra CLI",
-                "pages": [
-                  "deploy/infra/overview"
-                ]
-              }
+              "deploy/templates/extending"
             ]
           },
           {
@@ -4793,9 +4794,9 @@
                 ]
               },
               {
-                "group": "Discord",
+                "group": "Telegram",
                 "pages": [
-                  "deploy/interfaces/discord/overview"
+                  "deploy/interfaces/telegram/overview"
                 ]
               },
               {
@@ -4805,9 +4806,9 @@
                 ]
               },
               {
-                "group": "MCP",
+                "group": "Discord",
                 "pages": [
-                  "deploy/interfaces/mcp/overview"
+                  "deploy/interfaces/discord/overview"
                 ]
               },
               {
@@ -4817,9 +4818,15 @@
                 ]
               },
               {
-                "group": "Telegram",
+                "group": "A2A",
                 "pages": [
-                  "deploy/interfaces/telegram/overview"
+                  "deploy/interfaces/a2a/overview"
+                ]
+              },
+              {
+                "group": "MCP",
+                "pages": [
+                  "deploy/interfaces/mcp/overview"
                 ]
               }
             ]
