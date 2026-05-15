@@ -296,34 +296,7 @@ A few scopes gate access to everything downstream. Without them, finer-grained s
 | `os:read` | List AgentOS instances in the organization |
 | `config:read` | Use any AgentOS endpoint (the UI loads `/config` on startup) |
 
-## Custom Scope Mappings
 
-Customize or extend the default scope mappings using the JWT middleware:
-```python
-from agno.os import AgentOS
-from agno.os.middleware import JWTMiddleware
-
-agent_os = AgentOS(
-    id="my-agent-os",
-    agents=[my_agent],
-)
-
-app = agent_os.get_app()
-
-app.add_middleware(
-    JWTMiddleware,
-    verification_keys=["your-jwt-key"],
-    algorithm="RS256",
-    authorization=True,
-    scope_mappings={
-        "GET /agents": ["custom:read"],
-        "POST /custom/endpoint": ["custom:write"],
-        "GET /public/stats": [],  # No scopes required
-    }
-)
-```
-
-Custom scope mappings are additive to the defaults. To override a default, specify the same route pattern with your custom scopes.
 
 ## Default Roles
 
@@ -371,6 +344,34 @@ Open the [Organization settings page](https://os.agno.com/settings/organization)
   className="w-full aspect-video"
   src="/videos/roles.mp4"
 ></video>
+## Custom Scope Mappings
+
+Customize or extend the default scope mappings using the JWT middleware:
+```python
+from agno.os import AgentOS
+from agno.os.middleware import JWTMiddleware
+
+agent_os = AgentOS(
+    id="my-agent-os",
+    agents=[my_agent],
+)
+
+app = agent_os.get_app()
+
+app.add_middleware(
+    JWTMiddleware,
+    verification_keys=["your-jwt-key"],
+    algorithm="RS256",
+    authorization=True,
+    scope_mappings={
+        "GET /agents": ["custom:read"],
+        "POST /custom/endpoint": ["custom:write"],
+        "GET /public/stats": [],  # No scopes required
+    }
+)
+```
+
+Custom scope mappings are additive to the defaults. To override a default, specify the same route pattern with your custom scopes.
 
 ## JWT Token Structure
 
