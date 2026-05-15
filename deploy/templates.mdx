@@ -1,75 +1,64 @@
 ---
 title: "Solutions"
 sidebarTitle: "Solutions"
-description: "Production-ready agent systems. Clone, configure, deploy."
+description: "Production-ready agent systems with self-learning, context retrieval, and infrastructure already wired up."
 ---
 
-**Skip the build phase. Deploy a working agent system today.**
+You've picked where to deploy. Now pick what to deploy.
 
-These aren't templates with placeholder agents. They're complete systems with context retrieval, self-learning, and production infrastructure already wired up. Clone the repo, configure your data sources, and deploy.
+These aren't templates with placeholder agents. They're complete systems with self-learning, context retrieval, and production infrastructure already wired up. Clone the repo, configure your data sources, and you're running.
 
-<CardGroup cols={3}>
+## Pick a Solution
+
+<CardGroup cols={2}>
   <Card title="Dash" icon="chart-mixed" href="/deploy/templates/dash/overview">
-    Self-learning data agent. Grounds answers in 6 layers of context and improves with every query.
+    **Self-learning data agent.** Connects to your databases, learns your schema, improves with every query. Grounds answers in 6 layers of context.
   </Card>
   <Card title="Scout" icon="radar" href="/deploy/templates/scout/overview">
-    Company intelligence agent. Navigates your systems, builds a knowledge graph, answers questions.
+    **Company intelligence agent.** Navigates Slack, Drive, and wikis to answer questions. Builds a knowledge graph as it works.
   </Card>
   <Card title="Coda" icon="code-branch" href="/tutorials/coda/overview">
-    Code companion. PR reviews, issue triage, feature planning. Lives in Slack, works against your codebase.
+    **Code companion.** PR reviews, issue triage, feature planning. Lives in Slack, works against your codebase.
   </Card>
   <Card title="PAL" icon="brain" href="https://github.com/agno-agi/pal">
-    Personal agent that learns. Knowledge base, wiki, and structured data that compounds over time.
+    **Personal agent that learns.** Knowledge base, wiki, and structured data that compounds over time.
   </Card>
   <Card title="Gcode" icon="code" href="/deploy/templates/gcode/overview">
-    Self-improving coding agent. Persistent workspace, git-based isolation, full audit trail.
+    **Self-improving coding agent.** Persistent workspace, git-based isolation, full audit trail.
   </Card>
 </CardGroup>
 
-## What Makes Them Different
+## What's Included
 
 Each solution ships with capabilities that typically take weeks to build:
 
-| Capability | Dash | Scout | Coda | PAL | Gcode |
-|------------|:----:|:-----:|:----:|:---:|:-----:|
-| Self-learning | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Multi-agent | | ✓ | ✓ | | |
-| Slack integration | ✓ | ✓ | ✓ | ✓ | |
-| Knowledge retrieval | 6-layer context | Context Providers | Codebase grep | Wiki + DB | Workspace memory |
+| Capability | What It Does |
+|------------|--------------|
+| **Self-learning** | Agent improves from feedback. Every conversation makes the next one better. |
+| **Context retrieval** | RAG, knowledge graphs, multi-source navigation. Grounded answers, not hallucinations. |
+| **Production infrastructure** | PostgreSQL, pgvector, webhook endpoints. Deploy to Docker, Railway, or AWS. |
+| **Interfaces** | Slack, Telegram, WhatsApp ready. Add more with a few lines of config. |
 
-## Choose Your Starting Point
+## The Auto-Improvement Loop
 
-| Solution | Best For | Key Pattern |
-|----------|----------|-------------|
-| [Dash](/deploy/templates/dash/overview) | Business intelligence, analytics, data teams | Text-to-SQL with institutional memory |
-| [Scout](/deploy/templates/scout/overview) | Internal knowledge, company Q&A, onboarding | Multi-source navigation with context building |
-| [Coda](/tutorials/coda/overview) | Engineering teams, code reviews, issue triage | Multi-agent team against your codebase |
-| [PAL](https://github.com/agno-agi/pal) | Personal productivity, research, note-taking | Compounding knowledge base with wiki |
-| [Gcode](/deploy/templates/gcode/overview) | Automated coding, refactoring, migrations | Container workspace with task isolation |
+Setting up the platform correctly unlocks recursive improvement:
 
-## Deployment
+<Steps>
+  <Step title="Create">
+    Start with a solution or build a new agent. Define instructions, tools, and knowledge sources.
+  </Step>
+  <Step title="Run">
+    Deploy and use the agent. It logs every interaction, tool call, and outcome.
+  </Step>
+  <Step title="Improve">
+    The platform derives test probes from the agent's instructions, runs them, and fixes failures. The agent is the spec.
+  </Step>
+</Steps>
 
-All solutions deploy to the same infrastructure as AgentOS templates:
+<Tip>
+With Claude Code, you can run `docs/improve-agent.md` to trigger this loop automatically. See [Auto-Improving Agents](/tutorials/agent-platform/overview).
+</Tip>
 
-<CardGroup cols={3}>
-  <Card title="Docker" icon="docker" href="/deploy/templates/docker/deploy">
-    Local or self-hosted.
-  </Card>
-  <Card title="Railway" icon="train" href="/deploy/templates/railway/deploy">
-    Managed deployment.
-  </Card>
-  <Card title="AWS" icon="aws" href="/deploy/templates/aws/deploy">
-    Production at scale.
-  </Card>
-</CardGroup>
+## Build Your Own
 
-## Next Steps
-
-| Task | Guide |
-|------|-------|
-| Explore Dash | [Dash overview](/deploy/templates/dash/overview) |
-| Explore Scout | [Scout overview](/deploy/templates/scout/overview) |
-| Explore Coda | [Coda overview](/tutorials/coda/overview) |
-| Explore PAL | [PAL repo](https://github.com/agno-agi/pal) |
-| Explore Gcode | [Gcode overview](/deploy/templates/gcode/overview) |
-| Build your own | [Agent development guide](/agents/introduction) |
+Don't see what you need? Start from a [starter template](/deploy/introduction#templates) and add your agents, or build from scratch with the [Agent Development Guide](/agents/introduction).
