@@ -28,19 +28,19 @@ Dash is a team of three agents coordinated by a leader:
 | **Human Annotations** | Metrics, definitions, business rules | `knowledge/business/*.json` |
 | **Query Patterns** | SQL that is known to work | `knowledge/queries/*.sql` |
 | **Institutional Knowledge** | Docs, wikis, external references | MCP (optional) |
-| **Learnings** | Error patterns and discovered fixes | `LearningMachine` |
+| **Learnings** | Error patterns and discovered fixes | Agno `LearningMachine` |
 | **Runtime Context** | Live schema changes | `introspect_schema` tool |
 
 ### Self-Learning
 
-Two complementary systems that evolve with use:
+Dash improves without retraining or fine-tuning through two complementary systems:
 
 | System | Stores | How It Evolves |
 |--------|--------|----------------|
-| **Knowledge** | Validated queries, business context | Curated by you + Dash |
-| **Learnings** | Error patterns and fixes | Managed automatically |
+| **Knowledge** | Validated queries, table schemas, business rules | Curated by your team and refined by Dash |
+| **Learnings** | Error patterns, column quirks, team conventions | Managed automatically by the Learning Machine |
 
-When a query fails because `position` is TEXT and not INTEGER, Dash saves that. Next time, it knows.
+When a query fails because `position` is TEXT and not INTEGER, Dash saves that. Next time, it knows. When your team is focused on IPO prep, Dash learns that "revenue" means ARR, not bookings, and that the board wants cohort retention broken out by enterprise vs SMB.
 
 ### Insights, Not Just Rows
 
