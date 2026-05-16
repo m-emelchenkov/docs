@@ -1,23 +1,38 @@
 ---
 title: Use Agno with Coding Agents
-description: "How to use Agno with your favorite coding agents."
+description: "Give your coding agent access to Agno documentation."
 ---
 
-Two ways to get Agno's full documentation surface inside your coding agent.
+Two ways to get Agno's full documentation accessible to your coding agents.
 
-## Option 1: Add the docs as an MCP server
+## Option 1: Add the Docs as an MCP Server
 
-Add [docs.agno.com/mcp](https://docs.agno.com/mcp) as an MCP server in your coding agent. The agent gets live access to the docs, no indexing step.
+Add [https://docs.agno.com/mcp](https://docs.agno.com/mcp) as an MCP server in your coding agent. The agent gets live access to the docs directly.
 
 Works in any MCP-aware client: Claude Code, Cursor, Codex, Continue, and others.
 
 ### Claude Code example
 
+Two ways to give claude code access to agno. Add it using the CLI:
+
 ```bash
 claude mcp add agno-docs https://docs.agno.com/mcp
 ```
 
-Then in any session, the agent can call docs tools to search, read pages, and pull code samples on demand.
+Or commit a `.mcp.json` to your repo so anyone cloning it gets the docs wired in automatically:
+
+```json .mcp.json
+{
+  "mcpServers": {
+    "agno-docs": {
+      "type": "http",
+      "url": "https://docs.agno.com/mcp"
+    }
+  }
+}
+```
+
+Then in any session, the agent can search, read pages, and pull code samples on demand.
 
 ## Option 2: Index the docs
 
@@ -29,8 +44,4 @@ Add `https://docs.agno.com/llms-full.txt` as an indexed source. Your coding agen
 | **VSCode**   | Add the URL as a doc source via your AI extension's settings.       |
 | **Windsurf** | Add it to your indexed sources in the Cascade settings.             |
 
-Re-index periodically as the docs evolve.
-
-## Pair this with the Agent Platform template
-
-The [Agent Platform template](/tutorials/agent-platform/overview) ships with Claude Code prompts in the cloned repo's `docs/` folder: `create-new-agent.md`, `improve-agent.md`, `eval-and-improve.md`, and `review-and-improve.md`. With Agno's docs indexed (or wired as MCP), Claude Code has both the platform's local context and the framework's full reference.
+Re-index periodically as the docs change.
