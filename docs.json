@@ -154,7 +154,7 @@
             ]
           },
           {
-            "group": "Runtime",
+            "group": "Features",
             "pages": [
               "runtime/overview",
               "runtime/serve-as-api",
