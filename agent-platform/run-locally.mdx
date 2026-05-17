@@ -1,0 +1,98 @@
+---
+title: Run Locally
+description: "Run your agent platform locally."
+---
+
+Today we're going to run an agent platform made of:
+
+- AgentOS on FastAPI
+- Postgres + PgVector
+
+Incredibly simple, incredibly scalable. This stack goes a lot further than people realize.
+
+## Prerequisites
+
+- [Docker Desktop](https://docs.docker.com/desktop/) installed and running
+- An [OpenAI API key](https://platform.openai.com/api-keys) for models and embeddings
+
+## Run your agent platform
+
+<Steps>
+  <Step title="Clone the template">
+    ```bash
+    git clone https://github.com/agno-agi/agent-platform-railway.git agent-platform
+    cd agent-platform
+    ```
+
+    <Tip>
+    To make this codebase yours, run `rm -rf .git` and push to your own git repo.
+    </Tip>
+  </Step>
+
+  <Step title="Configure your environment">
+    ```bash
+    cp example.env .env
+    ```
+
+    Open `.env` and set `OPENAI_API_KEY`. Everything else has sensible defaults.
+  </Step>
+
+  <Step title="Start the platform">
+    ```bash
+    docker compose up -d --build
+    ```
+
+    This runs two containers: a FastAPI app on port 8000 and a Postgres on port 5432.
+  </Step>
+
+  <Step title="Verify it's running">
+    Open [http://localhost:8000/docs](http://localhost:8000/docs).
+
+    You'll see the OpenAPI spec. You can build incredibly powerful products on top of this.
+
+    <Frame caption="AgentOS API">
+      <img src="/videos/first-agent-api.gif" alt="AgentOS API" />
+    </Frame>
+  </Step>
+</Steps>
+
+You now have an agent platform made of AgentOS on FastAPI and Postgres. The AgentOS server exposes an large number of actions through a REST API.
+
+AgentOS also comes with a UI at [os.agno.com](https://os.agno.com).
+
+## Connect the AgentOS UI
+
+1. Open [os.agno.com](https://os.agno.com) and log in.
+2. Click **Connect OS**, choose **Local**, enter `http://localhost:8000` as the URL, and name it **Local AgentOS**.
+3. Click **Connect**.
+
+You should see two agents:
+
+| Agent             | Pattern             | What it does                                                            |
+| ----------------- | ------------------- | ----------------------------------------------------------------------- |
+| **code_search**   | Context provider    | Reads files in the workspace and answers questions about the codebase. |
+| **web_search**    | Direct tools        | Searches the web and synthesizes answers grounded in citations.        |
+
+Try a prompt against each:
+
+> _"What's in this repo?"_ → `code_search` lists the directory and explains the structure.
+
+> _"What did Anthropic publish about agents recently?"_ → `web_search` returns a summary.
+
+Open **Sessions** and **Traces** in the sidebar. Every run is captured with full message history, tool calls, and timing. This is what powers the iteration loop on the next page.
+
+## Summary
+
+We now have a locally running agent platform with:
+
+- Our agent runtime (AgentOS) running on port 8000 with request isolation, session management, scheduling, and 50+ endpoints.
+- A Postgres database for storing sessions, memory, knowledge, and traces.
+- A `docs/` folder of Claude Code prompts for managing the entire agent development lifecycle: create, improve, extend, eval, and review.
+
+<Tip>
+  Hot-reload is on. Edits to `agents/*.py` and `app/*.py` should be live in ~2s.
+</Tip>
+
+## Next
+
+[Create an agent →](/agent-platform/create-an-agent)

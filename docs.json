@@ -93,7 +93,7 @@
                 "group": "Build Your Agent Platform",
                 "pages": [
                   "agent-platform/overview",
-                  "agent-platform/setup",
+                  "agent-platform/run-locally",
                   "agent-platform/create-an-agent",
                   "agent-platform/improve-an-agent",
                   "agent-platform/evals",
