@@ -11,17 +11,17 @@ Add [https://docs.agno.com/mcp](https://docs.agno.com/mcp) as an MCP server in y
 
 This works with any MCP-aware client: Claude Code, Cursor, Codex, Continue, and others.
 
-The agent gets live access to the docs directly.
+The agent gets live access to the docs directly. **This is the recommended approach.**
 
 ### Example: Claude Code
 
-Two ways to give claude code access to agno. Add it using the CLI:
+Two ways to give claude code access to agno. **1)** Add it using the CLI:
 
 ```bash
 claude mcp add agno-docs https://docs.agno.com/mcp
 ```
 
-Or add a `.mcp.json` to your repo so anyone using it gets the docs wired in automatically:
+Or **2)** Add a `.mcp.json` to your repo so anyone using it gets the docs wired in automatically:
 
 ```json .mcp.json
 {
