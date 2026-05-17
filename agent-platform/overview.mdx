@@ -1,54 +1,38 @@
 ---
 title: Overview
 sidebarTitle: Overview
-description: "Build and run agents on your own agent platform."
+description: "Build and run your own agent platform."
 ---
 
 Every team building agents builds the same system from scratch:
 
-- A server to run the agents (in batch, streaming, or background mode).
+- A server to run the agents (batch, streaming, or background mode).
 - A database for sessions, runs, traces, and memory.
 - Auth and RBAC, validated via JWT on every request.
 
-An agent platform handles the plumbing once so you can build agents and workflows without worrying about security, infrastructure or plumbing.
+This system is called an agent platform and the goal is to **build the foundation once** so we can build agents and workflows without worrying about the underlying plumbing.
 
-This guide shows you how to build an agent platform managed entirely by coding agents like Claude Code. Create new agents, improve them, run evals, fix drift -- all using claude code.
+We'll build our agent platform using **FastAPI and Postgres** and it will be able to:
 
-## Anatomy of an Agent Platform
+- Run agents in batch, streaming or background mode.
+- Store what agents read and write into organized sessions, runs, traces and memory.
+- Authenticate every request using JWT tokens, providing necessary security and permission guarantees.
 
-Your agent platform is responsible for:
+## Coding Agents Love Agent Platforms
 
-- Running agents in production (streaming, sessions, scheduling, RBAC).
-- Storing what your agents read and write.
-- Connecting agents to external tools and services.
-- Exposing agents through Slack, Discord, or your own UI.
-- Hosting it all on real infrastructure.
+An agent platform ties the system together, so every new agent slots into the same runtime, storage, and connectors.
 
-It brings these five parts together:
+Coding agents **_love_** this proximity. Everything lives in one place: agent code, logs, traces, evals, the live service. Claude Code can manage the entire agent development lifecycle. From creating an agent, to improving it, extending it and evaluating it.
 
-| Layer              | Responsibility                                                               |
-| ------------------ | ---------------------------------------------------------------------------- |
-| **Runtime**        | The service that runs agents. SSE streaming, sessions, scheduling, RBAC.     |
-| **Storage**        | Sessions, memory, knowledge, traces, eval history. One database.             |
-| **Connectors**     | Tools, MCP servers, APIs, CLIs the agents reach out to.                      |
-| **Interfaces**     | Slack, Discord, Telegram, custom UIs. One place to resolve user identity.    |
-| **Infrastructure** | Where it all runs. Docker locally, Railway (or any container host) for prod. |
+## Step-by-Step Guide
 
-## What You'll Build
+Here's the step-by-step guide to build an agent platform managed entirely by coding agents.
 
-Everything lives in one place: agent code, logs, traces, evals, the live service. Claude Code uses that proximity to manage the lifecycle from a prompt.
-
-| Step                                                              | What happens                                                       |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [Setup](/tutorials/agent-platform/setup)                          | Run AgentOS and Postgres locally with Docker Compose.              |
-| [Create an Agent](/tutorials/agent-platform/create-an-agent)      | Claude Code generates a new agent from a prompt.                   |
-| [Improve an Agent](/tutorials/agent-platform/improve-an-agent)    | Claude Code reads container logs and iterates.                     |
-| [Evals](/tutorials/agent-platform/evals)                          | Lock in behavior with regression tests.                            |
-| [Deploy to Railway](/tutorials/agent-platform/deploy-to-railway)  | One command to provision Postgres, app, and a public domain.       |
-| [Next Steps](/tutorials/agent-platform/next-steps)                | Teams, workflows, scheduling, and Slack interfaces.                |
-
-Six steps. The platform improves itself in the loop.
-
-## Next
-
-[Setup →](/tutorials/agent-platform/setup) takes about five minutes.
+| Step | What happens |
+| ---- | ------------ |
+| [Setup](/agent-platform/setup)                          | Run your agent platform (AgentOS + Postgres) locally using docker.                                                   |
+| [Create an Agent](/agent-platform/create-an-agent)      | Use Claude Code to create a new agent.                                                    |
+| [Improve an Agent](/agent-platform/improve-an-agent)    | Use Claude Code to read container logs and improve an agent.                                                    |
+| [Deploy to Railway](/agent-platform/deploy-to-railway)  | Run your agent platform on Railway.                                                  |
+| [Run Evals](/agent-platform/evals)                      | Lock in behavior with regression tests.                                                    |
+| [Next Steps](/agent-platform/next-steps)                | Teams, workflows, scheduling, and Slack interfaces.                                               |
