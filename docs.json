@@ -109,13 +109,13 @@
               {
                 "group": "Data Labeling",
                 "pages": [
-                  "tutorials/agent-platform/overview",
-                  "tutorials/agent-platform/setup",
-                  "tutorials/agent-platform/create-an-agent",
-                  "tutorials/agent-platform/improve-an-agent",
-                  "tutorials/agent-platform/evals",
-                  "tutorials/agent-platform/deploy-to-railway",
-                  "tutorials/agent-platform/next-steps"
+                  "use-cases/data-labeling/overview",
+                  "use-cases/data-labeling/structured-extraction",
+                  "use-cases/data-labeling/classification",
+                  "use-cases/data-labeling/llm-as-judge",
+                  "use-cases/data-labeling/preference-data",
+                  "use-cases/data-labeling/multimodal-inputs",
+                  "use-cases/data-labeling/quality-pipeline"
                 ]
               },
               {
