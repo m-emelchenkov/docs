@@ -1,13 +1,13 @@
 ---
 title: Next Steps
-description: "Go beyond agents: teams, workflows, scheduled tasks, and Slack interfaces."
+description: "Go beyond: teams, workflows, scheduled tasks, and interfaces."
 ---
 
-You have a deployed agent platform with two reference agents, evals, and JWT auth. The sections below cover the moves that turn it into a real product: teams and workflows, scheduled tasks, and connecting to Slack.
+You've made it. You now have a deployed agent platform with evals, JWT auth, and a set of Claude Code prompts that cover the full ADLC.
+
+The sections below cover the next level: teams and workflows for multi-step logic, scheduled tasks for proactive runs, and interfaces that put your agents where your users are.
 
 ## Going beyond agents
-
-Rule of thumb: **agents for open questions, teams for routing, workflows for processes.** Most of your platform will be agents. A few will be teams or workflows.
 
 | Pattern        | Use it when                                                              | Reference                                  |
 | -------------- | ------------------------------------------------------------------------ | ------------------------------------------ |
@@ -25,17 +25,7 @@ Teams come in three modes:
 
 ## Scheduled tasks
 
-The scheduler is on by default in `app/main.py`:
-
-```python
-agent_os = AgentOS(
-    name="AgentOS",
-    scheduler=True,
-    ...
-)
-```
-
-Schedule any agent or workflow on a cron. Common patterns:
+The scheduler is on by default in `app/main.py`. Schedule any agent or workflow on a cron:
 
 | Use case                  | Example                                                                |
 | ------------------------- | ---------------------------------------------------------------------- |
@@ -49,7 +39,7 @@ See [scheduling](/runtime/scheduling) for the cron API.
 
 Your agents should be available where your users are. Slack threads. Discord channels. Telegram for the field team. Or a custom UI inside your product.
 
-The pattern is the same for each. Expose the agent via an interface in `app/main.py`:
+Expose the agent via an interface in `app/main.py`:
 
 ```python
 from agno.os.interfaces.slack import Slack
@@ -72,72 +62,28 @@ agent_os = AgentOS(
 )
 ```
 
-`resolve_user_identity=True` ties the Slack user to the same `user_id` they have in the AgentOS UI, so sessions follow the person across surfaces.
-
 | Interface          | Reference                                                       |
 | ------------------ | --------------------------------------------------------------- |
 | Slack              | [Slack interface](/agent-os/interfaces/slack/introduction)      |
 | Telegram           | [Telegram interface](/agent-os/interfaces/telegram/introduction) |
 | WhatsApp           | [WhatsApp interface](/agent-os/interfaces/whatsapp/introduction) |
 | Custom UI / AG-UI  | [AG-UI interface](/agent-os/interfaces/ag-ui/introduction)      |
-| Agent-to-agent     | [A2A interface](/agent-os/interfaces/a2a/introduction)          |
 | All interfaces     | [Interfaces overview](/agent-os/interfaces/overview)            |
-
-## Add tools to an agent
-
-Agno ships 100+ toolkit integrations. See the [full toolkit reference](/tools/toolkits/overview).
-
-```python
-from agno.tools.slack import SlackTools
-from agno.tools.googlesheets import GoogleSheetsTools
-
-my_agent = Agent(
-    ...
-    tools=[
-        SlackTools(),
-        GoogleSheetsTools(),
-    ],
-)
-```
-
-Each toolkit reads its credentials from environment variables. Add them to `.env` for local and to `.env.production` for Railway, then `./scripts/railway/env-sync.sh`.
-
-## Swap model providers
-
-Switch from OpenAI to Anthropic:
-
-1. Set `ANTHROPIC_API_KEY` in `.env` and `.env.production`.
-2. Add `anthropic` to `pyproject.toml`.
-3. Update the agent's `model=`.
-4. Run `./scripts/generate_requirements.sh && docker compose up -d --build`.
-
-```python
-from agno.models.anthropic import Claude
-
-my_agent = Agent(
-    ...
-    model=Claude(id="claude-sonnet-4-5"),
-)
-```
-
-The same pattern works for Google (`google-genai`), Mistral (`mistralai`), and the other [supported providers](/models/overview).
 
 ## Keep the repo coherent
 
-As you ship more agents, configuration drifts, env vars rot, and new agents miss imports. The template repo ships a fourth Claude Code prompt for the recurring sweep:
+As you ship more agents, configuration drifts, env vars rot, and new agents miss imports. The template ships a fifth Claude Code prompt for the recurring sweep:
 
 ```
 Run docs/review-and-improve.md
 ```
 
-It auto-fixes mechanical drift (stale paths, missing `example.env` entries, agents on disk not registered in `app/main.py`) and surfaces the rest as a punch list. Run it before public releases and periodically during active development.
+It auto-fixes mechanical drift (stale paths, missing `example.env` entries, agents on disk not registered in `app/main.py`) and surfaces the rest as a punch list. Best run before public releases and periodically during active development.
 
-## Going deeper
+## You're done
 
-| To learn                          | See                                                                                                |
-| --------------------------------- | -------------------------------------------------------------------------------------------------- |
-| The full AgentOS feature set      | [Demo OS](/demo-os/overview)                                                                       |
-| How knowledge and Agentic RAG work | [Knowledge](/knowledge/concepts/overview)                                                          |
-| How MCP integrates with Agno      | [MCP](/agent-os/mcp/mcp)                                                                           |
-| Comparable templates              | [Scout](/tutorials/scout/overview), [Dash](/tutorials/dash/overview), [Coda](/tutorials/coda/overview) |
-| Building a fully custom AgentOS app | [Build a product](/runtime/build-a-product)                                                        |
+You now have an agent platform that:
+
+- Runs locally and on Railway, with JWT auth built-in.
+- Stores sessions, memory, knowledge, and traces in a Postgres database.
+- Manages and improves itself through five Claude Code prompts.
