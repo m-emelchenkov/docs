@@ -71,6 +71,10 @@ app = agent_os.get_app()
 
 Authorization is now active for your AgentOS.
 
+<Note>
+The control plane only issues **RS256** keys, which is also the default. See [authorization troubleshooting](/faq/rbac-auth-failed#other-authorization-failures) for common setup issues.
+</Note>
+
 <video
   autoPlay
   muted
@@ -288,7 +292,7 @@ The `agent_os:admin` scope grants full access to every AgentOS endpoint below.
 
 ## Access Prerequisites
 
-A few scopes gate access to everything downstream. Without them, finer-grained scopes have no effect because the user cannot reach the resources they apply to.
+A few scopes gate access in the platform. Without them, finer-grained scopes have no effect because the user cannot reach the resources they apply to.
 
 | Scope | Without it, the user cannot |
 |-------|-----------------------------|
