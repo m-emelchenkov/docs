@@ -4735,36 +4735,11 @@
           {
             "group": "Apps",
             "pages": [
-              {
-                "group": "Dash",
-                "pages": [
-                  "deploy/templates/dash/overview"
-                ]
-              },
-              {
-                "group": "Scout",
-                "pages": [
-                  "deploy/templates/scout/overview"
-                ]
-              },
-              {
-                "group": "Coda",
-                "pages": [
-                  "deploy/templates/coda/overview"
-                ]
-              },
-              {
-                "group": "PAL",
-                "pages": [
-                  "deploy/templates/pal/overview"
-                ]
-              },
-              {
-                "group": "Gcode",
-                "pages": [
-                  "deploy/templates/gcode/overview"
-                ]
-              }
+              "deploy/templates/dash/overview",
+              "deploy/templates/scout/overview",
+              "deploy/templates/coda/overview",
+              "deploy/templates/pal/overview",
+              "deploy/templates/gcode/overview"
             ]
           },
           {
