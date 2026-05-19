@@ -15,10 +15,7 @@ agent = Agent(
     model=OpenAIResponses(id="gpt-5.5"),
     db=PostgresDb(db_url="postgresql+psycopg://ai:ai@localhost:5532/ai"),
     tools=[
-        SQLTools(
-            db_url="postgresql+psycopg://readonly@warehouse/analytics",
-            read_only=True,
-        )
+        SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics")
     ],
     instructions=(
         "Introspect the schema before writing SQL. Answer with the numbers "
@@ -57,7 +54,7 @@ Never present a figure without the query that produced it.
 
 ## Scope the connection
 
-The cleanest boundary is the connection itself. A `read_only=True` engine physically cannot write, regardless of what the model is prompted to do. For the full read vs write split, see [Safe data access](/use-cases/data-agents/safe-data-access).
+The cleanest boundary is the connection itself. The `readonly` Postgres role has no write grant, so the connection physically cannot write, regardless of what the model is prompted to do. For the full read vs write split, see [Safe data access](/use-cases/data-agents/safe-data-access).
 
 ## Next steps
 

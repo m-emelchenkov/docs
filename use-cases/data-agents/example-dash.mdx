@@ -39,7 +39,7 @@ Dash is a multi-agent system with boundaries enforced by the database, not the p
 
 ## The loop
 
-Retrieve the matching context and prior learnings, generate grounded SQL, answer with a citation, diagnose any error into a learning, and materialize a view when a question recurs. After a few weeks of real use, the same errors stop happening and the `dash` schema fills with the views your team relies on.
+Retrieve the matching context and prior learnings, generate grounded SQL, answer with a citation, diagnose any error into a learning, and materialize a view when a question recurs. Each error becomes a learning the next run reads and each recurring question becomes a view, so the same errors stop recurring and the `dash` schema accumulates the views your team relies on.
 
 ## Follow the full build
 

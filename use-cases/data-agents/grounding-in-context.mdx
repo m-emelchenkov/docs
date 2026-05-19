@@ -18,7 +18,7 @@ knowledge = Knowledge(
 
 agent = Agent(
     model=OpenAIResponses(id="gpt-5.5"),
-    tools=[SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics", read_only=True)],
+    tools=[SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics")],
     knowledge=knowledge,
     search_knowledge=True,
     instructions="Retrieve relevant query patterns and table notes before writing SQL.",

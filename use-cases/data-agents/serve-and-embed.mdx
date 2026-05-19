@@ -16,7 +16,7 @@ agent = Agent(
     id="data-agent",
     model=OpenAIResponses(id="gpt-5.5"),
     db=PostgresDb(db_url="postgresql+psycopg://ai:ai@localhost:5532/ai"),
-    tools=[SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics", read_only=True)],
+    tools=[SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics")],
     learning=True,
 )
 

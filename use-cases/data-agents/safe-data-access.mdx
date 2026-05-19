@@ -14,16 +14,13 @@ analyst = Agent(
     name="Analyst",
     model=OpenAIResponses(id="gpt-5.5"),
     tools=[
-        SQLTools(
-            db_url="postgresql+psycopg://readonly@warehouse/analytics",
-            read_only=True,
-        )
+        SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics")
     ],
     instructions="Answer questions from the public schema. You cannot write.",
 )
 ```
 
-`read_only=True` on a connection scoped to a read-only database role means a generated `DROP TABLE` fails at the engine, before it reaches your data. Defense does not depend on the model behaving.
+A connection bound to a read-only database role means a generated `DROP TABLE` fails at the database, before it reaches your data. Defense does not depend on the model behaving.
 
 ## Split the roles
 

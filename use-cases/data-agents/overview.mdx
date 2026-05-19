@@ -18,7 +18,7 @@ analyst = Agent(
     name="Analyst",
     model=OpenAIResponses(id="gpt-5.5"),
     db=db,
-    tools=[SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics", read_only=True)],
+    tools=[SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics")],
     learning=True,
     instructions="Answer with the numbers and cite the SQL you ran.",
 )

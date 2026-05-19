@@ -48,15 +48,15 @@ Because the schema is disposable, a wrong view is a cheap mistake. Drop it and l
 
 The best materialization candidates are the validated queries from [grounding](/use-cases/data-agents/grounding-in-context). A query analysts already trust, asked often, is exactly what should become a view. The agent is promoting known-good SQL, not inventing new shapes.
 
-## The compounding effect
+## How it compounds
 
-After a few weeks of real use:
+Each repeat question promoted to a view is one less query generated from scratch. Composed with the other primitives, the system does less work over time, not more:
 
-- Recurring errors stopped recurring ([self-correction](/use-cases/data-agents/self-correcting-agents)).
-- The right query shapes sit in the knowledge stores ([grounding](/use-cases/data-agents/grounding-in-context)).
-- The agent-owned schema fills with the views your team uses, with no migration written by hand.
+- Captured corrections stop the recurring errors ([self-correction](/use-cases/data-agents/self-correcting-agents)).
+- Validated query shapes sit in the knowledge stores ([grounding](/use-cases/data-agents/grounding-in-context)).
+- The agent-owned schema accumulates the views your team relies on, with no hand-written migration.
 
-The agent gets faster and more consistent the more it is used, because repeated work becomes structure instead of recomputation.
+Repeated work becomes structure instead of recomputation, so the agent gets faster and more consistent the more it is used.
 
 ## Next steps
 

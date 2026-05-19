@@ -14,7 +14,7 @@ from agno.tools.sql import SQLTools
 agent = Agent(
     model=OpenAIResponses(id="gpt-5.5"),
     db=PostgresDb(db_url="postgresql+psycopg://ai:ai@localhost:5532/ai"),
-    tools=[SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics", read_only=True)],
+    tools=[SQLTools(db_url="postgresql+psycopg://readonly@warehouse/analytics")],
     learning=True,
     instructions="When a query errors, diagnose the cause and record the correction.",
 )
@@ -30,7 +30,7 @@ agent = Agent(
 4. The fix is saved as a learning.
 5. The next similar question retrieves that learning before generating SQL.
 
-After a few weeks of real use, the recurring errors stop recurring. The agent has written down what your warehouse's sharp edges are.
+Each diagnosed error is written down and pulled back before the next similar query, so recurring errors stop recurring: the agent accumulates what your warehouse's sharp edges are.
 
 ## Choose how learning happens
 
@@ -56,12 +56,16 @@ agent = Agent(
 
 ## Audit what it learned
 
-A data agent's learnings change the numbers it reports, so they need to be inspectable. The Decision Log records decisions with their reasoning. Pair it with the Curator to keep the store healthy.
+A data agent's learnings change the numbers it reports, so they need to be inspectable. Read the Learned Knowledge store to see the corrections it captured, and the Decision Log for the reasoning behind a changed query shape.
 
 ```python
-lm = agent.get_learning_machine()
-lm.curator.deduplicate(user_id="warehouse")
-lm.curator.prune(user_id="warehouse", max_age_days=180)
+lm = agent.learning_machine
+
+# What the agent has learned about the warehouse:
+lm.learned_knowledge_store.print(query="MRR")
+
+# The audit trail of why a query shape changed:
+lm.decision_log_store.print(agent_id=agent.id, limit=5)
 ```
 
 | Store | Why a data agent wants it |
@@ -82,4 +86,4 @@ lm.curator.prune(user_id="warehouse", max_age_days=180)
 - [Learning Machines](/learning/overview)
 - [Learning modes](/learning/learning-modes)
 - [Decision Log store](/learning/stores/decision-log)
-- [Learning cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/08_learning)
+- [Learned knowledge cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/08_learning/05_learned_knowledge)
