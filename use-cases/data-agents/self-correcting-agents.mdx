@@ -3,7 +3,7 @@ title: "Self-correcting agents"
 description: "Turn every diagnosed error into a durable learning to prevent the same mistakes."
 ---
 
-A demo gets a query wrong and you fix the prompt. A data-system gets a query wrong, diagnoses why, saves the fix as a learning, and the next time a similar question comes in, that fix is already in context. Agno's LearningMachine does this for your agents.
+When an agent gets a query wrong, the fix shouldn't live in your head. Agno's LearningMachine diagnoses the error, saves the correction as a learning, and pulls it back into context the next time a similar question comes in.
 
 ```python
 from agno.agent import Agent

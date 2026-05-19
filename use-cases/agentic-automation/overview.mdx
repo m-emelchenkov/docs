@@ -4,9 +4,9 @@ sidebarTitle: "Overview"
 description: "Agents that do work: approved actions, scheduled runs, and tools with boundaries."
 ---
 
-The gap between a chat agent and an automation agent is action. A chat agent is reactive, an automation agent is proactive. It reviews the PR, posts the report, and syncs on its own.
+The gap between a chat agent and an automation agent is action. A chat agent is reactive. An automation agent is proactive: it reviews the PR, posts the report, and syncs on its own.
 
-Agno gives you the tools to automate any repeatable body of work. It gives you boundary around the irreversible parts using Human In The Loop and Approval flows. Agno also comes with an in-process scheduler so you don't need external infrastructure.
+Agno gives you the tools to automate any repeatable body of work. It puts a boundary around the irreversible parts with human-in-the-loop and approval flows. Agno also comes with an in-process scheduler, so you don't need external infrastructure.
 
 ```python
 from agno.agent import Agent
@@ -38,7 +38,7 @@ app = agent_os.get_app()
 
 A tool that does real work, a confirmation gate on the irreversible step, and a scheduler, all served by AgentOS. Swap the tools and the same shape automates incident response, release management, or on-call triage.
 
-## Learn how to
+## Learn How To
 
 | Concern | Page |
 |---------|------|
@@ -67,12 +67,9 @@ A tool that does real work, a confirmation gate on the irreversible step, and a 
   <Card title="Learning your conventions" icon="arrows-rotate" href="/use-cases/agentic-automation/learning-your-conventions">
     Generic on day one; converges on your team's patterns as it learns from merged and corrected PRs.
   </Card>
-  <Card title="Example: Coda" icon="code-branch" href="/use-cases/agentic-automation/example-coda">
-    A code-ops teammate that triages issues and opens PRs.
-  </Card>
 </CardGroup>
 
-## Developer resources
+## Developer Resources
 
 - [Human-in-the-loop](/hitl/overview)
 - [Coda on GitHub](https://github.com/agno-agi/coda)

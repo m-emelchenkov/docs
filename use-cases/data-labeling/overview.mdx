@@ -4,11 +4,9 @@ sidebarTitle: "Overview"
 description: "Turn text, images, audio, video, and PDFs into structured data."
 ---
 
-Data classification, labeling and evaluation is one of the most powerful use-cases for agents.
+Turn any input (text, audio, image, video, or file) into structured, reviewed data. Agno is natively multi-modal and type-safe, so a labeling stack is a few lines of Python.
 
-Agno is natively multi-modal and type-safe, meaning any input (text, audio, image, video, or file) can be turned into structured, reviewed data. Engineering teams use Agno to build a multi-modal input, multi-agent review labeling stack entirely in Python.
-
-Here's how simple text classification is. Just add `output_schema` and the agent returns data in that format. Give your agent tools for searching usage and internal data to add more details.
+Add an `output_schema` and the agent returns data in that shape:
 
 ```python cookbook/data_labeling/_01_text_classification/basic.py
 from typing import Literal

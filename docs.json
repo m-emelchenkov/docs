@@ -184,7 +184,6 @@
                   "use-cases/agentic-automation/multi-agent-automation",
                   "use-cases/agentic-automation/learning-your-conventions",
                   "use-cases/agentic-automation/serve-and-embed",
-                  "use-cases/agentic-automation/example-coda",
                   {
                     "group": "Tutorial: Coda",
                     "pages": [

@@ -13,8 +13,8 @@ When we run `docs/improve-agent.md`, we're looking for out-of-distribution impro
 
 Cases live in `evals/cases.py`. Each case sends one input to an agent and (optionally) checks two things:
 
-- **judge** — `AgentAsJudgeEval` scores the response against `criteria` (binary pass/fail) using an LLM.
-- **reliability** — `ReliabilityEval` checks which tools fired against `expected_tool_calls`.
+- **judge**: `AgentAsJudgeEval` scores the response against `criteria` (binary pass/fail) using an LLM.
+- **reliability**: `ReliabilityEval` checks which tools fired against `expected_tool_calls`.
 
 Results are stored in your database via `eval_db` (visible at [os.agno.com](https://os.agno.com)).
 
