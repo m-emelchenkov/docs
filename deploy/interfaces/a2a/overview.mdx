@@ -1,84 +1,64 @@
 ---
 title: A2A
-description: Expose Agno agents via Google's Agent-to-Agent protocol for inter-agent communication.
+sidebarTitle: A2A
+description: Expose agents via Google's Agent-to-Agent protocol.
+keywords: [a2a, deploy, interface, protocol, interoperability]
 ---
 
-[A2A](https://a2a-protocol.org/) (Agent-to-Agent Protocol) is Google's open standard for agent interoperability. Expose your Agno agents so other A2A-compatible systems can discover and communicate with them.
+The A2A interface exposes any Agno agent, team, or workflow via [Google's A2A protocol](https://a2a-protocol.org/), enabling standardized inter-agent communication.
+
+## Quick Start
 
 ```python a2a_agent.py
 from agno.agent import Agent
 from agno.models.openai import OpenAIResponses
-from agno.os import AgentOS
+from agno.os.app import AgentOS
 
-agent = Agent(
-    name="Research Assistant",
-    model=OpenAIResponses(id="gpt-5.4"),
-    instructions="You help with research tasks.",
-)
+agent = Agent(name="Assistant", model=OpenAIResponses(id="gpt-5.4"))
 
 agent_os = AgentOS(
     agents=[agent],
-    a2a_interface=True,
+    a2a_interface=True,  # expose all agents via A2A
 )
-agent_os.serve(port=9001)
+app = agent_os.get_app()
 ```
 
-<Note>
-Install the dependency: `uv pip install 'agno[a2a]'`
-</Note>
+```bash
+uv pip install 'agno[a2a]'
+python -m agno.os.serve a2a_agent:app --port 9001
+```
 
-## The Protocol Stack
+## How It Works
 
-A2A is one layer of a three-protocol stack:
-
-| Protocol | Purpose |
+| Concept | Behavior |
 | --- | --- |
-| MCP | Agents ↔ Tools & Data |
-| A2A | Agents ↔ Agents |
-| AG-UI | Agents ↔ Users |
+| **Discovery** | `/.well-known/agent-card.json` describes agent capabilities |
+| **Messaging** | `message:stream` and `message:send` endpoints |
+| **Multi-agent** | Each agent/team/workflow gets its own endpoint namespace |
+| **Clients** | Works with any A2A-compatible client |
 
-## Quick Start
+## Setup
 
-<Steps>
+No external configuration required. Set `a2a_interface=True` on AgentOS.
 
-<Step title="Run your agent">
-```bash
-python a2a_agent.py
-```
+**Endpoints:**
+- Discovery: `/a2a/agents/{id}/.well-known/agent-card.json`
+- Stream: `/a2a/agents/{id}/v1/message:stream`
+- Send: `/a2a/agents/{id}/v1/message:send`
 
-Your agent exposes A2A endpoints at `http://localhost:9001/a2a/agents/{agent_id}/`.
-</Step>
+## Next Steps
 
-<Step title="Discover the agent">
-Other A2A clients can fetch your agent's card:
-
-```bash
-curl http://localhost:9001/a2a/agents/research-assistant/.well-known/agent-card.json
-```
-</Step>
-
-<Step title="Send a message">
-```bash
-curl -X POST http://localhost:9001/a2a/agents/research-assistant/v1/message:send \
-  -H "Content-Type: application/json" \
-  -d '{"message": {"role": "user", "parts": [{"text": "Hello!"}]}}'
-```
-</Step>
-
-</Steps>
-
-## Endpoints
-
-Each agent, team, and workflow exposes three A2A endpoints:
-
-| Endpoint | Purpose |
-| --- | --- |
-| `/.well-known/agent-card.json` | Agent discovery card |
-| `/v1/message:stream` | Streaming responses |
-| `/v1/message:send` | Non-streaming responses |
-
-## Developer Resources
-
-- [A2A Interface](/agent-os/interfaces/a2a/introduction)
-- [A2A Client](/agent-os/client/a2a-client)
-- [A2A Protocol Docs](https://a2a-protocol.org/)
+<CardGroup cols={2}>
+  <Card title="Full Guide" icon="book" href="/agent-os/interfaces/a2a/introduction">
+    Agent cards, messaging, and client integration.
+  </Card>
+  <Card title="A2A Client" icon="plug" href="/agent-os/client/a2a-client">
+    Connect to other A2A agents.
+  </Card>
+  <Card title="Examples" icon="code" href="/agent-os/usage/interfaces/a2a/basic">
+    Basic agent, tools, and team examples.
+  </Card>
+  <Card title="A2A Protocol" icon="file-code" href="https://a2a-protocol.org/">
+    Official protocol specification.
+  </Card>
+</CardGroup>

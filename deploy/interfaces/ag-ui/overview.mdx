@@ -1,158 +1,62 @@
 ---
 title: AG-UI
-description: Expose Agno agents via the AG-UI protocol for frontend integration.
+sidebarTitle: AG-UI
+description: Expose agents via the AG-UI protocol for frontend integration.
+keywords: [ag-ui, deploy, interface, frontend, protocol]
 ---
 
-[AG-UI](https://docs.ag-ui.com/) (Agent-User Interaction Protocol) is an open, event-based protocol for connecting AI agents to frontend applications. Unlike messaging platforms that require app setup and webhooks, AG-UI is code-first. Run your agent and connect any compatible frontend.
+The AG-UI interface exposes any Agno agent or team via the [AG-UI protocol](https://docs.ag-ui.com/), enabling real-time streaming to compatible frontends like Dojo and CopilotKit.
 
-<CodeGroup>
-```python agent.py
-from agno.agent.agent import Agent
-from agno.models.openai import OpenAIChat
-from agno.os import AgentOS
+## Quick Start
+
+```python agui_agent.py
+from agno.agent import Agent
+from agno.models.openai import OpenAIResponses
+from agno.os.app import AgentOS
 from agno.os.interfaces.agui import AGUI
 
-agent = Agent(
-    name="Assistant",
-    model=OpenAIChat(id="gpt-4o"),
-    instructions="You are a helpful assistant.",
-    markdown=True,
-)
+agent = Agent(name="Assistant", model=OpenAIResponses(id="gpt-5.4"))
 
 agent_os = AgentOS(
     agents=[agent],
     interfaces=[AGUI(agent=agent)],
 )
 app = agent_os.get_app()
-
-if __name__ == "__main__":
-    agent_os.serve(app="agent:app", port=9001)
 ```
 
-```python team.py
-from agno.agent.agent import Agent
-from agno.team.team import Team
-from agno.models.openai import OpenAIChat
-from agno.os import AgentOS
-from agno.os.interfaces.agui import AGUI
-
-researcher = Agent(name="Researcher", model=OpenAIChat(id="gpt-4o"))
-writer = Agent(name="Writer", model=OpenAIChat(id="gpt-4o"))
-
-team = Team(
-    name="Research Team",
-    members=[researcher, writer],
-    mode="coordinate",
-)
-
-agent_os = AgentOS(
-    teams=[team],
-    interfaces=[AGUI(team=team)],
-)
-app = agent_os.get_app()
-
-if __name__ == "__main__":
-    agent_os.serve(app="team:app", port=9001)
-```
-</CodeGroup>
-
-<Note>
-Install the dependency: `uv pip install 'agno[agui]'`
-</Note>
-
-## The Protocol Stack
-
-AG-UI is one layer of a three-protocol stack adopted by AWS, Google, Microsoft, and major AI frameworks:
-
-| Protocol | Purpose |
-| --- | --- |
-| MCP | Agents ↔ Tools & Data |
-| A2A | Agents ↔ Agents |
-| AG-UI | Agents ↔ Users |
-
-MCP connects agents to external tools. A2A enables cross-agent coordination. AG-UI delivers real-time, interactive experiences to users.
-
-## Quick Start
-
-<Steps>
-
-<Step title="Run your agent">
 ```bash
-python agui_agent.py
+uv pip install 'agno[agui]'
+python -m agno.os.serve agui_agent:app --port 9001
 ```
 
-Your agent is available at `http://localhost:9001/agui`.
-</Step>
+## How It Works
 
-<Step title="Connect a frontend">
-
-<Tabs>
-  <Tab title="Dojo">
-  Clone and run [Dojo](https://github.com/ag-ui-protocol/ag-ui/tree/main/apps/dojo) locally:
-
-  ```bash
-  git clone https://github.com/ag-ui-protocol/ag-ui.git
-  cd ag-ui/typescript-sdk && pnpm install
-  cd ../integrations/agno && pnpm run build
-  ```
-
-  Open `http://localhost:3000` and connect to `http://localhost:9001/agui`.
-
-  <Tip>
-  [dojo.ag-ui.com](https://dojo.ag-ui.com/) is a hosted demo. It cannot connect to localhost.
-  </Tip>
-  </Tab>
-
-  <Tab title="CopilotKit">
-  Point your [CopilotKit](https://docs.copilotkit.ai/) app to `http://localhost:9001/agui`.
-  </Tab>
-
-  <Tab title="Other">
-  Any frontend implementing the AG-UI protocol can connect to your agent's endpoint.
-  </Tab>
-</Tabs>
-
-</Step>
-
-</Steps>
-
-## Features
-
-AG-UI provides bidirectional streaming between your agent and the frontend:
-
-| Feature | Description |
+| Concept | Behavior |
 | --- | --- |
-| Live streaming | Token-by-token responses with cancel/resume |
-| Tool execution | Frontend displays tool calls, arguments, and results |
-| Reasoning traces | Chain-of-thought from reasoning models |
-| Generative UI | Static and declarative UI rendering from agent output |
-| State sync | Bidirectional agent ↔ app state with conflict resolution |
-| Human-in-the-loop | Pause, approve, edit, or retry before actions |
-| Multimodal | Files, images, audio, and transcripts |
-| Custom events | Stream structured data to the frontend |
+| **Protocol** | AG-UI standard for agent ↔ frontend communication |
+| **Streaming** | Real-time token streaming with tool call visibility |
+| **Custom Events** | Stream structured data (charts, profiles) to frontend |
+| **Frontends** | Works with Dojo, CopilotKit, or any AG-UI client |
 
-<Tip>
-Custom events let you stream structured data (customer profiles, search results, charts) in real time. See [Custom Events](/agent-os/interfaces/ag-ui/introduction#custom-events).
-</Tip>
+## Setup
 
-## User Identification
+No external configuration required. Run the agent and connect your frontend to the `/agui` endpoint.
 
-Pass `user_id` via `forwarded_props` from your frontend:
+**Endpoint:** `http://localhost:9001/agui`
 
-```json
-{
-  "thread_id": "session-123",
-  "forwarded_props": {
-    "user_id": "user@example.com"
-  },
-  "messages": [...]
-}
-```
+## Next Steps
 
-The agent receives this in `run_context.user_id` for per-user memory and credentials.
-
-## Developer Resources
-
-- [AG-UI Interface](/agent-os/interfaces/ag-ui/introduction)
-- [AG-UI Cookbooks](https://github.com/agno-agi/agno/tree/main/cookbook/05_agent_os/interfaces/agui)
-- [AG-UI Protocol Docs](https://docs.ag-ui.com/)
+<CardGroup cols={2}>
+  <Card title="Full Guide" icon="book" href="/agent-os/interfaces/ag-ui/introduction">
+    Custom events, state sync, and frontend integration.
+  </Card>
+  <Card title="Examples" icon="code" href="/agent-os/usage/interfaces/ag-ui/basic">
+    Basic agent, tools, and team examples.
+  </Card>
+  <Card title="Cookbook" icon="github" href="https://github.com/agno-agi/agno/tree/main/cookbook/05_agent_os/interfaces/agui">
+    Full runnable examples on GitHub.
+  </Card>
+  <Card title="AG-UI Protocol" icon="file-code" href="https://docs.ag-ui.com/">
+    Official protocol specification.
+  </Card>
+</CardGroup>

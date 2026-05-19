@@ -4638,19 +4638,11 @@
             "pages": [
               "deploy/introduction",
               "deploy/templates",
-              "deploy/apps",
-              "deploy/interfaces",
-              "deploy/verify"
+              "deploy/interfaces"
             ]
           },
           {
-            "group": "Infra CLI",
-            "pages": [
-              "deploy/infra/overview"
-            ]
-          },
-          {
-            "group": "Platforms",
+            "group": "Templates",
             "pages": [
               {
                 "group": "Docker",
@@ -4736,11 +4728,12 @@
                     ]
                   }
                 ]
-              }
+              },
+              "deploy/templates/improve-agents"
             ]
           },
           {
-            "group": "Solutions",
+            "group": "Apps",
             "pages": [
               {
                 "group": "Dash",
@@ -4771,84 +4764,18 @@
                 "pages": [
                   "deploy/templates/gcode/overview"
                 ]
-              },
-              "deploy/templates/improve-agents"
-            ]
-          },
-          {
-            "group": "Applications",
-            "pages": [
-              {
-                "group": "Agents",
-                "pages": [
-                  "deploy/apps/agents/text-to-sql",
-                  "deploy/apps/agents/research-agent",
-                  "deploy/apps/agents/invoice-extractor",
-                  "deploy/apps/agents/document-summarizer",
-                  "deploy/apps/agents/social-media-analyst",
-                  "deploy/apps/agents/knowledge-agent",
-                  "deploy/apps/agents/inbox-agent",
-                  "deploy/apps/agents/customer-support",
-                  "deploy/apps/agents/contract-review",
-                  "deploy/apps/agents/code-review"
-                ]
-              },
-              {
-                "group": "Teams",
-                "pages": [
-                  "deploy/apps/teams/content-team"
-                ]
-              },
-              {
-                "group": "Workflows",
-                "pages": [
-                  "deploy/apps/workflows/meeting-to-tasks",
-                  "deploy/apps/workflows/lead-enrichment",
-                  "deploy/apps/workflows/sales-call-analyzer",
-                  "deploy/apps/workflows/competitor-tracker"
-                ]
               }
             ]
           },
           {
             "group": "Interfaces",
             "pages": [
-              {
-                "group": "Slack",
-                "pages": [
-                  "deploy/interfaces/slack/overview"
-                ]
-              },
-              {
-                "group": "Telegram",
-                "pages": [
-                  "deploy/interfaces/telegram/overview"
-                ]
-              },
-              {
-                "group": "WhatsApp",
-                "pages": [
-                  "deploy/interfaces/whatsapp/overview"
-                ]
-              },
-              {
-                "group": "Discord",
-                "pages": [
-                  "deploy/interfaces/discord/overview"
-                ]
-              },
-              {
-                "group": "AG-UI",
-                "pages": [
-                  "deploy/interfaces/ag-ui/overview"
-                ]
-              },
-              {
-                "group": "A2A",
-                "pages": [
-                  "deploy/interfaces/a2a/overview"
-                ]
-              }
+              "deploy/interfaces/slack/overview",
+              "deploy/interfaces/telegram/overview",
+              "deploy/interfaces/whatsapp/overview",
+              "deploy/interfaces/discord/overview",
+              "deploy/interfaces/ag-ui/overview",
+              "deploy/interfaces/a2a/overview"
             ]
           }
         ]
