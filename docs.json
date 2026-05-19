@@ -2147,6 +2147,7 @@
                         "group": "Additional Toolkits",
                         "pages": [
                           "tools/toolkits/others/airflow",
+                          "tools/toolkits/others/antigravity",
                           "tools/toolkits/others/apify",
                           "tools/toolkits/others/aws-lambda",
                           "tools/toolkits/others/aws-ses",
@@ -4419,6 +4420,7 @@
                 "tag": "BETA",
                 "pages": [
                   "agent-os/multi-framework/overview",
+                  "agent-os/multi-framework/antigravity",
                   "agent-os/multi-framework/claude-agent-sdk",
                   "agent-os/multi-framework/langgraph",
                   "agent-os/multi-framework/dspy"

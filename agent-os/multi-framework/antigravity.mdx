@@ -1,0 +1,158 @@
+---
+title: "Antigravity"
+description: "Run Google's Managed Agents (Gemini API) as an AgentOS agent using AntigravityAgent."
+---
+
+`AntigravityAgent` wraps [Managed Agents in the Gemini API](https://ai.google.dev/gemini-api/docs/managed-agents-quickstart) so a Google-managed,
+sandboxed agent can be served through AgentOS. A single API call spins up a secure Linux environment where the agent
+plans, executes code, searches the web, and reads/writes files. AgentOS handles sessions, streaming, and the UI.
+
+```python
+from agno.agents.antigravity import AntigravityAgent
+from agno.db.sqlite import SqliteDb
+from agno.os import AgentOS
+
+agent = AntigravityAgent(name="Antigravity")
+
+agent_os = AgentOS(
+    agents=[agent],
+    db=SqliteDb(db_file="tmp/agentos.db"),
+)
+app = agent_os.get_app()
+
+if __name__ == "__main__":
+    agent_os.serve(app="antigravity_agent:app", reload=True)
+```
+
+## Install
+
+```bash
+uv pip install pyyaml
+export GEMINI_API_KEY=...
+```
+
+`pyyaml` is only required for `from_agent_directory`.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `name` | `str` | `None` | Display name for the agent. |
+| `id` | `str` | `None` | Unique identifier. Auto-generated from `name` if unset. |
+| `api_key` | `str` | `None` | Gemini API key. Falls back to `GEMINI_API_KEY`. |
+| `base_url` | `str` | Gemini v1beta | API base URL. |
+| `agent` | `str` | `"waverunner"` | Base agent identifier sent to the API, or a custom agent name. |
+| `sources` | `List[Dict]` | `None` | GCS / repository / inline sources to seed the sandbox on the first turn. |
+| `custom_agent_name` | `str` | `None` | Register/invoke a named custom agent instead of the base agent. |
+| `custom_agent_instructions` | `str` | `None` | System instructions for the custom agent definition. |
+| `custom_agent_description` | `str` | `None` | Description for the custom agent definition. |
+| `timeout` | `int` | `600` | Per-request timeout in seconds. |
+| `db` | `BaseDb` | `None` | Database for session persistence. Required for cross-turn sandbox reuse. |
+
+## Concepts
+
+### Sessions and environment persistence
+
+Each interaction provisions a managed Linux sandbox and returns an `environment_id`. When a `db` is configured,
+`AntigravityAgent` persists that id (and the previous interaction id) in the session, so subsequent turns with the
+same `session_id` reuse the same sandbox. Files, installed packages, and state carry over.
+
+Without a `db`, every turn provisions a fresh sandbox (no cross-turn reuse).
+
+```python
+from agno.agents.antigravity import AntigravityAgent
+from agno.db.sqlite import SqliteDb
+
+agent = AntigravityAgent(name="Antigravity", db=SqliteDb(db_file="tmp/antigravity.db"))
+
+agent.print_response("Write a file notes.txt containing 'hello'.", session_id="s1")
+agent.print_response("Read notes.txt back to me.", session_id="s1")  # same sandbox
+```
+
+### Seeding the environment with sources
+
+Pass `sources` to preload files into the sandbox before the agent runs. Three source types are supported:
+inline content, Google Cloud Storage, and Git repositories.
+
+```python
+agent = AntigravityAgent(
+    name="Antigravity",
+    sources=[
+        {"type": "inline", "content": "agno is an agent framework", "target": "/workspace/about.txt"},
+        # {"type": "gcs", "source": "gs://my-bucket/data/", "target": "/data"},
+        # {"type": "repository", "source": "github://user/repo", "target": "/repo"},
+    ],
+)
+```
+
+Inline sources are limited to 75 KB per file; use GCS or a Git repo for larger files.
+
+### Custom agents
+
+Register a reusable named agent (instructions + sources stored server-side), then invoke it by name.
+Registration is explicit and idempotent (an already-existing agent is reused).
+
+```python
+agent = AntigravityAgent(
+    name="Haiku Bot",
+    custom_agent_name="agno-haiku-bot",
+    custom_agent_instructions="You only ever respond with a single haiku.",
+)
+agent.ensure_custom_agent()  # POST /agents, idempotent
+agent.print_response("Topic: autumn.")
+```
+
+### Defining an agent from a directory
+
+`from_agent_directory` builds an agent from a local folder following the Managed Agents layout:
+`agent.yaml` (id, base_agent, description, system_instruction), `AGENTS.md` (overrides
+`system_instruction`), `workspace/` (mounted at the sandbox root), and `skills/` (mounted under
+`/.agents/skills/`). It registers the agent with the API before returning (`register=True` default).
+
+```python
+from agno.agents.antigravity import AntigravityAgent
+
+agent = AntigravityAgent.from_agent_directory("./my-agent")
+agent.print_response("Write me a haiku about Python.")
+```
+
+### Downloading an environment snapshot
+
+Pull the sandbox filesystem (after a run modified it) as a tar archive.
+
+```python
+agent = AntigravityAgent(name="Antigravity", db=SqliteDb(db_file="tmp/antigravity.db"))
+agent.print_response("Create /workspace/report.md", stream=False, session_id="s1")
+agent.download_environment_snapshot("snapshot.tar", session_id="s1")
+```
+
+## Examples
+
+<CardGroup cols={2}>
+  <Card title="AgentOS deployment" icon="server" href="https://github.com/agno-agi/agno/blob/main/cookbook/frameworks/antigravity/antigravity_session_agentos.py">
+    Serve an Antigravity agent through AgentOS with persisted sessions.
+  </Card>
+  <Card title="Standalone usage" icon="play" href="https://github.com/agno-agi/agno/blob/main/cookbook/frameworks/antigravity/antigravity_basic.py">
+    Call the agent directly with `.run()` and `.print_response()`.
+  </Card>
+  <Card title="Sessions" icon="comments" href="https://github.com/agno-agi/agno/blob/main/cookbook/frameworks/antigravity/antigravity_session.py">
+    Reuse the sandbox across turns with `session_id`.
+  </Card>
+  <Card title="Environment sources" icon="folder-tree" href="https://github.com/agno-agi/agno/blob/main/cookbook/frameworks/antigravity/antigravity_sources.py">
+    Preload files into the sandbox from inline / GCS / repo sources.
+  </Card>
+  <Card title="Custom agents" icon="id-badge" href="https://github.com/agno-agi/agno/blob/main/cookbook/frameworks/antigravity/antigravity_custom_agent.py">
+    Register and invoke a named custom agent.
+  </Card>
+  <Card title="Agent from a directory" icon="folder-open" href="https://github.com/agno-agi/agno/blob/main/cookbook/frameworks/antigravity/antigravity_from_agent_directory.py">
+    Define an agent from `agent.yaml` + `AGENTS.md` + `workspace/` + `skills/`.
+  </Card>
+  <Card title="Environment snapshot" icon="file-zipper" href="https://github.com/agno-agi/agno/blob/main/cookbook/frameworks/antigravity/antigravity_snapshot.py">
+    Download the sandbox filesystem as a tar archive.
+  </Card>
+</CardGroup>
+
+## Developer Resources
+
+- [Cookbook examples](https://github.com/agno-agi/agno/tree/main/cookbook/frameworks/antigravity)
+- [Antigravity as a tool](/tools/toolkits/others/antigravity)
