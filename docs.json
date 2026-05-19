@@ -743,6 +743,7 @@
                           "knowledge/concepts/readers/json-reader",
                           "knowledge/concepts/readers/markdown-reader",
                           "knowledge/concepts/readers/website-reader",
+                          "knowledge/concepts/readers/llms-txt-reader",
                           "knowledge/concepts/readers/youtube-reader"
                         ]
                       },

@@ -1,0 +1,69 @@
+---
+title: LLMs.txt Reader
+---
+
+The **LLMs.txt Reader** reads an [llms.txt](https://llmstxt.org) file, follows the linked documentation pages, and turns them into documents for your knowledge base.
+
+## Code
+
+```python examples/basics/knowledge/concepts/readers/overview/llms_txt_reader.py
+from agno.agent import Agent
+from agno.knowledge.knowledge import Knowledge
+from agno.knowledge.reader.llms_txt_reader import LLMsTxtReader
+from agno.vectordb.pgvector import PgVector
+
+db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
+
+knowledge = Knowledge(
+    name="LLMs.txt Docs",
+    vector_db=PgVector(table_name="llms_txt_docs", db_url=db_url),
+)
+
+knowledge.insert(
+    url="https://docs.agno.com/llms.txt",
+    reader=LLMsTxtReader(max_urls=10),
+)
+
+agent = Agent(
+    knowledge=knowledge,
+    search_knowledge=True,
+)
+
+agent.print_response("What is Agno?", markdown=True)
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U beautifulsoup4 sqlalchemy psycopg pgvector agno openai
+    ```
+  </Step>
+
+  <Step title="Set environment variables">
+    ```bash
+    export OPENAI_API_KEY=xxx
+    ```
+  </Step>
+
+  <Snippet file="run-pgvector-step.mdx" />
+
+  <Step title="Run Agent">
+    <CodeGroup>
+    ```bash Mac
+    python examples/basics/knowledge/concepts/readers/overview/llms_txt_reader.py
+    ```
+
+    ```bash Windows
+    python examples/basics/knowledge/concepts/readers/overview/llms_txt_reader.py
+    ```
+    </CodeGroup>
+  </Step>
+</Steps>
+
+## Params
+
+<Snippet file="llms-txt-reader-reference.mdx" />
