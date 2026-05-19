@@ -30,7 +30,20 @@ chair = Agent(
         "dollar amount. Every decision must reference at least one risk."
     ),
 )
+
+
+def briefing(*analyst_outputs: str) -> str:
+    return "Analyst inputs:\n\n" + "\n\n".join(analyst_outputs)
+
+
+result = chair.run(briefing(market, fundamentals, technicals, risk)).content
+# Decision(call='BUY', conviction='high', allocation_usd=2_000_000.0,
+#          rationale='Momentum and fundamentals align; sized within the
+#                      sector cap the Risk Officer set.',
+#          citations=['memo:NVDA-2024Q3', 'research:semiconductors'])
 ```
+
+Because `output_schema=Decision`, the run returns a validated `Decision`, not prose. `result.call` and `result.allocation_usd` are safe to act on without parsing text.
 
 The chair takes no tools. Its only job is to weigh the specialists' inputs and commit to a call. Constraining the output to a schema is what makes the result routable: a downstream system can act on `call` and `allocation_usd` without parsing prose.
 
@@ -70,4 +83,5 @@ When a decision triggers a real action (moving capital, publishing a number), pu
 ## Developer Resources
 
 - [Structured output](/input-output/structured-output/agent)
+- [Workflows cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/04_workflows)
 - [Human approval](/runtime/human-approval)

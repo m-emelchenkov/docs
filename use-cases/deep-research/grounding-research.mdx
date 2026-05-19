@@ -59,6 +59,10 @@ analyst = Agent(
     search_knowledge=True,
     instructions="Search the research library before forming a view. Cite what you used.",
 )
+
+reply = analyst.run("What does our research say about semiconductor supply?").content
+# Answers from the library and cites the profiles and analyses it pulled,
+# instead of from the model's prior.
 ```
 
 `search_knowledge=True` lets the agent pull the relevant profiles and analyses per question instead of carrying the whole library in context.

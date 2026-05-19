@@ -31,6 +31,9 @@ investment_workflow = Workflow(
         Step(name="Committee Decision", agent=committee_chair),
     ],
 )
+
+result = investment_workflow.run("Run a full investment review on NVDA")
+# result.content holds the Committee Decision. Same steps, every run.
 ```
 
 That is an auditable five-step review with a parallel deep-dive. Swap the agents and the mandate and the same shape researches anything.
@@ -82,4 +85,5 @@ That is an auditable five-step review with a parallel deep-dive. Swap the agents
 
 - [Workflows](/workflows/overview)
 - [Teams](/teams/overview)
+- [Workflows cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/04_workflows)
 - [Investment committee on GitHub](https://github.com/agno-agi/investment-team)

@@ -12,7 +12,7 @@ A research question has a shape. A factual lookup wants one specialist. A high-s
 | **Route** | `Team` (route mode) | A direct question that one specialist owns |
 | **Coordinate** | `Team` (coordinate mode) | Open-ended questions where a lead decides who to consult |
 | **Broadcast** | `Team` (broadcast mode) | High-stakes calls where every specialist evaluates independently |
-| **Task** | `Team` (task mode) | Multi-step jobs the team decomposes autonomously |
+| **Task** | `Team` (tasks mode) | Multi-step jobs the team decomposes autonomously |
 | **Pipeline** | `Workflow` | Standardized, auditable reviews that must run the same way every time |
 
 ## Coordinate: a lead orchestrates dynamically
@@ -36,6 +36,10 @@ coordinate_team = Team(
     ],
     show_members_responses=True,
 )
+
+answer = coordinate_team.run("Should we add NVDA at a $2M position?").content
+# The lead consults the analysts it judges relevant, always the Risk
+# Officer before sizing, then synthesizes one recommendation.
 ```
 
 ## Broadcast: everyone evaluates, the lead synthesizes
@@ -80,6 +84,10 @@ investment_workflow = Workflow(
         Step(name="Committee Decision", agent=committee_chair),
     ],
 )
+
+result = investment_workflow.run("Run a full investment review on NVDA")
+# result.content is the Committee Decision; result.step_results holds each
+# step in order (the Deep Dive is one nested list). Same shape every run.
 ```
 
 ## Teams vs Workflows
@@ -104,5 +112,6 @@ A mature research system uses both: Teams for exploration, a Workflow for the de
 ## Developer Resources
 
 - [Teams](/teams/overview)
+- [Team modes cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/03_teams/02_modes)
 - [Workflows](/workflows/overview)
 - [Workflow cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/04_workflows)

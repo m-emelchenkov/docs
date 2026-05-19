@@ -21,6 +21,15 @@ workflow = Workflow(
         Step(name="Risk Assessment", agent=risk_officer),
     ],
 )
+
+result = workflow.run("Run a full review on NVDA")
+final = result.content  # the last step's output
+
+# Gotcha: result.step_results is positional, and a Parallel block is one
+# nested list, not flattened:
+#   [ StepOutput("Market Assessment"),
+#     [ StepOutput("Fundamental Analysis"), StepOutput("Technical Analysis") ],
+#     StepOutput("Risk Assessment") ]
 ```
 
 The market assessment runs first because risk and the deep dive depend on it. Fundamental and technical analysis have no dependency on each other, so they run together. Risk waits for both.
@@ -60,4 +69,4 @@ Deep research is slow because it is thorough. Parallelism is what keeps thorough
 ## Developer Resources
 
 - [Parallel workflows](/workflows/workflow-patterns/parallel-workflow)
-- [Workflow cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/04_workflows)
+- [Parallel execution cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/04_workflows/04_parallel_execution)
