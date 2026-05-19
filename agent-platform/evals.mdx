@@ -1,0 +1,111 @@
+---
+title: Evals
+description: "Lock in agent behavior with regression tests."
+---
+
+Next, let's lock in our agent behavior with evals.
+
+Think of Evals as regression tests for your agents. Same prompts, same agents, run on a schedule. Notify when behavior drifts.
+
+When we run `docs/improve-agent.md`, we're looking for out-of-distribution improvements. Evals make sure in-distribution cases continue to pass. The two work together.
+
+## Cases
+
+Cases live in `evals/cases.py`. Each case sends one input to an agent and (optionally) checks two things:
+
+- **judge**: `AgentAsJudgeEval` scores the response against `criteria` (binary pass/fail) using an LLM.
+- **reliability**: `ReliabilityEval` checks which tools fired against `expected_tool_calls`.
+
+Results are stored in your database via `eval_db` (visible at [os.agno.com](https://os.agno.com)).
+
+A case looks like this:
+
+```python evals/cases.py
+CASES: tuple[Case, ...] = (
+    Case(
+        name="web_search_recent_anthropic_research",
+        agent=web_search,
+        input="What did Anthropic publish about agents recently?",
+        criteria=(
+            "Answers the question by citing at least one real Anthropic URL "
+            "(anthropic.com domain). The response is grounded in fetched content."
+        ),
+        expected_tool_calls=(_WEB_SEARCH_TOOL,),
+    ),
+    # add more cases here
+)
+```
+
+A case can use either check or both. If both are set, the agent runs once and feeds the same response into both.
+
+## Run the suite
+
+<Steps>
+  <Step title="Create a virtual environment">
+
+    To run the eval suite, let's create a local virtual environment
+
+    ```bash
+    ./scripts/venv_setup.sh
+    ```
+
+    Activate it
+
+    ```bash
+    source .venv/bin/activate
+    ```
+
+  </Step>
+
+  <Step title="Run the eval suite">
+
+    ```bash
+    python -m evals                # full suite
+    ```
+
+    Other options:
+
+    ```bash
+    python -m evals -v             # stream the agent run with full panels
+    python -m evals --case <name>  # single case while iterating
+    ```
+
+  </Step>
+
+</Steps>
+
+Each case prints the response, the judge verdict, and the reliability verdict. The run ends with an `Eval Summary` table.
+
+Results write to Postgres via `eval_db`. You can view the Eval history on [os.agno.com](https://os.agno.com) alongside your sessions and traces. You can see when a case started failing and what changed.
+
+## Diagnose failures with Claude Code
+
+Open Claude Code and paste:
+
+```
+Run docs/eval-and-improve.md
+```
+
+Claude runs the full suite, triages every failure (bad criteria, real regression, flaky LLM judge), and proposes in-scope fixes. It edits the agent or the case, re-runs, and shows you the diff.
+
+## When to run evals
+
+| Trigger                               | Frequency             |
+| ------------------------------------- | --------------------- |
+| Before deploying a change to an agent | Every time            |
+| As part of CI                         | Every PR              |
+| Against production                    | On a weekly cron      |
+| After bumping a model version         | Every time            |
+
+The weekly production cron is the most valuable one. Wire it into your platform's scheduler. See [scheduling](/runtime/scheduling) for the cron API.
+
+## What good cases look like
+
+- **Specific.** "Returns a JSON object with `ticker` and `price`" beats "Returns the right answer".
+- **Stable.** Avoid prompts whose correct answer changes daily. Use phrasing like "describes a real, recent..." instead of locking in a specific result.
+- **Scoped to one behavior.** One case per behavior makes failures easy to read.
+- **Anchored to tools.** `expected_tool_calls` catches the failure mode where the agent confidently makes things up instead of calling a tool.
+
+## Next
+
+[Next steps →](/agent-platform/next-steps)

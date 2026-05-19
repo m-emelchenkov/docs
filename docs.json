@@ -81,63 +81,103 @@
           {
             "group": "Welcome",
             "pages": [
-              "index",
-              "first-agent",
-              "coding-agents"
+              "index"
             ]
           },
           {
-            "group": "Tutorials",
+            "group": "Get Started",
             "pages": [
-              "tutorials/pick-a-template",
+              "first-agent",
+              "coding-agents",
               {
-                "group": "Agent Platform",
+                "group": "Build Your Agent Platform",
                 "pages": [
-                  "tutorials/agent-platform/overview",
-                  "tutorials/agent-platform/setup",
-                  "tutorials/agent-platform/create-an-agent",
-                  "tutorials/agent-platform/improve-an-agent",
-                  "tutorials/agent-platform/evals",
-                  "tutorials/agent-platform/deploy-to-railway",
-                  "tutorials/agent-platform/next-steps"
-                ]
-              },
-              {
-                "group": "Scout",
-                "pages": [
-                  "tutorials/scout/overview",
-                  "tutorials/scout/setup",
-                  "tutorials/scout/knowledge-and-crm",
-                  "tutorials/scout/connect-slack",
-                  "tutorials/scout/connect-google-drive",
-                  "tutorials/scout/connect-mcp-servers",
-                  "tutorials/scout/deploy-to-railway"
-                ]
-              },
-              {
-                "group": "Dash",
-                "pages": [
-                  "tutorials/dash/overview",
-                  "tutorials/dash/setup",
-                  "tutorials/dash/connect-slack",
-                  "tutorials/dash/deploy-to-railway",
-                  "tutorials/dash/next-steps"
-                ]
-              },
-              {
-                "group": "Coda",
-                "pages": [
-                  "tutorials/coda/overview",
-                  "tutorials/coda/setup",
-                  "tutorials/coda/connect-slack",
-                  "tutorials/coda/deploy-to-railway",
-                  "tutorials/coda/next-steps"
+                  "agent-platform/overview",
+                  "agent-platform/run-local",
+                  "agent-platform/create-agent",
+                  "agent-platform/improve-agent",
+                  "agent-platform/run-railway",
+                  "agent-platform/evals",
+                  "agent-platform/next-steps"
                 ]
               }
             ]
           },
           {
-            "group": "Runtime",
+            "group": "Use Cases",
+            "pages": [
+              {
+                "group": "Data Labeling",
+                "pages": [
+                  "use-cases/data-labeling/overview",
+                  "use-cases/data-labeling/structured-extraction",
+                  "use-cases/data-labeling/classification",
+                  "use-cases/data-labeling/llm-as-judge",
+                  "use-cases/data-labeling/preference-data",
+                  "use-cases/data-labeling/multimodal-inputs",
+                  "use-cases/data-labeling/quality-pipeline"
+                ]
+              },
+              {
+                "group": "Product Agents",
+                "pages": [
+                  "use-cases/product-agents/overview",
+                  "use-cases/product-agents/serve-as-an-api",
+                  "use-cases/product-agents/sessions-and-memory",
+                  "use-cases/product-agents/connecting-your-data",
+                  "use-cases/product-agents/interfaces",
+                  {
+                    "group": "Tutorial: Scout",
+                    "pages": [
+                      "tutorials/scout/overview",
+                      "tutorials/scout/setup",
+                      "tutorials/scout/knowledge-and-crm",
+                      "tutorials/scout/connect-slack",
+                      "tutorials/scout/connect-google-drive",
+                      "tutorials/scout/connect-mcp-servers",
+                      "tutorials/scout/deploy-to-railway"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Data & Analytics Agents",
+                "pages": [
+                  "use-cases/data-agents/overview",
+                  "use-cases/data-agents/querying-your-data",
+                  "use-cases/data-agents/grounding-in-context",
+                  "use-cases/data-agents/self-correcting-agents",
+                  "use-cases/data-agents/safe-data-access",
+                  "use-cases/data-agents/materialization",
+                  "use-cases/data-agents/serve-and-embed",
+                  {
+                    "group": "Tutorial: Dash",
+                    "pages": [
+                      "tutorials/dash/overview",
+                      "tutorials/dash/setup",
+                      "tutorials/dash/connect-slack",
+                      "tutorials/dash/deploy-to-railway",
+                      "tutorials/dash/next-steps"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Deep Research & Analysis",
+                "pages": [
+                  "use-cases/deep-research/overview",
+                  "use-cases/deep-research/orchestration-patterns",
+                  "use-cases/deep-research/parallel-investigation",
+                  "use-cases/deep-research/grounding-research",
+                  "use-cases/deep-research/structured-deliverable",
+                  "use-cases/deep-research/institutional-learning",
+                  "use-cases/deep-research/serve-and-embed"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Features",
             "pages": [
               "runtime/overview",
               "runtime/serve-as-api",
@@ -148,44 +188,7 @@
               "runtime/security-and-auth",
               "runtime/interfaces",
               "runtime/scheduling",
-              "runtime/deploy",
-              "runtime/build-a-product"
-            ]
-          },
-          {
-            "group": "Demo OS",
-            "pages": [
-              "demo-os/overview",
-              {
-                "group": "Knowledge & Memory",
-                "pages": [
-                  "demo-os/rag",
-                  "demo-os/knowledge",
-                  "demo-os/memory",
-                  "demo-os/learning"
-                ]
-              },
-              {
-                "group": "Tools & Integrations",
-                "pages": [
-                  "demo-os/mcp",
-                  "demo-os/context-providers"
-                ]
-              },
-              {
-                "group": "State & Patterns",
-                "pages": [
-                  "demo-os/session-state",
-                  "demo-os/human-in-the-loop"
-                ]
-              },
-              {
-                "group": "Multi-Agent Teams",
-                "pages": [
-                  "demo-os/multi-agent-teams/text-to-sql",
-                  "demo-os/multi-agent-teams/investment"
-                ]
-              }
+              "runtime/deploy"
             ]
           }
         ]
@@ -7905,6 +7908,10 @@
     ]
   },
   "redirects": [
+    {
+      "source": "/runtime/build-a-product",
+      "destination": "/runtime/overview"
+    },
     {
       "source": "/tutorials/starter/overview",
       "destination": "/tutorials/agent-platform/overview"

@@ -1,0 +1,141 @@
+---
+title: Run on Railway
+description: "Run your agent platform on Railway."
+---
+
+Next we're going to run our agent platform on Railway.
+
+Your company probably has a set way of running software. Follow that. If you're looking for a place to test this out without going through the full devops process, Railway is a great option. $20/month gets you pretty far and the codebase comes with scripts to:
+
+- Deploy to Railway: `./scripts/railway/up.sh`
+- Sync environment variables: `./scripts/railway/env-sync.sh`
+- Redeploy the app: `./scripts/railway/redeploy.sh`
+
+## Prerequisites
+
+- A [Railway](https://railway.app) account
+- The [Railway CLI](https://docs.railway.com/cli#installing-the-cli) installed and authenticated (`railway login`)
+
+## Deploy your agent platform to Railway
+
+<Steps>
+  <Step title="Configure your production environment">
+
+    The deploy scripts read `.env.production` first, then fall back to `.env`. This helps separate values for local and production: different OpenAI keys with different budgets, production-only credentials, a different Slack workspace.
+
+    ```bash
+    cp .env .env.production
+    ```
+
+    Edit `.env.production` with a production OpenAI key.
+
+  </Step>
+
+  <Step title="Provision and deploy">
+
+    ```bash
+    ./scripts/railway/up.sh
+    ```
+
+    This script:
+
+    1. Creates a Railway project for your agent platform.
+    2. Provisions a Postgres service.
+    3. Creates the app service and forwards the database connection vars.
+    4. Builds and deploys from the current directory.
+    5. Issues a public Railway domain.
+
+    The script prints the assigned URL right away but the domain takes a few minutes to start resolving.
+
+  </Step>
+
+  <Step title="Your first deploy will fail (by design)">
+
+    Token-Based Authorization is **ON** by default. Without a `JWT_VERIFICATION_KEY`, the app refuses to serve traffic.
+
+    Your platform's job is to keep your data off the public web. Shipping with auth off by default would be a risky choice, since many people never turn it on. Token-Based Auth gives you three things:
+
+    - **No public access.** The server rejects requests without a valid token.
+    - **Per-request identity.** Middleware parses the token and injects `user_id`, `session_id`, and custom claims into every endpoint.
+    - **Granular permissions.** A user token can run an agent and view its own sessions. An admin token can read everyone's sessions and test any agent.
+
+  </Step>
+
+  <Step title="Get your verification key">
+    The fastest path is to let [os.agno.com](https://os.agno.com) generate the keypair:
+
+    1. Click **Add OS** → **Live**, enter your Railway domain, and connect.
+    2. Enable **Token Based Authorization**. The UI generates an RSA keypair, keeps the private key, and shows you the public key.
+    3. Paste the public key into `.env.production`. Full PEM block, no surrounding quotes:
+
+    ```bash
+    JWT_VERIFICATION_KEY=-----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkq...
+    -----END PUBLIC KEY-----
+    ```
+
+    <Note>
+      Live connections to AgentOS require a Pro subscription. Use coupon `PLATFORM30` for a one-month free trial.
+    </Note>
+
+    You can also bring your own keypair. Generate an RSA or EC keypair, sign tokens with the private key in your own auth service, and put the matching public key in `JWT_VERIFICATION_KEY`. The platform verifies whatever you sign.
+  </Step>
+
+  <Step title="Sync env and verify">
+
+    While `.env.production` is open, point the scheduler at your public Railway domain so cron triggers can reach AgentOS:
+
+    ```bash
+    # .env.production
+    AGENTOS_URL=https://<your-app>.up.railway.app
+    ```
+
+    Push variables to Railway:
+
+    ```bash
+    ./scripts/railway/env-sync.sh
+    ```
+
+    Railway auto-deploys when env values change. Watch the logs:
+
+    ```bash
+    railway logs --service agent-os
+    ```
+
+    Once you see successful requests, you're live.
+
+  </Step>
+</Steps>
+
+## Auto-deploys from GitHub
+
+By default every code update needs `./scripts/railway/redeploy.sh`. To auto-deploy on every push to `main`:
+
+1. Open the Railway dashboard → your project → the `agent-os` service → **Settings**.
+2. Under **Source**, click **Connect Repo** and pick your repo.
+3. Set the deploy branch to `main`.
+
+Push to `main` now triggers a build and rolling deploy. `./scripts/railway/env-sync.sh` is still how you push env changes.
+
+## Opting out of JWT (not recommended)
+
+If you must run production without auth (inside a private VPC behind another auth layer), set `authorization=False` in `app/main.py` and redeploy. Keep authorization on for any deploy holding real data. Without it, anyone who guesses your Railway domain can read your sessions and run your agents.
+
+## Scaling
+
+The default deploy is two replicas at 4Gi memory and 2 vCPU each. Two replicas give you zero-downtime rolling deploys and basic fault tolerance. Bump `numReplicas` and `limits` up or down in `railway.json` as your usage grows.
+
+## Operations
+
+| Task                         | Command                                      |
+| ---------------------------- | -------------------------------------------- |
+| Tail logs                    | `railway logs --service agent-os`            |
+| Open the Railway dashboard   | `railway open`                               |
+| Run a command in container   | `railway run <command>`                      |
+| Push env changes             | `./scripts/railway/env-sync.sh`              |
+| Redeploy without git push    | `./scripts/railway/redeploy.sh`              |
+| Stop the app                 | `railway down --service agent-os`            |
+
+## Next
+
+[Lock in behavior with evals →](/agent-platform/evals)

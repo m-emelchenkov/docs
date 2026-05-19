@@ -1,0 +1,98 @@
+---
+title: "Preference data for RLHF"
+description: "Rank two responses to the same prompt. The data shape for reward models and DPO."
+---
+
+Given a prompt and two candidate responses, pick the better one. Constrain the verdict to `A`, `B`, or `tie`.
+
+```python
+from typing import Literal
+
+from agno.agent import Agent
+from agno.models.openai import OpenAIResponses
+from pydantic import BaseModel, Field
+
+
+class Preference(BaseModel):
+    winner: Literal["A", "B", "tie"] = Field(
+        ..., description="Which response is better, or 'tie' if equal"
+    )
+
+
+agent = Agent(
+    model=OpenAIResponses(id="gpt-5.5"),
+    instructions=(
+        "Decide which response better answers the prompt. Return 'A', 'B', "
+        "or 'tie'. Use 'tie' only when the two are genuinely "
+        "indistinguishable in quality."
+    ),
+    output_schema=Preference,
+)
+
+
+def build_input(prompt: str, a: str, b: str) -> str:
+    return f"Prompt:\n{prompt}\n\nResponse A:\n{a}\n\nResponse B:\n{b}"
+
+
+prompt = "Explain why the sky is blue, in one sentence."
+a = "Shorter blue wavelengths scatter more off air molecules, so the sky looks blue."
+b = "Because of physics."
+result = agent.run(build_input(prompt, a, b)).content
+# Preference(winner='A')
+```
+
+Each `(prompt, A, B, winner)` row is the input format for reward-model training and DPO. Agno produces the row; the trainer is out of scope.
+
+## Add a rationale
+
+A rationale per comparison gives annotators something to audit and helps debug a noisy reward model.
+
+```python
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+
+class Preference(BaseModel):
+    winner: Literal["A", "B", "tie"] = Field(..., description="Better response")
+    rationale: str = Field(..., description="Why the winner is better")
+```
+
+## Score against a rubric
+
+When preference should follow explicit criteria, put the rubric in the instructions and keep the output binary.
+
+```python
+instructions = """\
+Compare the two responses on these criteria, in priority order:
+1. Correctness - is the information accurate
+2. Completeness - does it fully answer the prompt
+3. Clarity - is it easy to follow
+
+Return the response that wins on the highest-priority criterion where
+they differ. Use 'tie' only if they are equal on all three.
+"""
+```
+
+## Picking the shape
+
+| You need | Schema |
+|----------|--------|
+| Bare preference label | `Literal["A", "B", "tie"]` |
+| Preference plus justification | Add a `rationale` field |
+| Criteria-driven preference | Rubric in instructions, binary output |
+
+## Reducing position bias
+
+A single judge can favor whichever response is shown first. Run the comparison twice with A and B swapped, or send both orderings to two providers and adjudicate. See the [Quality pipeline](/use-cases/data-labeling/quality-pipeline) for the two-model agreement pattern.
+
+## Next steps
+
+| Task | Guide |
+|------|-------|
+| Score a single response | [LLM as judge](/use-cases/data-labeling/llm-as-judge) |
+| Adjudicate disagreements | [Quality pipeline](/use-cases/data-labeling/quality-pipeline) |
+
+## Developer Resources
+
+- [Pairwise preference cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_05_text_pairwise_preference)
