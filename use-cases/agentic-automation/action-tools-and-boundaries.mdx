@@ -13,12 +13,14 @@ from agno.tools.github import GithubTools
 explorer = Agent(
     name="Explorer",
     model=OpenAIResponses(id="gpt-5.5"),
-    tools=[GithubTools(get_repository=True, list_issues=True, get_pull_request=True)],
-    instructions="Investigate and report. You have no write tools.",
+    # A read-scoped GitHub token. Capability is the credential, like the
+    # read-only SQL role, not a prompt instruction.
+    tools=[GithubTools(access_token=GITHUB_READ_TOKEN)],
+    instructions="Investigate and report.",
 )
 ```
 
-The Explorer can read the repo and reason about it. It has no write tool, so no prompt can make it mutate anything. The agent that does the writing is a different agent with a different, scoped toolset.
+The Explorer's token has no write scope, so no prompt can make it mutate anything. The agent that does the writing is a different agent with a write-scoped token.
 
 ## Split read from write
 

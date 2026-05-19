@@ -25,8 +25,8 @@ run = agent.run("Triage and close stale issues in the repo")
 for requirement in run.active_requirements:
     if requirement.needs_confirmation:
         ok = input(
-            f"Approve {requirement.tool.tool_name}"
-            f"({requirement.tool.tool_args})? (y/n) "
+            f"Approve {requirement.tool_execution.tool_name}"
+            f"({requirement.tool_execution.tool_args})? (y/n) "
         )
         requirement.confirm() if ok == "y" else requirement.reject()
 
@@ -93,4 +93,5 @@ Gate the few actions that matter. Approval on everything kills the automation.
 
 - [Human-in-the-loop](/hitl/overview)
 - [User confirmation](/hitl/user-confirmation)
+- [Confirmation cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/02_agents/10_human_in_the_loop)
 - [Admin approval and audit](/hitl/approval)

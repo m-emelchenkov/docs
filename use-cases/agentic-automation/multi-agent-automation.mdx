@@ -21,6 +21,9 @@ coda = Team(
         "Post the result back to the requesting channel.",
     ],
 )
+
+result = coda.run("Triage issue #482 on the api repo").content
+# Route mode sends it to the Triager only; no other specialist's tools run.
 ```
 
 The leader picks the specialist; the specialist does the work with only its tools. Triage never touches code. Code edits never run on `main`.
@@ -65,4 +68,5 @@ The safety of the system is the sum of each specialist's boundary. The Coder is 
 ## Developer Resources
 
 - [Teams](/teams/overview)
+- [Teams cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/03_teams)
 - [Orchestration patterns](/use-cases/deep-research/orchestration-patterns)

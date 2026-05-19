@@ -23,7 +23,7 @@ The scheduler polls `agno_schedules`, fires due jobs, retries failures, and reco
 | Pattern | When | Lives in |
 |---------|------|----------|
 | Agent-driven | Users ask the agent to schedule things in chat | The agent's own tool calls |
-| Startup-registered | Schedules that should always exist | The app's lifespan |
+| Created in code | Schedules that should always exist | A `ScheduleManager` call at startup |
 
 ### Agent-driven
 
@@ -46,28 +46,23 @@ agent = Agent(
 # In Slack: "post a daily digest of open PRs at 9am ET"
 ```
 
-### Startup-registered
+### Created in code
 
-For jobs that must always exist, register them in the app lifespan. Re-registering with the same name updates in place, so restarts do not duplicate.
+For jobs that must always exist, create them with `ScheduleManager` at startup. The poller that `scheduler=True` starts picks them up.
 
 ```python
-from contextlib import asynccontextmanager
+from agno.scheduler import ScheduleManager
 
-from agno.scheduler import register_schedule
+mgr = ScheduleManager(db)
 
-
-@asynccontextmanager
-async def lifespan(app):
-    register_schedule(
-        name="daily_digest",
-        cron="0 9 * * 1-5",  # weekdays 9am
-        endpoint="/workflows/daily-digest/runs",
-    )
-    yield
-
-
-agent_os = AgentOS(agents=[agent], db=db, scheduler=True, lifespan=lifespan)
+mgr.create(
+    name="daily_digest",
+    cron="0 9 * * 1-5",  # weekdays 9am
+    endpoint="/workflows/daily-digest/runs",
+)
 ```
+
+`create()` takes `if_exists` (default `"raise"`) to control what happens when a schedule of that name already exists, so a restart neither errors nor duplicates.
 
 ## The proactive ops loop
 
@@ -86,7 +81,7 @@ The work nobody remembered to do is the work that mattered. A schedule makes it 
 A schedule fires one endpoint. When the job is multi-step, point it at a `Workflow`. `Loop` repeats until a condition holds, `Router` branches on input.
 
 ```python
-from agno.workflow import Workflow, Step, Loop, Condition
+from agno.workflow import Step, Workflow
 
 daily_digest = Workflow(
     name="daily-digest",
@@ -111,4 +106,5 @@ Scheduled runs are traced and persisted like any other run, so `agno_schedule_ru
 ## Developer Resources
 
 - [Scheduling](/runtime/scheduling)
+- [Scheduler cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/05_agent_os/scheduler)
 - [Scheduler in HA](/agent-os/scheduler/overview)
