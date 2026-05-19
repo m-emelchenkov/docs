@@ -173,28 +173,6 @@
                   "use-cases/deep-research/institutional-learning",
                   "use-cases/deep-research/serve-and-embed"
                 ]
-              },
-              {
-                "group": "Agentic Automation & Ops",
-                "pages": [
-                  "use-cases/agentic-automation/overview",
-                  "use-cases/agentic-automation/taking-action-safely",
-                  "use-cases/agentic-automation/proactive-scheduling",
-                  "use-cases/agentic-automation/action-tools-and-boundaries",
-                  "use-cases/agentic-automation/multi-agent-automation",
-                  "use-cases/agentic-automation/learning-your-conventions",
-                  "use-cases/agentic-automation/serve-and-embed",
-                  {
-                    "group": "Tutorial: Coda",
-                    "pages": [
-                      "tutorials/coda/overview",
-                      "tutorials/coda/setup",
-                      "tutorials/coda/connect-slack",
-                      "tutorials/coda/deploy-to-railway",
-                      "tutorials/coda/next-steps"
-                    ]
-                  }
-                ]
               }
             ]
           },
