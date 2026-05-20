@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from agno.agent import Agent
 from agno.models.anthropic import Claude
-from agno.models.openai import OpenAIResponses
+from agno.models.google import Gemini
 from pydantic import BaseModel, Field
 
 
@@ -39,11 +39,11 @@ class FinalLabel(BaseModel):
 
 LABELER = "Extract contact info. Use exactly what the text shows. Null if missing."
 
-labeler_a = Agent(model=OpenAIResponses(id="gpt-5.5"), instructions=LABELER, output_schema=Contact)
-labeler_b = Agent(model=Claude(id="claude-sonnet-4-5"), instructions=LABELER, output_schema=Contact)
+labeler_a = Agent(model=Gemini(id="gemini-3.5-flash"), instructions=LABELER, output_schema=Contact)
+labeler_b = Agent(model=Claude(id="claude-opus-4-7"), instructions=LABELER, output_schema=Contact)
 
 reviewer = Agent(
-    model=OpenAIResponses(id="gpt-5.5"),
+    model=Claude(id="claude-opus-4-7"),
     instructions=(
         "Compare two labelers' Contact outputs field by field. A field "
         "needs adjudication when both are non-null but differ. Set "
@@ -53,7 +53,7 @@ reviewer = Agent(
 )
 
 adjudicator = Agent(
-    model=OpenAIResponses(id="gpt-5.5"),
+    model=Claude(id="claude-opus-4-7"),
     instructions=(
         "Re-read the original text and resolve every reported "
         "disagreement. Return a FinalLabel with the correct values."
@@ -83,7 +83,7 @@ def label_with_quality_review(text: str) -> FinalLabel:
 
 ## The flow
 
-1. **Two labelers, two providers.** Provider diversity is the signal. When OpenAI and Anthropic disagree, that is where the document is ambiguous.
+1. **Two labelers, two providers.** Provider diversity is the signal. When Gemini and Anthropic disagree, that is where the document is ambiguous.
 2. **Reviewer diffs them.** It emits one `FieldDisagreement` per conflicting field and a single `needs_adjudication` flag. Agreement short-circuits the expensive step.
 3. **Adjudicator runs only on disagreement.** It re-reads the original input with both labels and the reviewer's report, then returns the final record.
 

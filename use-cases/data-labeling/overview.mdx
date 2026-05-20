@@ -12,7 +12,7 @@ Add an `output_schema` and the agent returns data in that shape:
 from typing import Literal
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
+from agno.models.google import Gemini
 from pydantic import BaseModel, Field
 
 
@@ -23,7 +23,7 @@ class Classification(BaseModel):
 
 
 agent = Agent(
-    model=OpenAIResponses(id="gpt-5.5"),
+    model=Gemini(id="gemini-3.5-flash"),
     instructions="You classify product reviews by sentiment.",
     output_schema=Classification,
 )
@@ -58,14 +58,12 @@ Pick the page that matches the shape of label you need.
 
 ## Model choice
 
-Each workload uses the model that fits the modality. For example:
+`gemini-3.5-flash` handles every modality natively — text, image, audio, video, and PDF — so the cookbook defaults to it across the board. Swap models per workload when cost, latency, or output quality say so.
 
 | Modality | Default in the cookbook |
 |----------|-------------------------|
-| Text, document/PDF | `openai:gpt-5.5` |
-| Image | `openai:gpt-5.5` |
-| Audio, video | `gemini-3-flash-preview` |
-| Second labeler in the quality pipeline | `claude-sonnet-4-5` |
+| Text, image, audio, video, document/PDF | `gemini-3.5-flash` |
+| Second labeler in the quality pipeline | `claude-opus-4-7` |
 
 ## Explore
 

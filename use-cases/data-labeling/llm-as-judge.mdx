@@ -3,24 +3,22 @@ title: "LLM as judge"
 description: "Score model outputs against a rubric. The same machinery as labeling, applied to evaluation."
 ---
 
-A judge is a classifier whose input is a `(prompt, response)` pair and whose output is a score. Constrain the score with a `Literal` so it stays on scale.
+A judge is a classifier whose input is a `(prompt, response)` pair and whose output is a score. Constrain the score with `int` and `ge`/`le` so it stays on scale.
 
 ```python
-from typing import Literal
-
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
+from agno.models.google import Gemini
 from pydantic import BaseModel, Field
 
 
 class Score(BaseModel):
-    overall: Literal[1, 2, 3, 4, 5] = Field(
-        ..., description="Overall quality, 5 is excellent"
+    overall: int = Field(
+        ..., ge=1, le=5, description="Overall quality, 5 is excellent"
     )
 
 
 agent = Agent(
-    model=OpenAIResponses(id="gpt-5.5"),
+    model=Gemini(id="gemini-3.5-flash"),
     instructions=(
         "Score the response on overall quality from 1 (unusable) to 5 "
         "(excellent). Use the full scale. Reserve 5 for genuinely "
@@ -44,13 +42,11 @@ result = agent.run(build_input(prompt, "It just is.")).content
 A free-text rationale makes the score auditable and surfaces rubric drift.
 
 ```python
-from typing import Literal
-
 from pydantic import BaseModel, Field
 
 
 class Score(BaseModel):
-    overall: Literal[1, 2, 3, 4, 5] = Field(..., description="Overall quality")
+    overall: int = Field(..., ge=1, le=5, description="Overall quality")
     rationale: str = Field(..., description="Why this score, citing the response")
 ```
 
@@ -61,28 +57,24 @@ Keep the score field before the rationale so the model commits to a number, then
 Score each dimension independently, then an overall. Independent fields stop one weak dimension from dragging the rest.
 
 ```python
-from typing import Literal
-
 from pydantic import BaseModel, Field
-
-Rating = Literal[1, 2, 3, 4, 5]
 
 
 class RubricScore(BaseModel):
-    correctness: Rating = Field(..., description="Factually correct")
-    completeness: Rating = Field(..., description="Covers what was asked")
-    clarity: Rating = Field(..., description="Easy to follow")
-    concision: Rating = Field(..., description="No padding")
-    overall: Rating = Field(..., description="Holistic quality")
+    correctness: int = Field(..., ge=1, le=5, description="Factually correct")
+    completeness: int = Field(..., ge=1, le=5, description="Covers what was asked")
+    clarity: int = Field(..., ge=1, le=5, description="Easy to follow")
+    concision: int = Field(..., ge=1, le=5, description="No padding")
+    overall: int = Field(..., ge=1, le=5, description="Holistic quality")
 ```
 
 ## Picking the shape
 
 | You need | Schema |
 |----------|--------|
-| One quality number | `Literal[1..5]` |
+| One quality number | `int` with `ge=1, le=5` |
 | Number plus justification | Add a `rationale` field after the score |
-| Per-criterion breakdown | One `Literal` field per dimension |
+| Per-criterion breakdown | One bounded `int` field per dimension |
 | A vs B instead of a score | [Preference data](/use-cases/data-labeling/preference-data) |
 
 ## Relationship to evals

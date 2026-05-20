@@ -10,7 +10,7 @@ from typing import Literal
 
 from agno.agent import Agent
 from agno.media import Image
-from agno.models.openai import OpenAIResponses
+from agno.models.google import Gemini
 from pydantic import BaseModel, Field
 
 
@@ -21,7 +21,7 @@ class Classification(BaseModel):
 
 
 agent = Agent(
-    model=OpenAIResponses(id="gpt-5.5"),
+    model=Gemini(id="gemini-3.5-flash"),
     instructions="You classify images by animal type.",
     output_schema=Classification,
 )
@@ -35,10 +35,10 @@ result = agent.run("Classify this image.", images=[Image(url=url)]).content
 
 | Modality | Import | Argument | Model in the cookbook |
 |----------|--------|----------|-----------------------|
-| Image | `from agno.media import Image` | `images=[Image(url=...)]` | `OpenAIResponses(id="gpt-5.5")` |
-| Audio | `from agno.media import Audio` | `audio=[Audio(content=...)]` | `Gemini(id="gemini-3-flash-preview")` |
-| Video | `from agno.media import Video` | `videos=[Video(content=..., format="mp4")]` | `Gemini(id="gemini-3-flash-preview")` |
-| PDF | `from agno.media import File` | `files=[File(url=...)]` | `OpenAIResponses(id="gpt-5.5")` |
+| Image | `from agno.media import Image` | `images=[Image(url=...)]` | `Gemini(id="gemini-3.5-flash")` |
+| Audio | `from agno.media import Audio` | `audio=[Audio(content=...)]` | `Gemini(id="gemini-3.5-flash")` |
+| Video | `from agno.media import Video` | `videos=[Video(content=..., format="mp4")]` | `Gemini(id="gemini-3.5-flash")` |
+| PDF | `from agno.media import File` | `files=[File(url=...)]` | `Gemini(id="gemini-3.5-flash")` |
 
 `Image` and `File` accept a `url`. `Audio` and `Video` take raw bytes via `content`; fetch them first.
 
@@ -82,7 +82,7 @@ Audio extraction covers transcription, speaker diarization, and timestamped segm
 
 ## Model choice
 
-Pick the model that handles the modality natively. The cookbook defaults to `gemini-3-flash-preview` for audio and video, and `gpt-5.5` for image and PDF. Each cookbook README notes alternatives.
+`gemini-3.5-flash` handles text, image, audio, video, and PDF natively, so the cookbook uses it across every modality. Each cookbook README notes alternatives if you want to swap.
 
 ## Next steps
 

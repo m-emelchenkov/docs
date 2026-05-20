@@ -9,7 +9,7 @@ Given a prompt and two candidate responses, pick the better one. Constrain the v
 from typing import Literal
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
+from agno.models.google import Gemini
 from pydantic import BaseModel, Field
 
 
@@ -20,7 +20,7 @@ class Preference(BaseModel):
 
 
 agent = Agent(
-    model=OpenAIResponses(id="gpt-5.5"),
+    model=Gemini(id="gemini-3.5-flash"),
     instructions=(
         "Decide which response better answers the prompt. Return 'A', 'B', "
         "or 'tie'. Use 'tie' only when the two are genuinely "

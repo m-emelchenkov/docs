@@ -6,14 +6,14 @@ description: "Extract typed Pydantic objects from text, images, audio, video, an
 Define the schema, pass the input, get a validated object back.
 
 <Tip>
-Use a fast, low-cost model like `gemini-3-flash-preview` for high-volume extraction.
+Use a fast, low-cost model like `gemini-3.5-flash` for high-volume extraction.
 </Tip>
 
 ```python
 from typing import Optional
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
+from agno.models.google import Gemini
 from pydantic import BaseModel, Field
 
 
@@ -26,7 +26,7 @@ class Contact(BaseModel):
 
 
 agent = Agent(
-    model=OpenAIResponses(id="gpt-5.5"),
+    model=Gemini(id="gemini-3.5-flash"),
     instructions=(
         "Extract contact information from the input. Use exactly what the "
         "text shows. If a field is missing, leave it null. Do not guess."
