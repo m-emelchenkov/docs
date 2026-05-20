@@ -4533,7 +4533,13 @@
                       "agent-os/interfaces/slack/reference"
                     ]
                   },
-                  "agent-os/interfaces/telegram/introduction"
+                  {
+                    "group": "Telegram",
+                    "pages": [
+                      "agent-os/interfaces/telegram/introduction",
+                      "agent-os/interfaces/telegram/reference"
+                    ]
+                  }
                 ]
               },
               {
@@ -4693,7 +4699,6 @@
             "pages": [
               "deploy/introduction",
               "deploy/templates",
-              "deploy/apps",
               "deploy/interfaces"
             ]
           },
@@ -4785,106 +4790,28 @@
                   }
                 ]
               },
-              {
-                "group": "Dash",
-                "pages": [
-                  "deploy/templates/dash/overview"
-                ]
-              },
-              {
-                "group": "Scout",
-                "pages": [
-                  "deploy/templates/scout/overview"
-                ]
-              },
-              {
-                "group": "Gcode",
-                "pages": [
-                  "deploy/templates/gcode/overview"
-                ]
-              }
+              "deploy/templates/improve-agents"
             ]
           },
           {
-            "group": "Applications",
+            "group": "Apps",
             "pages": [
-              {
-                "group": "Agents",
-                "pages": [
-                  "deploy/apps/agents/text-to-sql",
-                  "deploy/apps/agents/research-agent",
-                  "deploy/apps/agents/invoice-extractor",
-                  "deploy/apps/agents/document-summarizer",
-                  "deploy/apps/agents/social-media-analyst",
-                  "deploy/apps/agents/knowledge-agent",
-                  "deploy/apps/agents/inbox-agent",
-                  "deploy/apps/agents/customer-support",
-                  "deploy/apps/agents/contract-review",
-                  "deploy/apps/agents/code-review"
-                ]
-              },
-              {
-                "group": "Teams",
-                "pages": [
-                  "deploy/apps/teams/content-team"
-                ]
-              },
-              {
-                "group": "Workflows",
-                "pages": [
-                  "deploy/apps/workflows/meeting-to-tasks",
-                  "deploy/apps/workflows/lead-enrichment",
-                  "deploy/apps/workflows/sales-call-analyzer",
-                  "deploy/apps/workflows/competitor-tracker"
-                ]
-              }
+              "deploy/templates/dash/overview",
+              "deploy/templates/scout/overview",
+              "deploy/templates/coda/overview",
+              "deploy/templates/pal/overview",
+              "deploy/templates/gcode/overview"
             ]
           },
           {
             "group": "Interfaces",
             "pages": [
-              {
-                "group": "Slack",
-                "pages": [
-                  "deploy/interfaces/slack/overview"
-                ]
-              },
-              {
-                "group": "Discord",
-                "pages": [
-                  "deploy/interfaces/discord/overview"
-                ]
-              },
-              {
-                "group": "WhatsApp",
-                "pages": [
-                  "deploy/interfaces/whatsapp/overview"
-                ]
-              },
-              {
-                "group": "MCP",
-                "pages": [
-                  "deploy/interfaces/mcp/overview"
-                ]
-              },
-              {
-                "group": "AG-UI",
-                "pages": [
-                  "deploy/interfaces/ag-ui/overview"
-                ]
-              },
-              {
-                "group": "Telegram",
-                "pages": [
-                  "deploy/interfaces/telegram/overview"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Agno Infra",
-            "pages": [
-              "deploy/infra/overview"
+              "deploy/interfaces/slack/overview",
+              "deploy/interfaces/telegram/overview",
+              "deploy/interfaces/whatsapp/overview",
+              "deploy/interfaces/discord/overview",
+              "deploy/interfaces/ag-ui/overview",
+              "deploy/interfaces/a2a/overview"
             ]
           }
         ]
@@ -15031,11 +14958,15 @@
     },
     {
       "source": "/deploy/agno-infra",
-      "destination": "/deploy/infra/overview"
+      "destination": "/reference/agno-infra/cli/ws/up"
     },
     {
       "source": "/infra/overview",
-      "destination": "/deploy/infra/overview"
+      "destination": "/reference/agno-infra/cli/ws/up"
+    },
+    {
+      "source": "/deploy/infra/overview",
+      "destination": "/reference/agno-infra/cli/ws/up"
     },
     {
       "source": "/deploy/templates/aws/customize/ci-cd",

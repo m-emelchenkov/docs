@@ -1,10 +1,10 @@
 ---
 title: "Deploy with Docker"
 sidebarTitle: "Deploy"
-description: "Run AgentOS locally with Docker and PostgreSQL, then deploy to any cloud."
+description: "Run AgentOS locally with Docker, then deploy to any cloud."
 ---
 
-This template runs AgentOS and PostgreSQL with pgvector in Docker. It includes example agents ready to use after startup, hot-reload for development, and works on any cloud that supports Docker.
+This template runs AgentOS and PostgreSQL with pgvector in Docker. It includes agents you can extend with Claude Code, hot-reload for development, and works on any cloud that supports Docker.
 
 ## Prerequisites
 
@@ -27,10 +27,10 @@ cd agentos
 
 The template includes the following agents:
 
-| Agent | Description |
-| :--- | :--- |
-| Knowledge Agent | Answers questions from your documents using Agentic RAG. |
-| MCP Agent | Connects to external tools via Model Context Protocol. |
+| Agent | Pattern | Description |
+| :--- | :--- | :--- |
+| WebSearch | Direct tools | Search the web using Parallel SDK or keyless MCP. |
+| CodeSearch | Context provider | Answer questions about this codebase. |
   </Step>
 
   <Step title="Set your API key">
@@ -45,15 +45,6 @@ Edit `.env` and add your `OPENAI_API_KEY`.
 ```bash
 docker compose up -d --build
 ```
-  </Step>
-
-  <Step title="Load knowledge">
-```bash
-docker exec -it agentos-api python -m agents.knowledge_agent
-```
-
-This loads the default documents into the Knowledge Agent's vector database. You can add your own documents as needed.
-
   </Step>
 
   <Step title="Confirm it's running">
@@ -99,13 +90,27 @@ Deploy this template to any cloud that supports Docker:
 
 Build and push your image, set the environment variables from `.env`, and ensure your PostgreSQL instance has pgvector enabled.
 
+## Environment Variables
+
+| Variable | Required | Description |
+| :--- | :--- | :--- |
+| `OPENAI_API_KEY` | Yes | OpenAI API key |
+| `RUNTIME_ENV` | No | `dev` enables hot-reload and disables JWT |
+| `JWT_VERIFICATION_KEY` | Production | Public key from os.agno.com |
+| `AGENTOS_URL` | No | Scheduler base URL (default: `http://127.0.0.1:8000`) |
+| `SLACK_BOT_TOKEN` | No | Enable Slack interface |
+| `SLACK_SIGNING_SECRET` | No | Enable Slack interface |
+
 ## Next Steps
 
-<CardGroup cols={2}>
-  <Card title="Add apps" icon="grid-2" href="/deploy/apps">
-    Browse agents, teams, and workflows for your deployment.
+<CardGroup cols={3}>
+  <Card title="Extend" icon="wand-magic-sparkles" href="/deploy/templates/improve-agents">
+    Build and improve agents with Claude Code and evals.
   </Card>
-  <Card title="Connect interfaces" icon="comments" href="/deploy/interfaces">
-    Expose your agents on Slack, Discord, WhatsApp, or MCP.
+  <Card title="Interfaces" icon="comments" href="/deploy/interfaces">
+    Connect Slack, Discord, WhatsApp, or MCP.
+  </Card>
+  <Card title="Reference" icon="book" href="/deploy/templates/docker/reference">
+    Manage, customize, and troubleshoot.
   </Card>
 </CardGroup>

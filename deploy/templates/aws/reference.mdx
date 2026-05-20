@@ -31,7 +31,7 @@ from db import get_postgres_db
 my_agent = Agent(
     id="my-agent",
     name="My Agent",
-    model=OpenAIResponses(id="gpt-5.2"),
+    model=OpenAIResponses(id="gpt-5.5"),
     db=get_postgres_db(),
     instructions="You are a helpful assistant.",
 )
@@ -43,7 +43,7 @@ from agents.my_agent import my_agent
 
 agent_os = AgentOS(
     name="AgentOS",
-    agents=[knowledge_agent, mcp_agent, my_agent],
+    agents=[web_search, code_search, my_agent],
 )
 ```
 
@@ -67,35 +67,6 @@ my_agent = Agent(
         GoogleCalendarTools(),
     ],
 )
-```
-
-  </Accordion>
-
-  <Accordion title="Load knowledge">
-
-  Load documents for the Knowledge Agent:
-```bash
-# Local
-docker exec -it agentos-aws-template-api python -m agents.knowledge_agent
-```
-
-For production (ECS):
-```bash
-ECS_CLUSTER=agentos-aws-template-prd
-TASK_ARN=$(aws ecs list-tasks --cluster $ECS_CLUSTER --query "taskArns[0]" --output text)
-
-aws ecs execute-command --cluster $ECS_CLUSTER \
-  --task $TASK_ARN \
-  --container agentos-aws-template-prd-api \
-  --interactive \
-  --command "python -m agents.knowledge_agent"
-```
-
-  Try it:
-```
-What is Agno?
-How do I create my first agent?
-What documents are in your knowledge base?
 ```
 
   </Accordion>
@@ -131,6 +102,23 @@ To upgrade all libraries:
 ```
 
   </Accordion>
+
+  <Accordion title="Enable Slack">
+
+  Add your credentials to `infra/secrets/prd_api_secrets.yml`:
+```yaml
+SLACK_BOT_TOKEN: xoxb-...
+SLACK_SIGNING_SECRET: ...
+```
+
+  Redeploy to AWS:
+```bash
+ag infra up prd:aws
+```
+
+  The interface activates automatically. See [Slack setup](/deploy/interfaces/slack/overview) for creating the Slack app.
+
+  </Accordion>
 </AccordionGroup>
 
 ## Local Development
@@ -155,14 +143,18 @@ python -m app.main
 | Variable | Required | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `OPENAI_API_KEY` | Yes | — | OpenAI API key |
-| `PORT` | No | `8000` | API server port (set in `infra/dev_resources.py`) |
+| `RUNTIME_ENV` | No | `prd` | `dev` enables hot-reload and disables JWT |
+| `JWT_VERIFICATION_KEY` | Production | — | Public key from os.agno.com |
+| `AGENTOS_URL` | No | `http://127.0.0.1:8000` | Scheduler base URL |
+| `SLACK_BOT_TOKEN` | No | — | Enable Slack interface |
+| `SLACK_SIGNING_SECRET` | No | — | Enable Slack interface |
+| `PARALLEL_API_KEY` | No | — | Parallel SDK key for WebSearch |
+| `PORT` | No | `8000` | API server port |
 | `DB_HOST` | No | `localhost` | Database host |
 | `DB_PORT` | No | `5432` | Database port |
 | `DB_USER` | No | `ai` | Database user |
 | `DB_PASS` | No | `ai` | Database password |
 | `DB_DATABASE` | No | `ai` | Database name |
-| `RUNTIME_ENV` | No | `prd` | Set to `dev` for auto-reload |
-| `WAIT_FOR_DB` | No | `True` | Wait for database before API startup |
 
 ## Troubleshooting
 

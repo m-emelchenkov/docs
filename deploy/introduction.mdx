@@ -1,101 +1,59 @@
 ---
 title: "Deploy AgentOS"
 sidebarTitle: "Introduction"
-description: "Deploy AgentOS to your cloud platform of choice."
+description: "Templates and infrastructure for running AgentOS in your cloud."
 ---
 
-1. Start with a **template**: a starter or a pre-built solution.
-2. Add **apps**: agents, teams, or workflows for your use case.
-3. Expose through **interfaces**: Slack, Discord, Telegram, MCP, or a custom UI.
+An agent in a notebook is an experiment — to make it a product, you need to deploy it where your users are. These templates handle the infrastructure so you can focus on building agents. For runtime features, see [AgentOS](/agent-os/introduction).
+
+## Templates
+
+Templates handle the infrastructure. You build the agents. Pick a platform, deploy, and connect to the control plane.
+
+Each template deploys the same core stack:
+
+- **AgentOS server** — Runs agents, handles API requests (container in your cloud)
+- **PostgreSQL** — Stores sessions, memory, traces (your database)
+- **pgvector** — Stores knowledge for RAG (PostgreSQL extension)
+- **Webhook endpoints** — Receives events from Slack/Telegram/WhatsApp
+
+Same stack. Three ways to run it.
+
+| Platform | Best For | You Manage | Cost |
+|----------|----------|------------|------|
+| [Docker](/deploy/templates/docker/deploy) | Local dev, self-hosted | Everything | Free |
+| [Railway](/deploy/templates/railway/deploy) | Fast cloud deployment | Just code | ~$20/mo |
+| [AWS](/deploy/templates/aws/deploy) | Enterprise, full control | Infrastructure-as-code | ~$75/mo |
+
+Want a head start? Check out [pre-built apps](/deploy/templates) like Dash, Scout, and Coda with self-learning and context retrieval already wired up.
+
+<Tip>
+Your data stays in your infrastructure. The control plane connects directly from your browser.
+</Tip>
+
+## After Deployment
+
+**That's it — your agent platform is running.**
 
 <Steps>
-  <Step title="Start from a template">
-    Pick a **starter** or a **pre-built solution**.
-
-    <Tabs>
-      <Tab title="Starter">
-        Deploy a clean installation of AgentOS to your infrastructure.
-
-        <CardGroup cols={3}>
-          <Card title="Docker" icon="docker" href="/deploy/templates/docker/deploy">
-            Run AgentOS locally using Docker.
-          </Card>
-          <Card title="Railway" icon="train" href="/deploy/templates/railway/deploy">
-            Deploy AgentOS to Railway.
-          </Card>
-          <Card title="AWS" icon="aws" href="/deploy/templates/aws/deploy">
-            Deploy AgentOS to ECS.
-          </Card>
-        </CardGroup>
-      </Tab>
-      <Tab title="Pre-built solutions">
-        Production-ready codebases with apps already
-        wired up.
-
-        <CardGroup cols={3}>
-          <Card title="Dash" icon="chart-mixed" href="/deploy/templates/dash/overview">
-            Self-learning data agent.
-          </Card>
-          <Card title="Scout" icon="radar" href="/deploy/templates/scout/overview">
-            Self-managing context agent.
-          </Card>
-          <Card title="Gcode" icon="code" href="/deploy/templates/gcode/overview">
-            Lightweight coding agent.
-          </Card>
-        </CardGroup>
-      </Tab>
-    </Tabs>
-
-    [Browse all templates →](/deploy/templates)
-
+  <Step title="Verify">
+    [Check your deployment](/deploy/verify) is healthy.
   </Step>
-  <Step title="Add apps">
-
-    Apps are the agents, teams, and workflows that run inside your deployment. Add what you need, or swap and extend what came with your template.
-
-    <CardGroup cols={3}>
-      <Card
-        title="Text-to-SQL Agent"
-        icon="database"
-        href="/deploy/apps/agents/text-to-sql"
-      >
-        Query databases with natural language.
-      </Card>
-      <Card
-        title="Research Agent"
-        icon="magnifying-glass"
-        href="/deploy/apps/agents/research-agent"
-      >
-        Deep research with citations.
-      </Card>
-      <Card
-        title="Knowledge Agent"
-        icon="book"
-        href="/deploy/apps/agents/knowledge-agent"
-      >
-        Answer questions from your knowledge base.
-      </Card>
-    </CardGroup>
-
-    [Browse all apps →](/deploy/apps)
-
+  <Step title="Connect">
+    Open [os.agno.com](https://os.agno.com) — one UI for your agentic software. Chat with agents, trace runs, manage knowledge, and approve sensitive actions.
   </Step>
-  <Step title="Connect interfaces">
-    Expose your apps on the platforms your users already use.
-
-    <CardGroup cols={3}>
-      <Card title="Slack" icon="slack" href="/agent-os/interfaces/slack/introduction">
-        Expose agents as Slack apps.
-      </Card>
-      <Card title="Discord" icon="discord" href="/agent-os/interfaces/overview">
-        Expose agents as Discord bots.
-      </Card>
-      <Card title="MCP" icon="plug" href="/agent-os/mcp/mcp">
-        Expose agents as an MCP server.
-      </Card>
-    </CardGroup>
-
-    [Browse all interfaces →](/deploy/interfaces)
-
+  <Step title="Secure">
+    Configure [authentication and RBAC](/agent-os/security/overview) for production.
   </Step>
 </Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Connect Interfaces" icon="plug" href="/deploy/interfaces">
+    Add Slack, Telegram, or WhatsApp.
+  </Card>
+  <Card title="AgentOS Features" icon="sparkles" href="/agent-os/overview">
+    Sessions, memory, scheduling, and more.
+  </Card>
+</CardGroup>
