@@ -1,10 +1,16 @@
 /* Reduce gap between page header and content */
 #content {
-  margin-top: 1rem;
+  margin-top: 0.75rem;
 }
 
-/* Tighten spacing when intro paragraph is followed by heading */
+/* Tighten first paragraph spacing */
+#content > span:first-of-type,
+#content > p:first-of-type {
+  margin-top: 0.5rem;
+}
+
+/* Tighten H2 after intro paragraph */
 #content > span + h2,
 #content > p + h2 {
-  margin-top: 2.25rem;
+  margin-top: 1.5rem;
 }
