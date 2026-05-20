@@ -119,6 +119,8 @@ When a workflow pauses, inspect `WorkflowRunOutput`:
 
 For nested HITL, always read the **last** entry in `step_requirements` to determine the current pause type. Earlier entries are history. See [Nested HITL](/workflows/hitl/nested).
 
+For the full structure of every pause object (`WorkflowRunOutput`, `StepRequirement`, and executor requirements) and the methods that resolve each, see [Pause Anatomy](/workflows/hitl/pause-anatomy).
+
 ## OnReject Behavior
 
 `on_reject` controls what happens when a user rejects a step.
@@ -210,6 +212,9 @@ Step(name="process", executor=process_data)
   </Card>
   <Card title="Nested HITL" icon="layer-group" href="/workflows/hitl/nested">
     Combine step-level and executor-level on the same step
+  </Card>
+  <Card title="Pause Anatomy" icon="diagram-project" href="/workflows/hitl/pause-anatomy">
+    The objects a paused run exposes and how to resolve them
   </Card>
   <Card title="Output Review" icon="eye" href="/workflows/hitl/output-review">
     Review, edit, or reject output after a step runs

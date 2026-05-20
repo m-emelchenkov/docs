@@ -92,7 +92,7 @@ from agno.db.sqlite import SqliteDb
 
 refine_agent = Agent(
     name="Refiner",
-    model=OpenAIChat(id="gpt-4o-mini"),
+    model=OpenAIResponses(id="gpt-5.4"),
     instructions=(
         "You refine and improve text. If the reviewer provides feedback, "
         "incorporate it. Return only the improved text."

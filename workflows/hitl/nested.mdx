@@ -1,6 +1,6 @@
 ---
 title: Nested HITL
-sidebarTitle: Nested HITL
+sidebarTitle: Nested
 description: "Combine step-level and executor-level HITL on the same step. The workflow pauses twice: once before the step runs, once when the agent calls a HITL tool."
 keywords: [workflow, HITL, nested, step, executor, multi-pause, requires_confirmation, agent, tool]
 mode: wide
@@ -11,7 +11,7 @@ A single step can use [step-level HITL](/workflows/hitl/step) (gate the step its
 ```python
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
-from agno.models.openai import OpenAIChat
+from agno.models.openai import OpenAIResponses
 from agno.tools import tool
 from agno.workflow.step import Step
 from agno.workflow.workflow import Workflow
@@ -24,7 +24,7 @@ def send_alert(city: str, message: str) -> str:
 
 alert_agent = Agent(
     name="AlertAgent",
-    model=OpenAIChat(id="gpt-5.4"),
+    model=OpenAIResponses(id="gpt-5.4"),
     tools=[send_alert],
     db=SqliteDb(db_file="workflow.db"),
 )
@@ -65,7 +65,12 @@ else:
 ```
 
 <Warning>
-Iterating over the full `step_requirements` list during nested HITL re-resolves already-resolved requirements and produces wrong behavior. Use `[-1:]` to scope to the active pause.
+Iterating over the full `step_requirements` list re-reads requirements that were already resolved in earlier pauses of the same run. Two concrete failures:
+
+- **Wrong pause type detected.** If an earlier entry was an executor requirement and the current pause is step-level, `any(r.requires_executor_input for r in step_requirements)` is still `True`, so you run the executor branch and skip the step the workflow is actually waiting on. `continue_run` then raises because the active requirement is unresolved.
+- **Stale decisions reapplied.** A route selection or confirmation from a prior pause gets re-applied over the current one. For example, re-confirming an old router selection overrides the user's new choice, sending the workflow down the previous branch.
+
+Scope to the active pause with `(run_output.step_requirements or [])[-1:]`, or use the filter properties (`steps_requiring_confirmation`, `steps_requiring_executor_resolution`, ...) which already exclude resolved entries. See [Pause Anatomy](/workflows/hitl/pause-anatomy).
 </Warning>
 
 ## Resolution Loop
@@ -118,6 +123,7 @@ Runnable examples in [cookbook/04_workflows/08_human_in_the_loop/dual_level_hitl
 ## Developer Resources
 
 - [HITL overview](/workflows/hitl/overview)
+- [Pause Anatomy](/workflows/hitl/pause-anatomy)
 - [Step HITL](/workflows/hitl/step)
 - [Executor HITL](/workflows/hitl/executor)
 - [Output Review](/workflows/hitl/output-review)
