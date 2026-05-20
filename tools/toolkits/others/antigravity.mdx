@@ -1,0 +1,123 @@
+---
+title: Antigravity
+description: Delegate sub-tasks to Google's Managed Agents (Gemini API) sandbox from any Agno agent.
+---
+
+**Antigravity** wraps [Managed Agents in the Gemini API](https://ai.google.dev/gemini-api/docs/managed-agents-quickstart). `AntigravityTools`
+lets a regular Agno agent delegate a sub-task to a Google-managed, sandboxed agent that can run code, search the web,
+and read/write files. The sandbox is provisioned lazily and reused across calls within the same session.
+
+Use this when you want an Agno agent (with its own model) to **call** Antigravity as one tool. To serve Antigravity
+itself as an AgentOS agent, use [`AntigravityAgent`](/agent-os/multi-framework/antigravity) instead.
+
+## Prerequisites
+
+```shell
+uv pip install pyyaml
+export GEMINI_API_KEY=your_api_key
+```
+
+`pyyaml` is only required when using `agent_directory`.
+
+## Example
+
+```python cookbook/91_tools/antigravity/antigravity_tools.py
+from agno.agent import Agent
+from agno.models.google import Gemini
+from agno.tools.antigravity import AntigravityTools
+
+agent = Agent(
+    name="Research Assistant",
+    model=Gemini(id="gemini-2.5-pro"),
+    tools=[AntigravityTools()],
+    markdown=True,
+    instructions=[
+        "When a task benefits from a sandboxed Linux environment with web search "
+        "and code execution, delegate it via run_antigravity_task.",
+        "Otherwise answer directly.",
+    ],
+)
+
+agent.print_response(
+    "Use the sandbox to find the latest stable Python release and summarize what changed."
+)
+```
+
+## Toolkit Params
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `api_key` | `str` | `None` | Gemini API key. Falls back to `GEMINI_API_KEY`. |
+| `base_url` | `str` | Gemini v1beta | API base URL. |
+| `agent` | `str` | `"waverunner"` | Base agent identifier, or a custom agent name to invoke. |
+| `default_sources` | `List[Dict]` | `None` | GCS / repository / inline sources to seed the sandbox on first use. |
+| `persistent` | `bool` | `True` | Reuse one sandbox per session (cached in `agent.session_state`). |
+| `timeout` | `int` | `600` | Per-request timeout in seconds. |
+| `instructions` | `str` | `None` | Custom toolkit instructions. |
+| `add_instructions` | `bool` | `False` | Whether to add the default instructions. |
+| `agent_directory` | `str` | `None` | Path to an agent directory (`agent.yaml` + `AGENTS.md` + `workspace/` + `skills/`). Parses it, sets `agent` to the yaml `id`, seeds `default_sources`, and registers the agent. |
+| `register` | `bool` | `True` | When `agent_directory` is set, POST the agent definition to `/agents` on construction (idempotent). |
+
+`agent_directory` conflicts with explicit `agent=` or `default_sources=` and will raise.
+
+### Tools
+
+| Function | Description |
+|----------|-------------|
+| `run_antigravity_task` | Delegate a task to the sandbox; reuses the per-session sandbox. |
+| `run_custom_antigravity_agent` | Invoke a named custom agent by name. |
+| `create_custom_antigravity_agent` | Register a custom agent (`sources` or `base_env_id`). |
+| `update_custom_antigravity_agent` | Patch a custom agent's instructions/description. |
+| `get_custom_antigravity_agent` | Fetch a single custom agent definition. |
+| `list_antigravity_agents` | List all custom agents. |
+| `list_antigravity_agent_versions` | List versions of a custom agent. |
+| `delete_antigravity_agent` | Delete a custom agent. |
+| `download_antigravity_environment_snapshot` | Download the sandbox filesystem as a tar (`environment_id="current"` resolves from session state). |
+
+You can use `include_tools` or `exclude_tools` to modify the list of tools the agent has access to. Learn more about [selecting tools](/tools/selecting-tools).
+
+## Concepts
+
+### Session persistence
+
+`run_antigravity_task` caches the sandbox's `environment_id` in the calling agent's `session_state`, so repeated
+calls within the same session reuse the sandbox (files and installed packages persist). Persistence requires
+non-streaming responses. The streaming SSE response does not expose `environment_id`.
+
+### Custom agents (Agents API)
+
+The toolkit exposes the full `/agents` CRUD surface. Register a named agent once, then invoke it by name with
+`run_custom_antigravity_agent`. Each named agent gets its own per-session sandbox.
+
+### Agent directories
+
+Pass `agent_directory` to wire a local folder (`agent.yaml` + `AGENTS.md` + `workspace/` + `skills/`) into the
+toolkit. On construction it parses the folder, registers the agent with the API, and routes subsequent
+`run_antigravity_task` calls at that named agent.
+
+```python
+AntigravityTools(agent_directory="./my-agent")
+```
+
+## Examples
+
+<CardGroup cols={2}>
+  <Card title="Delegate a task" icon="play" href="https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/antigravity/antigravity_tools.py">
+    A Gemini agent delegates a research sub-task to the sandbox.
+  </Card>
+  <Card title="Agents API CRUD" icon="list-check" href="https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/antigravity/antigravity_agents_crud_tools.py">
+    Create, invoke, and delete custom agents through tools.
+  </Card>
+  <Card title="Agent from a directory" icon="folder-open" href="https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/antigravity/antigravity_directory_tools.py">
+    Wire a local `agent.yaml` folder into the toolkit.
+  </Card>
+  <Card title="Environment snapshot" icon="file-zipper" href="https://github.com/agno-agi/agno/blob/main/cookbook/91_tools/antigravity/antigravity_snapshot_tools.py">
+    Run a sandbox task then download the environment as a tar.
+  </Card>
+</CardGroup>
+
+## Developer Resources
+
+- View [Tools](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/tools/antigravity.py)
+- [Cookbook examples](https://github.com/agno-agi/agno/tree/main/cookbook/91_tools/antigravity)
+- [Antigravity as an external agent](/agent-os/multi-framework/antigravity)

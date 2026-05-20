@@ -1,149 +1,39 @@
 ---
 title: Welcome to Agno
-description: Build, run, and manage agent platforms.
+description: '**An agent platform for building, running, and managing a fleet of agents.**'
 mode: wide
 ---
 
-**Agno provides software for building, running, and managing agent platforms.**
+Agno lets you build your own agent platform and run a fleet of agents to power every part of your product and operations. Workloads that were previously tedious and time-consuming are now one agent away.
 
-- Build agents using any agent framework.
-- Run them as production services with session management, tracing, scheduling, and RBAC.
-- Manage your platform using a single control plane.
+From data labeling and document extraction to product copilots, research assistants, and agent-driven software. Agno's AgentOS productionizes any agent built with any framework.
 
-Agno has a 3-layer architecture. Everything except the control plane is free and open-source.
+<img
+  src="/images/demo-os.png"
+  alt="AgentOS Control Plane"
+  style={{ borderRadius: "0.5rem" }}
+/>
 
-| Layer | Use it to | What it does |
-|-------|------|--------------|
-| **SDK** | Build | Build agents, multi-agent teams, and agentic workflows. |
-| **Runtime** | Run | Run your agents, teams, and workflows as a service. |
-| **Control Plane** | Manage | Manage your platform using the [AgentOS UI](https://os.agno.com). |
+Here's how teams are using Agno:
 
-<CodeGroup>
+- **Product teams** use Agno to build conversational agents and product copilots, then auto-improve them using production usage data. Some run their entire product on Agno.
+- **ML teams** use Agno to label text, image, audio and video data. Document extraction and classification is also very popular. Agno is natively typesafe and multi-modal: any input modality, structured output.
+- **ML teams** also use Agno to generate synthetic data and preference pairs for training and evals. Agno supports any modality in, any modality out. Extremely popular use case.
+- **AI teams** are automating document processing, knowledge organization, and eval generation workloads using Agno. They're also building task specific agents like text2sql, company-brain, code-companion and exposing them in the company slack.
+- **Data Science teams** use Agno for customer enrichment, segmentation, and training data curation.
+- **Data Engineering teams** are automating data quality audits, failure log analysis and generating weekly reports using Agno.
 
-```python Agno SDK
-from agno.os import AgentOS
-from agno.agent import Agent
-from agno.db.sqlite import SqliteDb
-from agno.tools.workspace import Workspace
+Thousands of engineering teams use Agno because it frees them up. They can:
 
-agent = Agent(
-    name="Agno Agent",
-    model="openai:gpt-5.4",
-    tools=[Workspace(".",
-        allowed=["read", "list", "search"],
-        confirm=["write", "edit", "delete", "shell"],
-    )],
-)
+- Build agents using any framework or a no-code UI.
+- Run agents as production services with tracing, scheduling, RBAC, and audit trails.
+- Manage the entire agent development lifecycle using coding agents.
 
-agent_os = AgentOS(
-    agents=[agent],
-    tracing=True,
-    db=SqliteDb(db_file="tmp/agentos.db"),
-)
-app = agent_os.get_app()
-```
+Most importantly, your data stays in your database. You log and store everything (sessions, memory, traces) there, then use it to auto-improve your agents via claude code.
 
-```python Claude Agent SDK
-from agno.agents.claude import ClaudeAgent
-from agno.db.sqlite import SqliteDb
-from agno.os import AgentOS
+Everything runs in your cloud, managed through a beautiful UI.
 
-agent = ClaudeAgent(
-    name="Claude Agent",
-    model="claude-opus-4-7",
-    allowed_tools=["Read", "Bash"],
-    permission_mode="acceptEdits",
-)
+## Get started
 
-agent_os = AgentOS(
-    agents=[agent],
-    tracing=True,
-    db=SqliteDb(db_file="tmp/agentos.db"),
-)
-app = agent_os.get_app()
-```
-
-```python LangGraph
-from agno.agents.langgraph import LangGraphAgent
-from agno.db.sqlite import SqliteDb
-from agno.os import AgentOS
-from langchain_openai import ChatOpenAI
-from langgraph.graph import MessagesState, StateGraph
-
-def chatbot(state: MessagesState):
-    return {"messages": [ChatOpenAI(model="gpt-5.4").invoke(state["messages"])]}
-
-graph = StateGraph(MessagesState)
-graph.add_node("chatbot", chatbot)
-graph.set_entry_point("chatbot")
-compiled = graph.compile()
-
-agent = LangGraphAgent(
-    name="LangGraph Chatbot",
-    graph=compiled,
-)
-
-agent_os = AgentOS(
-    agents=[agent],
-    tracing=True,
-    db=SqliteDb(db_file="tmp/agentos.db"),
-)
-app = agent_os.get_app()
-```
-
-```python DSPy
-import dspy
-from agno.agents.dspy import DSPyAgent
-from agno.db.sqlite import SqliteDb
-from agno.os import AgentOS
-
-dspy.configure(lm=dspy.LM("openai/gpt-5.4"))
-
-agent = DSPyAgent(
-    name="DSPy Assistant",
-    program=dspy.ChainOfThought("question -> answer"),
-)
-
-agent_os = AgentOS(
-    agents=[agent],
-    tracing=True,
-    db=SqliteDb(db_file="tmp/agentos.db"),
-)
-app = agent_os.get_app()
-```
-
-</CodeGroup>
-
-20 lines of code and you have a FastAPI backend with 50+ endpoints, persisted sessions, tracing, scheduling and RBAC. Interact using the AgentOS UI, Slack, Discord or build a product on top.
-
-Run native Agno agents next to Claude Code, LangGraph and DSPy agents in the same AgentOS.
-
-## Agno features
-
-- [**Production API.**](/runtime/serve-as-api) 50+ endpoints with SSE and websockets make it easy to build a product on top of your agent platform.
-- [**Storage.**](/runtime/storage) Store sessions, memory, knowledge, and traces in your own database. Use postgres for quick read/write data like sessions and memory. Use clickhouse for OLAP data like traces.
-- [**100+ integrations.**](/tools/toolkits/overview) Integrate with 100+ tools using pre-built toolkits.
-- [**Context Providers.**](/runtime/context) Use strategies like context providers to access live data stored in Slack, Drive, wikis, MCP, and custom sources.
-- [**Human approval.**](/runtime/human-approval) Built in mechanisms for pausing runs for user confirmation up to blocking tools that require admin approval.
-- [**Observability.**](/runtime/observability) Get monitoring via OpenTelemetry tracing, run history, and audit logs out of the box.
-- [**Security.**](/runtime/security-and-auth) Get JWT-based RBAC and multi-user, multi-tenant isolation out of the box.
-- [**Interfaces.**](/runtime/interfaces) Expose your agents via Slack, Telegram, WhatsApp, Discord, AG-UI, A2A.
-- [**Scheduling.**](/runtime/scheduling) Cron-based scheduling and background jobs with no external infrastructure.
-- [**Deploy anywhere.**](/runtime/deploy) Run on any cloud platform that can run a containerized image.
-
-## Pick a path
-
-<CardGroup cols={1}>
-  <Card title="Build your first agent" icon="bolt" iconType="duotone" href="/first-agent">
-    A model, tools, and instructions in 20 lines of code.
-  </Card>
-  <Card title="Build an agent platform" icon="layer-group" iconType="duotone" href="/tutorials/agent-platform/overview">
-    The full tutorial: clone the template, ship your first agent with Claude Code, deploy to Railway.
-  </Card>
-  <Card title="Start from a template" icon="rocket-launch" iconType="duotone" href="/tutorials/pick-a-template">
-    Production templates (Scout, Dash, Coda) you can clone and deploy.
-  </Card>
-  <Card title="Use Agno with your coding agent" icon="terminal" iconType="duotone" href="/coding-agents">
-    Wire up agno documentation with your favorite coding agent.
-  </Card>
-</CardGroup>
+- [Build your first agent →](/first-agent)
+- [Build an agent platform managed entirely by claude code →](/agent-platform/overview)
