@@ -201,42 +201,6 @@
               "runtime/scheduling",
               "runtime/deploy"
             ]
-          },
-          {
-            "group": "Demo OS",
-            "pages": [
-              "demo-os/overview",
-              {
-                "group": "Knowledge & Memory",
-                "pages": [
-                  "demo-os/rag",
-                  "demo-os/knowledge",
-                  "demo-os/memory",
-                  "demo-os/learning"
-                ]
-              },
-              {
-                "group": "Tools & Integrations",
-                "pages": [
-                  "demo-os/mcp",
-                  "demo-os/dependencies"
-                ]
-              },
-              {
-                "group": "State & Patterns",
-                "pages": [
-                  "demo-os/session-state",
-                  "demo-os/human-in-the-loop"
-                ]
-              },
-              {
-                "group": "Multi-Agent Teams",
-                "pages": [
-                  "demo-os/multi-agent-teams/text-to-sql",
-                  "demo-os/multi-agent-teams/investment"
-                ]
-              }
-            ]
           }
         ]
       },
