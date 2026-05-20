@@ -1,7 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "css": "/global.css",
   "name": "Agno",
   "colors": {
     "primary": "#FF4017",
