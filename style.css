@@ -1,16 +1,16 @@
 /* Reduce gap between page header and content */
 #content {
-  margin-top: 0.75rem;
+  margin-top: 0.75rem !important;
 }
 
 /* Tighten first paragraph spacing */
 #content > span:first-of-type,
 #content > p:first-of-type {
-  margin-top: 0.5rem;
+  margin-top: 0.5rem !important;
 }
 
 /* Tighten H2 after intro paragraph */
 #content > span + h2,
 #content > p + h2 {
-  margin-top: 1.5rem;
+  margin-top: 1.5rem !important;
 }
