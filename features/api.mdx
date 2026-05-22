@@ -1,9 +1,9 @@
 ---
-title: Serve as an API
-description: "Everything you need to run agents as a service, behind one HTTP API."
+title: Agent API
+description: "One HTTP API for every agent, team, and workflow in your AgentOS."
 ---
 
-To ship an agent you need a lot more than a `/run` endpoint. You need endpoints to:
+Shipping an agent needs more than a `/run` endpoint. You need endpoints to:
 
 - Run agents in streaming mode and as background jobs
 - Manage the sessions, memory, and learnings your agents accumulate
@@ -12,7 +12,7 @@ To ship an agent you need a lot more than a `/run` endpoint. You need endpoints 
 - Gate sensitive tool calls on human approval
 - Resume paused runs once that approval comes back
 
-AgentOS gives you all of this and more.
+AgentOS generates all of this from your registered agents, teams, and workflows automatically. Browse the live OpenAPI spec at the `/docs` endpoint of any AgentOS instance.
 
 <video
   autoPlay
@@ -38,8 +38,6 @@ AgentOS gives you all of this and more.
 | **Approvals** | List pending approvals, resolve them, count by user. |
 | **Components** | Version your agents, teams, and workflows. Manage drafts, publish, roll back to a previous version. |
 | **Database** | Migrate one or all database schemas to a target version. |
-
-Browse the live OpenAPI spec at the `/docs` endpoint of your AgentOS.
 
 ## How a request looks
 
@@ -85,8 +83,8 @@ The agent is a regular Python object. Call `agent.run(...)` or `await agent.arun
 
 ## Auth
 
-When `authorization=True`, every endpoint except `/health` and `/openapi.json` requires a valid JWT in the `Authorization: Bearer ...` header. AgentOS validates the token, extracts claims, and applies RBAC scopes per request before any agent code runs. See [Security & Auth](/runtime/security-and-auth) for the full model.
+When `authorization=True`, every endpoint except `/health` and `/openapi.json` requires a valid JWT in the `Authorization: Bearer ...` header. AgentOS validates the token, extracts claims, and applies RBAC scopes per request before any agent code runs. See [Security & Auth](/features/security-and-auth) for the full model.
 
 ## Next
 
-[Storage →](/runtime/storage)
+[Storage →](/features/storage)

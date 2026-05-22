@@ -189,16 +189,17 @@
           {
             "group": "Features",
             "pages": [
-              "runtime/overview",
-              "runtime/serve-as-api",
-              "runtime/storage",
-              "runtime/context",
-              "runtime/human-approval",
-              "runtime/observability",
-              "runtime/security-and-auth",
-              "runtime/interfaces",
-              "runtime/scheduling",
-              "runtime/deploy"
+              "features/sdk",
+              "features/runtime",
+              "features/api",
+              "features/storage",
+              "features/observability",
+              "features/context",
+              "features/human-approval",
+              "features/security-and-auth",
+              "features/interfaces",
+              "features/scheduling",
+              "features/deploy"
             ]
           }
         ]
@@ -7900,7 +7901,47 @@
   "redirects": [
     {
       "source": "/runtime/build-a-product",
-      "destination": "/runtime/overview"
+      "destination": "/features/runtime"
+    },
+    {
+      "source": "/runtime/overview",
+      "destination": "/features/runtime"
+    },
+    {
+      "source": "/runtime/serve-as-api",
+      "destination": "/features/api"
+    },
+    {
+      "source": "/runtime/storage",
+      "destination": "/features/storage"
+    },
+    {
+      "source": "/runtime/observability",
+      "destination": "/features/observability"
+    },
+    {
+      "source": "/runtime/context",
+      "destination": "/features/context"
+    },
+    {
+      "source": "/runtime/human-approval",
+      "destination": "/features/human-approval"
+    },
+    {
+      "source": "/runtime/security-and-auth",
+      "destination": "/features/security-and-auth"
+    },
+    {
+      "source": "/runtime/interfaces",
+      "destination": "/features/interfaces"
+    },
+    {
+      "source": "/runtime/scheduling",
+      "destination": "/features/scheduling"
+    },
+    {
+      "source": "/runtime/deploy",
+      "destination": "/features/deploy"
     },
     {
       "source": "/tutorials/starter/overview",

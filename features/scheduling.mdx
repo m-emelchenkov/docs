@@ -3,7 +3,7 @@ title: Scheduling
 description: "In-process cron and multi-step workflows. No separate worker fleet."
 ---
 
-A useful agent doesn't only respond. It shows up on its own — morning briefings, daily triage, weekly digests, hourly health checks. AgentOS gives you a cron-style scheduler in-process, so you don't run a separate worker fleet for any of it. No Celery, no separate cron container, no leader-election service to operate. Schedules live in your `db` and fire from the same FastAPI process that serves your agents.
+A useful agent shows up on its own. Morning briefings, daily triage, weekly digests, hourly health checks. AgentOS gives you a cron-style scheduler in-process, so you don't run a separate worker fleet for any of it. No Celery, no separate cron container, no leader-election service to operate. Schedules live in your `db` and fire from the same FastAPI process that serves your agents.
 
 ```python
 from agno.os import AgentOS
@@ -126,7 +126,7 @@ WHERE sr.created_at > NOW() - INTERVAL '24 hours'
 ORDER BY sr.created_at DESC;
 ```
 
-For the trace of a specific scheduled run, follow the `run_id` from `agno_schedule_runs` back to `agno_traces`. See [Observability](/runtime/observability) for the full data model.
+For the trace of a specific scheduled run, follow the `run_id` from `agno_schedule_runs` back to `agno_traces`. See [Observability](/features/observability) for the full data model.
 
 ## Scheduler in HA
 
@@ -134,4 +134,4 @@ When you scale to multiple replicas, you don't want every replica firing the sam
 
 ## Next
 
-[Deploy →](/runtime/deploy)
+[Deploy →](/features/deploy)

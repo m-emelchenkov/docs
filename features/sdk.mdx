@@ -1,0 +1,45 @@
+---
+title: Agent SDK
+description: "Build agents, teams, and workflows in pure Python."
+---
+
+Three primitives. Agents for autonomy, teams for coordination, workflows for deterministic control. Same SDK, composable for your use case.
+
+```python
+from agno.agent import Agent
+from agno.tools.yfinance import YFinanceTools
+
+agent = Agent(
+    name="Finance Agent",
+    model="openai:gpt-5.4",
+    tools=[YFinanceTools()],
+    instructions="Fetch market data and produce a one-line take.",
+)
+
+agent.print_response("What's NVDA trading at today?")
+```
+
+The same agent runs in a script, in tests, or behind [AgentOS](/features/runtime). No DSL, no YAML, no rewriting between dev and production.
+
+## The primitives
+
+| Primitive | Use it to |
+|-----------|-----------|
+| [Agent](/agents/overview) | Build autonomous programs with a model, tools, and instructions |
+| [Team](/teams/overview) | Coordinate multiple agents to achieve complex tasks |
+| [Workflow](/workflows/overview) | Achieve deterministic output using step-based execution |
+
+## What you can add
+
+| Capability | What it adds |
+|------------|--------------|
+| [Models](/models/overview) | 30+ providers behind one API |
+| [Tools](/tools/overview) | 100+ integrations and the ability to write your own |
+| [Memory](/memory/overview) | Per-user and per-session memory |
+| [Knowledge](/knowledge/concepts/overview) | RAG over documents, URLs, and databases |
+| [Reasoning](/reasoning/overview) | Built-in chain-of-thought and reasoning agents |
+| [Multimodal](/multimodal/overview) | Image, audio, and video input and output |
+| [Guardrails](/guardrails/overview) | Validate input and output |
+| [Human-in-the-Loop](/hitl/overview) | Pause runs for approval, input, or external execution |
+
+For the full SDK overview and capabilities table, see the [SDK Introduction](/sdk/introduction).

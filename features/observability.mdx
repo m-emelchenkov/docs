@@ -1,9 +1,9 @@
 ---
-title: Observability
+title: Agent Observability
 description: "OpenTelemetry tracing, run history, and audit logs in your own database."
 ---
 
-When an agent answers wrong, you need to know why: which tool it called, what it passed in, what the model actually saw. AgentOS captures all of it through OpenTelemetry-compatible tracing, persisted in your `db`.
+When an agent answers wrong, you need to know why. Which tool it called, what it passed in, what the model actually saw. AgentOS captures all of it through OpenTelemetry-compatible tracing, persisted in your `db`.
 
 ```python
 from agno.os import AgentOS
@@ -103,7 +103,7 @@ Traces tell you *what happened*. Audit logs tell you *what was approved*. They h
 | **Retention** | 30-120 days typical | Lifetime of the product |
 | **Storage** | `agno_traces`, `agno_spans` | `agno_approvals` plus your own audit table |
 
-For approved actions, see [Human Approval](/runtime/human-approval). For custom audit shapes, use post-hooks (below).
+For approved actions, see [Human Approval](/features/human-approval). For custom audit shapes, use post-hooks (below).
 
 ## Audit logs via post-hooks
 
@@ -127,7 +127,7 @@ def audit_log(run_output, agent):
 agent = Agent(..., post_hooks=[audit_log])
 ```
 
-`run_in_background=True` keeps the audit write off the response path. See [Hooks](/runtime/human-approval#post-hooks-output) for the full pattern.
+`run_in_background=True` keeps the audit write off the response path. See [Hooks](/features/human-approval#post-hooks-output) for the full pattern.
 
 ## What to watch in production
 
@@ -141,4 +141,4 @@ agent = Agent(..., post_hooks=[audit_log])
 
 ## Next
 
-[Security & Auth →](/runtime/security-and-auth)
+[Security & Auth →](/features/security-and-auth)

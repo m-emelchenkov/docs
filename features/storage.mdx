@@ -1,9 +1,9 @@
 ---
-title: "Storage Providers"
+title: "Agent Storage"
 description: "One database for sessions, memory, knowledge, traces, schedules, and approvals."
 ---
 
-Everything an agent persists lives in a `db` object: sessions, memory, knowledge, traces, schedules, approvals. The interface is identical across backends. Pick from JSON files (local or cloud), embedded (SQLite), relational (Postgres, MySQL), document (MongoDB), key-value (Redis, DynamoDB, Firestore), or distributed (SingleStore).
+Everything an agent persists lives in a `db` object. The interface is identical across backends. Pick from JSON files (local or cloud), embedded (SQLite), relational (Postgres, MySQL), document (MongoDB), key-value (Redis, DynamoDB, Firestore), or distributed (SingleStore).
 
 ```python
 from agno.db.postgres import PostgresDb
@@ -117,4 +117,4 @@ The [Dash deploy tutorial](/tutorials/dash/deploy-to-railway) shows the pattern:
 
 ## Next
 
-[Context →](/runtime/context)
+[Context →](/features/context)

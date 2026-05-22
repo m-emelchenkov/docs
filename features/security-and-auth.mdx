@@ -3,7 +3,7 @@ title: Security & Auth
 description: "Layered security: auth at the edge, RBAC for roles, isolation between users, schema enforcement, and sandboxes for tools."
 ---
 
-Securing an agent isn't one thing. It's layers: auth at the edge to keep strangers out, RBAC to scope what each caller can run, request isolation so users can't see each other's data, schema enforcement so even a misbehaving agent can't write where it shouldn't, sandboxes for tools that touch the outside world, and human approval for actions that should never run unsupervised.
+Securing an agent is a stack of layers. Each layer stops a different class of attack, from unauthenticated requests at the edge down to irreversible tool calls at the agent.
 
 | Layer | What it stops | Mechanism |
 |-------|---------------|-----------|
@@ -12,7 +12,7 @@ Securing an agent isn't one thing. It's layers: auth at the edge to keep strange
 | **Request isolation** | Cross-user and cross-session leakage | Sessions and memory scoped per `user_id` |
 | **Schema enforcement** | The agent writing where it shouldn't | Read-only roles, schema-scoped engines |
 | **Tool sandboxing** | Tools doing damage outside their lane | Sandboxes, allowlists, path scoping |
-| **Human approval** | Irreversible actions running unsupervised | `requires_confirmation`, `@approval` (see [Human Approval](/runtime/human-approval)) |
+| **Human approval** | Irreversible actions running unsupervised | `requires_confirmation`, `@approval` (see [Human Approval](/features/human-approval)) |
 
 AgentOS gives you defaults at every layer. The rest of this page covers each one and where you'd want to override the default.
 
@@ -118,13 +118,13 @@ Most tools are pure functions. The ones that aren't (HTTP calls, shell commands,
 | **HTTP requests** | Allowlist of hosts, no localhost |
 | **Shell or code execution** | Sandbox (subprocess in container, separate worktree, strict ulimits) |
 | **File I/O** | Path scoping (one root directory, no `..`) |
-| **Money or irreversible actions** | `requires_confirmation=True` + `@approval(type="required")` (see [Human Approval](/runtime/human-approval)) |
+| **Money or irreversible actions** | `requires_confirmation=True` + `@approval(type="required")` (see [Human Approval](/features/human-approval)) |
 
 [Coda](/tutorials/coda/next-steps) uses a git worktree sandbox for code-writing tools. The Coder agent can write anything it likes, but only inside an isolated worktree. Main is never touched.
 
 ## Human approval
 
-The last layer. Some actions should never run unsupervised — refunds, deletes, prod deploys, anything irreversible. AgentOS pauses the run, surfaces the pending approval, resumes when a human signs off. Two patterns: `requires_confirmation` for the user asking the agent, `@approval` for a designated admin with policy authority. Full details on the [Human Approval](/runtime/human-approval) page.
+The last layer. Some actions should never run unsupervised — refunds, deletes, prod deploys, anything irreversible. AgentOS pauses the run, surfaces the pending approval, resumes when a human signs off. Two patterns: `requires_confirmation` for the user asking the agent, `@approval` for a designated admin with policy authority. Full details on the [Human Approval](/features/human-approval) page.
 
 ## Defaults
 
@@ -138,4 +138,4 @@ The last layer. Some actions should never run unsupervised — refunds, deletes,
 
 ## Next
 
-[Interfaces →](/runtime/interfaces)
+[Interfaces →](/features/interfaces)

@@ -1,6 +1,6 @@
 ---
-title: "AgentOS runtime"
-description: "Turn your agent into a horizontally scalable, authenticated production service."
+title: "Agent Runtime"
+description: "Run your agent as a stateless, authenticated, traced HTTP service."
 ---
 
 <div className="text-center text-3xl font-mono my-10">
@@ -9,7 +9,7 @@ description: "Turn your agent into a horizontally scalable, authenticated produc
   <span>Agent Server</span>
 </div>
 
-AgentOS runs your agents as a service: reachable over an API, durable across restarts, scaled across replicas, and authenticated per request.
+AgentOS runs your agents as a service. Reachable over an API, durable across restarts, scaled across replicas, and authenticated per request.
 
 ```python
 from agno.agent import Agent
@@ -55,44 +55,44 @@ The same `Agent(...)` runs in a script, a test, or an AgentOS service. AgentOS i
 
 | Concern | Page |
 |---------|------|
-| Run agents behind one HTTP API | [Serve as an API](/runtime/serve-as-api) |
-| Persist sessions, memory, knowledge, traces | [Storage](/runtime/storage) |
-| Give the agent knowledge, dependencies, and live sources | [Context](/runtime/context) |
-| Pause runs for confirmation or approval | [Human Approval](/runtime/human-approval) |
-| Trace every run and keep audit logs | [Observability](/runtime/observability) |
-| Authenticate, scope, and isolate every request | [Security & Auth](/runtime/security-and-auth) |
-| Meet users in Slack, Telegram, WhatsApp, the browser | [Interfaces](/runtime/interfaces) |
-| Run recurring and multi-step work | [Scheduling](/runtime/scheduling) |
-| Ship the service to production | [Deploying](/runtime/deploy) |
+| Run agents behind one HTTP API | [Serve as an API](/features/api) |
+| Persist sessions, memory, knowledge, traces | [Storage](/features/storage) |
+| Give the agent knowledge, dependencies, and live sources | [Context](/features/context) |
+| Pause runs for confirmation or approval | [Human Approval](/features/human-approval) |
+| Trace every run and keep audit logs | [Observability](/features/observability) |
+| Authenticate, scope, and isolate every request | [Security & Auth](/features/security-and-auth) |
+| Meet users in Slack, Telegram, WhatsApp, the browser | [Interfaces](/features/interfaces) |
+| Run recurring and multi-step work | [Scheduling](/features/scheduling) |
+| Ship the service to production | [Deploying](/features/deploy) |
 
 ## Explore
 
 <CardGroup cols={2}>
-  <Card title="Serve as an API" icon="server" href="/runtime/serve-as-api">
+  <Card title="Serve as an API" icon="server" href="/features/api">
     The HTTP endpoints AgentOS generates and how to add your own.
   </Card>
-  <Card title="Storage" icon="database" href="/runtime/storage">
+  <Card title="Storage" icon="database" href="/features/storage">
     Database backends and what gets stored.
   </Card>
-  <Card title="Context" icon="book" href="/runtime/context">
+  <Card title="Context" icon="book" href="/features/context">
     Knowledge, dependencies, and live data sources.
   </Card>
-  <Card title="Human Approval" icon="user-check" href="/runtime/human-approval">
+  <Card title="Human Approval" icon="user-check" href="/features/human-approval">
     Pause runs for confirmation, approval, or external systems.
   </Card>
-  <Card title="Observability" icon="chart-line" href="/runtime/observability">
+  <Card title="Observability" icon="chart-line" href="/features/observability">
     Tracing, run history, and audit logs in your own database.
   </Card>
-  <Card title="Security & Auth" icon="shield-halved" href="/runtime/security-and-auth">
+  <Card title="Security & Auth" icon="shield-halved" href="/features/security-and-auth">
     JWT validation, RBAC scopes, and per-request isolation.
   </Card>
-  <Card title="Interfaces" icon="comments" href="/runtime/interfaces">
+  <Card title="Interfaces" icon="comments" href="/features/interfaces">
     Slack, Telegram, WhatsApp, A2A, and AG-UI.
   </Card>
-  <Card title="Scheduling" icon="clock" href="/runtime/scheduling">
+  <Card title="Scheduling" icon="clock" href="/features/scheduling">
     In-process cron and multi-step workflows.
   </Card>
-  <Card title="Deploying" icon="rocket" href="/runtime/deploy">
+  <Card title="Deploying" icon="rocket" href="/features/deploy">
     Docker, Railway, AWS, GCP, and horizontal scaling.
   </Card>
 </CardGroup>
