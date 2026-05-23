@@ -1,45 +1,63 @@
 ---
 title: Agent SDK
-description: "Build agents, teams, and workflows in pure Python."
+description: "Build your agent platform in pure python."
 ---
 
-Agno gives you three primitives covering the spectrum of agentic tasks. Agents for autonomy, teams for coordination, workflows for deterministic step-by-step control.
+If you're building an agent platform, you need an SDK designed for long-running sessions.
 
-```python
-from agno.agent import Agent
-from agno.tools.yfinance import YFinanceTools
+Agno gives you three reliable primitives and a large set of capabilities you can attach to each.
 
-agent = Agent(
-    name="Finance Agent",
-    model="openai:gpt-5.4",
-    tools=[YFinanceTools()],
-    instructions="Fetch market data and produce a one-line take.",
-)
+You can build:
 
-agent.print_response("What's NVDA trading at today?")
-```
+1. Single-purpose agents with storage, memory, and knowledge. Great product copilots.
+2. Multi-agent teams, with each agent or sub-team bringing independent expertise.
+3. Step-based workflows, so you can orchestrate agents, teams, and vanilla Python functions into the perfect agentic pipeline.
 
-No new DSL, no YAML, just pure Python.
+Connect any agent to external tools and context providers. Agno comes with 100+ toolkits ready to use. Add session persistence and durability to any primitive with storage providers: any database, local folder, or cloud storage.
 
-## The primitives
+Add memory, learnings, and knowledge (vector search) for a more customized experience. With the [agno mcp](/coding-agents#option-1-add-the-docs-as-an-mcp-server) installed on your coding agent, you can build any agentic workflow imaginable.
+
+Everything is pure Python. No new DSL to learn, no YAML to manage.
+
+## Components
+
+Your agent platform is made of hundreds, sometimes thousands, of components. Each component combines:
+
+1. A primitive
+2. Its capabilities
+3. Its configuration
+
+### Primitives
 
 | Primitive | Use it to |
 |-----------|-----------|
-| [Agent](/agents/overview) | Build autonomous programs with a model, tools, and instructions |
-| [Team](/teams/overview) | Coordinate multiple agents to achieve complex tasks |
-| [Workflow](/workflows/overview) | Achieve deterministic output using step-based execution |
+| [Agent](/agents/overview) | Simple autonomous programs with a model, tools, and instructions |
+| [Team](/teams/overview) | Multiple agents working together to achieve complex tasks |
+| [Workflow](/workflows/overview) | Produce deterministic output through ordered steps |
 
-## What you can add
+### Capabilities
 
 | Capability | What it adds |
 |------------|--------------|
 | [Models](/models/overview) | 30+ providers behind one API |
 | [Tools](/tools/overview) | 100+ integrations and the ability to write your own |
+| [Multimodal](/multimodal/overview) | Image, audio, and video input and output |
+| [Storage](/storage/overview) | Session persistence and durability on any database |
 | [Memory](/memory/overview) | Per-user and per-session memory |
 | [Knowledge](/knowledge/concepts/overview) | RAG over documents, URLs, and databases |
-| [Reasoning](/reasoning/overview) | Built-in chain-of-thought and reasoning agents |
-| [Multimodal](/multimodal/overview) | Image, audio, and video input and output |
 | [Guardrails](/guardrails/overview) | Validate input and output |
 | [Human-in-the-Loop](/hitl/overview) | Pause runs for approval, input, or external execution |
 
-For the full SDK overview and capabilities table, see the [SDK Introduction](/sdk/introduction).
+### Build components three ways
+
+You build and manage components three ways. All three operate on the same components, stored in your AgentOS database, so a component is the same entity however you create it.
+
+1. **In code.** Define agents, teams, and workflows in pure Python with the SDK. Version controlled alongside the rest of your codebase.
+2. **In the no-code UI.** Build visually in [AgentOS Studio](/agent-os/studio/introduction). Drag components from the [Registry](/agent-os/studio/registry), wire them together, test in the [Control Plane](/agent-os/control-plane), and publish.
+3. **Through the API.** Use the [`/components` endpoints](/reference-api/schema/components/list-components) on your AgentOS to create, read, update, and version components programmatically. The same endpoints are available through the [AgentOS MCP](/agent-os/mcp/mcp), so a coding agent can build components for you.
+
+### Configuration and versions
+
+Every component carries a versioned configuration. You save a draft, test it, then publish. Each published version gets its own API endpoint. Set any version as **current** to make it the default for production, and roll back by setting an earlier version as current.
+
+This is what makes a platform manageable at scale. Tune a component's instructions, swap its model, or adjust its tools, ship it as a new version, and roll back in one call if it regresses. Versioned configs are also the foundation for an improvement loop: measure a component in production, propose a new config, publish it, and promote or roll back based on results.
