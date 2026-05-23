@@ -1,17 +1,11 @@
 ---
 title: "Agent Runtime"
-description: "Run your agent as a stateless, authenticated, traced HTTP service."
+description: "Run your agents as a stateless, secure, observable service."
 ---
 
-<div className="text-center text-3xl font-mono my-10">
-  <span>Agent Runtime</span>
-  <span className="mx-3 text-orange-500">=</span>
-  <span>Agent Server</span>
-</div>
+AgentOS runs your platform as a secure, scalable service. Reachable over an API, durable across restarts, scaled across replicas, and authenticated per request.
 
-AgentOS runs your agents as a service. Reachable over an API, durable across restarts, scaled across replicas, and authenticated per request.
-
-```python
+```python Minimal AgentOS
 from agno.agent import Agent
 from agno.db.postgres import PostgresDb
 from agno.models.openai import OpenAIResponses
@@ -28,7 +22,7 @@ if __name__ == "__main__":
     agent_os.serve(app="my_app:app", reload=False)
 ```
 
-This gives you a production-ready agent server. Persistent sessions, an HTTP API with streaming, JWT auth, tracing, and a scheduler, all from one stateless process.
+This gives you a production-grade agent server. Persistent sessions, streaming, JWT auth, tracing, and a scheduler, all using a stateless FastAPI process that you can scale horizontally.
 
 ## What the runtime gives you
 
@@ -37,7 +31,7 @@ The runtime covers the ground between your agent code and a production service:
 | Concern | How AgentOS handles it |
 |---------|------------------------|
 | HTTP API | Auto-generated endpoints for every registered agent, team, and workflow |
-| State | Sessions and memory persisted to your `db` |
+| Persistence | Sessions and memory persisted to your `db` |
 | Streaming | SSE on every run endpoint; tokens and tool calls stream as they happen |
 | Auth | JWT validation with RBAC scopes built-in |
 | Scheduling | In-process cron that polls the database and fires due jobs |
@@ -45,25 +39,15 @@ The runtime covers the ground between your agent code and a production service:
 | Interfaces | Slack, Telegram, WhatsApp, A2A, AG-UI |
 | Human in the loop | Pause runs for user confirmation, admin approval, or external execution |
 
-The same `Agent(...)` runs in a script, a test, or an AgentOS service. AgentOS is stateless: state lives in `db`, so you scale horizontally by adding replicas.
+The same `Agent(...)` runs in a script, a test, or an AgentOS service.
+
+AgentOS is stateless: state lives in `db`, so you scale horizontally by adding replicas.
 
 <Note>
-  AgentOS can also serve agents built with the Claude Agent SDK, LangGraph, and DSPy. See [Multi-framework support](/agent-os/multi-framework/overview).
+  AgentOS can also serve agents built with the Claude Agent SDK, LangGraph, and DSPy.
+
+  See [Multi-framework support](/agent-os/multi-framework/overview).
 </Note>
-
-## The primitives
-
-| Concern | Page |
-|---------|------|
-| Run agents behind one HTTP API | [Serve as an API](/features/api) |
-| Persist sessions, memory, knowledge, traces | [Storage](/features/storage) |
-| Give the agent knowledge, dependencies, and live sources | [Context](/features/context) |
-| Pause runs for confirmation or approval | [Human Approval](/features/human-approval) |
-| Trace every run and keep audit logs | [Observability](/features/observability) |
-| Authenticate, scope, and isolate every request | [Security & Auth](/features/security-and-auth) |
-| Meet users in Slack, Telegram, WhatsApp, the browser | [Interfaces](/features/interfaces) |
-| Run recurring and multi-step work | [Scheduling](/features/scheduling) |
-| Ship the service to production | [Deploying](/features/deploy) |
 
 ## Explore
 
@@ -77,13 +61,13 @@ The same `Agent(...)` runs in a script, a test, or an AgentOS service. AgentOS i
   <Card title="Context" icon="book" href="/features/context">
     Knowledge, dependencies, and live data sources.
   </Card>
-  <Card title="Human Approval" icon="user-check" href="/features/human-approval">
+  <Card title="Human in the loop" icon="user-check" href="/features/human-approval">
     Pause runs for confirmation, approval, or external systems.
   </Card>
   <Card title="Observability" icon="chart-line" href="/features/observability">
     Tracing, run history, and audit logs in your own database.
   </Card>
-  <Card title="Security & Auth" icon="shield-halved" href="/features/security-and-auth">
+  <Card title="Security and Auth" icon="shield-halved" href="/features/security-and-auth">
     JWT validation, RBAC scopes, and per-request isolation.
   </Card>
   <Card title="Interfaces" icon="comments" href="/features/interfaces">
@@ -97,7 +81,7 @@ The same `Agent(...)` runs in a script, a test, or an AgentOS service. AgentOS i
   </Card>
 </CardGroup>
 
-## Developer Resources
+## Developer resources
 
 - [Agent platform](/agent-platform/overview)
 - [Multi-framework support](/agent-os/multi-framework/overview)
