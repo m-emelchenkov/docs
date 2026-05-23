@@ -3,7 +3,7 @@ title: Agent SDK
 description: "Build your agent platform in pure Python."
 ---
 
-Agno is a complete SDK for building your agent platform in pure Python. You get three primitives to build with and a large set of capabilities you can attach to each. A primitive + capabilities + configuration becomes a **component**. The building block of your platform.
+Agno is a Python SDK for building multi-agent systems. It comes with three primitives to build with and a large set of capabilities you can attach to each. A primitive + capabilities becomes a component. Components are the building blocks of your agent platform.
 
 Everything is pure Python. No new DSL to learn, no YAML to manage.
 
@@ -12,8 +12,8 @@ Everything is pure Python. No new DSL to learn, no YAML to manage.
 | Primitive | Description |
 |-----------|-----------|
 | [Agent](/agents/overview) | Simple autonomous programs with a model, tools, and instructions |
-| [Team](/teams/overview) | Multiple agents working together to achieve complex tasks |
-| [Workflow](/workflows/overview) | Produce deterministic output through ordered steps |
+| [Team](/teams/overview) | Multiple agents working together as a team |
+| [Workflow](/workflows/overview) | Step-based workflow orchestration for deterministic output |
 
 ## Capabilities
 
@@ -61,16 +61,24 @@ Everything is pure Python. No new DSL to learn, no YAML to manage.
 
 A primitive + capabilities + configuration becomes a **component**.
 
-Components are the building block of your agent platform. You can create components in code, through a no-code UI or via the AgentOS API. Components created in code are final. Components created via the API or no-code UI can be versioned, checkpointed and reverted as needed. The Components API lets you build, version, and operate components over HTTP.
+Components are the building blocks of your agent platform. You can create components in code, through a no-code UI or via the AgentOS API. Components created in code are final. Components created via the API or no-code UI can be versioned, checkpointed and reverted as needed. The `/components` API lets you build, version, and operate components over HTTP.
 
-Here's how you do each:
-
-1. **In code.** Define agents, teams, and workflows using the SDK. Version controlled alongside the rest of your codebase.
-2. **In the no-code UI.** Build visually in [AgentOS Studio](/agent-os/studio/introduction). Drag components from the [Registry](/agent-os/studio/registry), wire them together, test in the [Control Plane](/agent-os/control-plane), and publish.
-3. **Through the API.** Use the [`/components` endpoints](/reference-api/schema/components/list-components) on your AgentOS to create, read, update, and version components programmatically. The same endpoints are available through the [AgentOS MCP](/agent-os/mcp/mcp), so a coding agent can build components for you.
-
-### Versioned Components
+### Versioned components
 
 When components are created via the API, they carry a versioned configuration. Published versions are immutable, and each gets its own endpoint so you can pin clients to a specific version. A `current` pointer decides which version your production API serves: set it to a newer version to promote, or an earlier one to roll back.
 
 This is what makes a platform manageable at scale. Tune a component's instructions, swap its model, or adjust its tools, ship it as a new version, and roll back in one call if it regresses. Versioned configs are also the foundation for an improvement loop: measure a component in production, propose a new config, publish it, and promote or roll back based on results.
+
+## Learn more
+
+<CardGroup cols={3}>
+  <Card title="SDK Introduction" icon="rocket" href="/sdk/introduction">
+    Get started with the Agent SDK.
+  </Card>
+  <Card title="Build Agents" icon="users" href="/agents/overview">
+    Build Agents using the Agent SDK.
+  </Card>
+  <Card title="Build Agent Platform" icon="layer-group" href="/agent-platform/overview">
+    Build an Agent Platform using the Agent SDK.
+  </Card>
+</CardGroup>
