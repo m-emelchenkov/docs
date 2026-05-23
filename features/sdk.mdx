@@ -3,11 +3,7 @@ title: Agent SDK
 description: "Build your agent platform in pure Python."
 ---
 
-Agno gives you three primitives and a large set of capabilities you can attach to each.
-
-Add session persistence and durability using storage providers (databases, files). Add memory, knowledge, and learning so your agents remember conversations, ground answers in your data, and improve over time. Connect agents to external tools using MCP, context providers, or 100+ built-in toolkits.
-
-With the [agno mcp](/coding-agents#option-1-add-the-docs-as-an-mcp-server) installed, you can build any agentic workflow imaginable.
+Agno is a complete SDK for building your agent platform in pure Python. You get three primitives to build with and a large set of capabilities you can attach to each. A primitive + capabilities + configuration becomes a **component**. The building block of your platform.
 
 Everything is pure Python. No new DSL to learn, no YAML to manage.
 
@@ -63,9 +59,9 @@ Everything is pure Python. No new DSL to learn, no YAML to manage.
 
 ## Components
 
-A primitive + capabilities + configuration becomes a component in your agent platform.
+A primitive + capabilities + configuration becomes a **component**.
 
-You can create components in code, through a no-code UI or via the AgentOS API. Components created in code are single-version. But components created via the API or no-code UI can be versioned, checkpointed and reverted as needed. The Components API lets you build, version, and operate components over HTTP.
+Components are the building block of your agent platform. You can create components in code, through a no-code UI or via the AgentOS API. Components created in code are final. Components created via the API or no-code UI can be versioned, checkpointed and reverted as needed. The Components API lets you build, version, and operate components over HTTP.
 
 Here's how you do each:
 
@@ -73,7 +69,7 @@ Here's how you do each:
 2. **In the no-code UI.** Build visually in [AgentOS Studio](/agent-os/studio/introduction). Drag components from the [Registry](/agent-os/studio/registry), wire them together, test in the [Control Plane](/agent-os/control-plane), and publish.
 3. **Through the API.** Use the [`/components` endpoints](/reference-api/schema/components/list-components) on your AgentOS to create, read, update, and version components programmatically. The same endpoints are available through the [AgentOS MCP](/agent-os/mcp/mcp), so a coding agent can build components for you.
 
-### Configuration and versions
+### Versioned Components
 
 When components are created via the API, they carry a versioned configuration. Published versions are immutable, and each gets its own endpoint so you can pin clients to a specific version. A `current` pointer decides which version your production API serves: set it to a newer version to promote, or an earlier one to roll back.
 
