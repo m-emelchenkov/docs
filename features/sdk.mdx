@@ -1,11 +1,9 @@
 ---
 title: Agent SDK
-description: "Build your agent platform in pure Python."
+description: "Build your agent platform in pure python."
 ---
 
-Agno is a Python SDK for building multi-agent systems. It comes with three primitives to build with and a large set of capabilities you can attach to each. A primitive + capabilities becomes a component. Components are the building blocks of your agent platform.
-
-Everything is pure Python. No new DSL to learn, no YAML to manage.
+Agno is a python SDK for building multi-agent systems. It comes with three agentic primitives (agents, teams and workflows) and a large set of capabilities you can attach to each (storage, memory, knowledge, learnings, compression). A primitive + capabilities becomes a component in your agent platform. Everything is pure Python. No new DSL to learn, no YAML to manage.
 
 ## Primitives
 
@@ -59,7 +57,7 @@ Everything is pure Python. No new DSL to learn, no YAML to manage.
 
 ## Components
 
-A primitive + capabilities + configuration becomes a **component**.
+A primitive + capabilities + configuration becomes a live **component** of your agent platform.
 
 Components are the building blocks of your agent platform. You can create components in code, through a no-code UI or via the AgentOS API. Components created in code are final. Components created via the API or no-code UI can be versioned, checkpointed and reverted as needed. The `/components` API lets you build, version, and operate components over HTTP.
 

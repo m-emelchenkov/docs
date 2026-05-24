@@ -1,11 +1,16 @@
 ---
 title: "Agent Runtime"
-description: "Run your agents as a stateless, secure service."
+description: "Run your agents as a secure, stateless service."
 ---
 
-You build your agents, teams, and workflows with the Agent SDK. AgentOS takes it live by serving it behind an HTTP API.
+We build our agents, teams, and workflows with the Agno SDK and take them live using AgentOS. What does it mean to take an agent live? We should be able to:
+1. Run the agent on demand, via an API request, or via interfaces like Slack, Telegram, and others.
+2. Maintain long-running sessions that last from minutes to days to weeks.
+3. Be durable across restarts, replicas, and infrastructure failures.
+4. Be secure against unauthenticated access.
+5. Monitor every run and action taken.
 
-AgentOS runs your platform as a secure, scalable service. Reachable over an API, durable across restarts, scaled across replicas, and authenticated per request.
+Agno's agent runtime, AgentOS, takes agents, teams, and workflows built with the Agno SDK or any other framework and runs them as a secure, scalable service.
 
 Here's the smallest possible AgentOS example:
 
@@ -26,7 +31,7 @@ if __name__ == "__main__":
     agent_os.serve(app="my_app:app", reload=False)
 ```
 
-This script starts a production-grade agent server. Persistent sessions, streaming, JWT auth, tracing, and a scheduler, all built on a stateless FastAPI process that you can scale horizontally.
+This script starts a FastAPI application that you can scale horizontally. Persistent sessions, streaming, JWT auth, tracing, and a scheduler, all come built-in.
 
 ## What the runtime gives you
 
