@@ -1,9 +1,9 @@
 ---
 title: Agent API
-description: "One HTTP API for every agent, team, and workflow in your AgentOS."
+description: "An HTTP API and MCP server for every agent, team, and workflow in your AgentOS."
 ---
 
-Shipping an agent needs more than a `/run` endpoint. You need endpoints to:
+Shipping an agent needs more than a `/run` endpoint. A live agent needs an API that can:
 
 - Run agents in streaming mode and as background jobs
 - Manage the sessions, memory, and learnings your agents accumulate
@@ -22,6 +22,11 @@ AgentOS generates all of this from your registered agents, teams, and workflows 
   className="w-full rounded-lg"
   src="/videos/agentos-api-scroll.mp4"
 />
+
+
+## Interfaces
+
+Agents need to be reachable over more than one interface. You create an agent once and AgentOS exposes it over different interfaces. The same agent answers a REST call, holds a WebSocket session, responds to a Slack event, and shows up as a tool in an MCP client.
 
 ## The surface area
 
@@ -84,7 +89,3 @@ The agent is a regular Python object. Call `agent.run(...)` or `await agent.arun
 ## Auth
 
 When `authorization=True`, every endpoint except `/health` and `/openapi.json` requires a valid JWT in the `Authorization: Bearer ...` header. AgentOS validates the token, extracts claims, and applies RBAC scopes per request before any agent code runs. See [Security & Auth](/features/security-and-auth) for the full model.
-
-## Next
-
-[Storage →](/features/storage)
