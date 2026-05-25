@@ -64,18 +64,13 @@ session:
       domain_config:
         display_name: Production sessions
 
-# Configure Evals page (supports both global and per-database available models)
+# Configure Evals page
 evals:
   display_name: "Evaluations"
-  available_models:
-    - "openai:gpt-4"
-    - "anthropic:claude-sonnet-4"
   dbs:
     - db_id: db-0001
       domain_config:
         display_name: Production evals
-        available_models:
-          - "openai:gpt-4o-mini"
 ```
 
 2. Pass the configuration to your AgentOS using the `config` parameter:

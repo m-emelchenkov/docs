@@ -8,10 +8,11 @@ description: "Manage, customize, and troubleshoot your Railway deployment."
 
 | Task | Command |
 | :--- | :--- |
-| Deploy updates | `railway up --service agent-os -d` |
+| Deploy updates | `./scripts/railway/redeploy.sh` |
 | View logs | `railway logs --service agent-os` |
 | Open dashboard | `railway open` |
-| Set env variable | `railway variables set KEY=value` |
+| Sync env variables | `./scripts/railway/env-sync.sh` |
+| Set single variable | `railway variables set KEY=value` |
 | Stop service | `railway down --service agent-os` |
 | Stop database | `railway down --service pgvector` |
 | Scale replicas | Edit `railway.json`: `{"deploy": {"numReplicas": 2}}` |
@@ -30,7 +31,7 @@ from db import get_postgres_db
 my_agent = Agent(
     id="my-agent",
     name="My Agent",
-    model=OpenAIResponses(id="gpt-5.2"),
+    model=OpenAIResponses(id="gpt-5.5"),
     db=get_postgres_db(),
     instructions="You are a helpful assistant.",
 )
@@ -42,11 +43,11 @@ from agents.my_agent import my_agent
 
 agent_os = AgentOS(
     name="AgentOS",
-    agents=[knowledge_agent, mcp_agent, my_agent],
+    agents=[web_search, code_search, my_agent],
 )
 ```
 
-Restart: `docker compose restart`
+Redeploy: `./scripts/railway/redeploy.sh`
 
   </Accordion>
 
@@ -67,29 +68,9 @@ my_agent = Agent(
 
   </Accordion>
 
-  <Accordion title="Load knowledge">
-
-  Load documents for the Knowledge Agent:
-```bash
-# Local
-docker exec -it agentos-api python -m agents.knowledge_agent
-
-# Railway
-railway run python -m agents.knowledge_agent
-```
-
-  Try it:
-```
-What is Agno?
-How do I create my first agent?
-What documents are in your knowledge base?
-```
-
-  </Accordion>
-
   <Accordion title="Use a different model">
 
-  Add your API key to `.env` and update your agent:
+  Add your API key to `.env.production` and update your agent:
 ```python
 from agno.models.anthropic import Claude
 
@@ -98,10 +79,11 @@ my_agent = Agent(
 )
 ```
 
-  Add `anthropic` to `pyproject.toml` and regenerate requirements:
+  Add `anthropic` to `pyproject.toml` and redeploy:
 ```bash
-./scripts/generate_requirements.sh
-docker compose up -d --build
+./scripts/generate_requirements.sh upgrade
+./scripts/railway/env-sync.sh
+./scripts/railway/redeploy.sh
 ```
 
   </Accordion>
@@ -109,8 +91,25 @@ docker compose up -d --build
   <Accordion title="Add dependencies">
 
 1. Edit `pyproject.toml`
-2. Regenerate requirements: `./scripts/generate_requirements.sh`
-3. Rebuild: `docker compose up -d --build`
+2. Regenerate requirements: `./scripts/generate_requirements.sh upgrade`
+3. Redeploy: `./scripts/railway/redeploy.sh`
+
+  </Accordion>
+
+  <Accordion title="Enable Slack">
+
+  Set both variables in `.env.production`:
+```bash
+SLACK_BOT_TOKEN=xoxb-...
+SLACK_SIGNING_SECRET=...
+```
+
+  Sync and redeploy:
+```bash
+./scripts/railway/env-sync.sh
+```
+
+  The interface activates automatically. See [Slack setup](/deploy/interfaces/slack/overview) for creating the Slack app.
 
   </Accordion>
 </AccordionGroup>
@@ -138,13 +137,18 @@ python -m app.main
 | Variable | Required | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `OPENAI_API_KEY` | Yes | — | OpenAI API key |
+| `RUNTIME_ENV` | No | `prd` | `dev` enables hot-reload and disables JWT |
+| `JWT_VERIFICATION_KEY` | Production | — | Public key from os.agno.com |
+| `AGENTOS_URL` | No | `http://127.0.0.1:8000` | Scheduler base URL |
+| `SLACK_BOT_TOKEN` | No | — | Enable Slack interface |
+| `SLACK_SIGNING_SECRET` | No | — | Enable Slack interface |
+| `PARALLEL_API_KEY` | No | — | Parallel SDK key for WebSearch |
 | `PORT` | No | `8000` | API server port |
 | `DB_HOST` | No | `localhost` | Database host |
 | `DB_PORT` | No | `5432` | Database port |
 | `DB_USER` | No | `ai` | Database user |
 | `DB_PASS` | No | `ai` | Database password |
 | `DB_DATABASE` | No | `ai` | Database name |
-| `RUNTIME_ENV` | No | `prd` | Set to `dev` for auto-reload |
 
 ## Troubleshooting
 
@@ -152,8 +156,8 @@ python -m app.main
   <Accordion title="'railway: command not found'">
     Install: `brew install railway` (Mac) or `npm install -g @railway/cli`
   </Accordion>
-  <Accordion title="Deployment fails">
-    Run `railway init` first, then `./scripts/railway_up.sh` again.
+  <Accordion title="First deploy fails (JWT)">
+    Expected. Get your verification key from os.agno.com, add to `.env.production`, then run `./scripts/railway/env-sync.sh`.
   </Accordion>
   <Accordion title="Database timeout">
     PostgreSQL takes ~30s to start. Check: `railway logs --service pgvector`

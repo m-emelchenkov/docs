@@ -1,0 +1,94 @@
+---
+title: "LLM as judge"
+description: "Score model outputs against a rubric. The same machinery as labeling, applied to evaluation."
+---
+
+A judge is a classifier whose input is a `(prompt, response)` pair and whose output is a score. Constrain the score with `int` and `ge`/`le` so it stays on scale.
+
+```python
+from agno.agent import Agent
+from agno.models.google import Gemini
+from pydantic import BaseModel, Field
+
+
+class Score(BaseModel):
+    overall: int = Field(
+        ..., ge=1, le=5, description="Overall quality, 5 is excellent"
+    )
+
+
+agent = Agent(
+    model=Gemini(id="gemini-3.5-flash"),
+    instructions=(
+        "Score the response on overall quality from 1 (unusable) to 5 "
+        "(excellent). Use the full scale. Reserve 5 for genuinely "
+        "excellent responses."
+    ),
+    output_schema=Score,
+)
+
+
+def build_input(prompt: str, response: str) -> str:
+    return f"Prompt:\n{prompt}\n\nResponse:\n{response}"
+
+
+prompt = "Explain why the sky is blue, in one sentence."
+result = agent.run(build_input(prompt, "It just is.")).content
+# Score(overall=1)
+```
+
+## Add a rationale
+
+A free-text rationale makes the score auditable and surfaces rubric drift.
+
+```python
+from pydantic import BaseModel, Field
+
+
+class Score(BaseModel):
+    overall: int = Field(..., ge=1, le=5, description="Overall quality")
+    rationale: str = Field(..., description="Why this score, citing the response")
+```
+
+Keep the score field before the rationale so the model commits to a number, then explains it.
+
+## Multi-dimension rubric
+
+Score each dimension independently, then an overall. Independent fields stop one weak dimension from dragging the rest.
+
+```python
+from pydantic import BaseModel, Field
+
+
+class RubricScore(BaseModel):
+    correctness: int = Field(..., ge=1, le=5, description="Factually correct")
+    completeness: int = Field(..., ge=1, le=5, description="Covers what was asked")
+    clarity: int = Field(..., ge=1, le=5, description="Easy to follow")
+    concision: int = Field(..., ge=1, le=5, description="No padding")
+    overall: int = Field(..., ge=1, le=5, description="Holistic quality")
+```
+
+## Picking the shape
+
+| You need | Schema |
+|----------|--------|
+| One quality number | `int` with `ge=1, le=5` |
+| Number plus justification | Add a `rationale` field after the score |
+| Per-criterion breakdown | One bounded `int` field per dimension |
+| A vs B instead of a score | [Preference data](/use-cases/data-labeling/preference-data) |
+
+## Relationship to evals
+
+This is the same primitive as single-label classification, pointed at model outputs instead of raw data. When the judge is the deliverable, it lives here. When it scores a system under test, see [Evals](/evals/overview).
+
+## Next steps
+
+| Task | Guide |
+|------|-------|
+| Rank two responses | [Preference data](/use-cases/data-labeling/preference-data) |
+| Reduce single-model bias | [Quality pipeline](/use-cases/data-labeling/quality-pipeline) |
+
+## Developer Resources
+
+- [LLM-as-judge cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_17_llm_as_judge)
+- [Evals](/evals/overview)

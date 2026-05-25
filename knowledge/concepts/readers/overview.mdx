@@ -48,6 +48,7 @@ Document(
 | `WebsiteReader` | Crawl websites recursively |
 | `WebSearchReader` | Web search results |
 | `FirecrawlReader` | Web scraping via Firecrawl API |
+| `LLMsTxtReader` | Read `llms.txt` files |
 
 ## Using Readers with Knowledge
 
@@ -152,6 +153,16 @@ reader = PDFReader(
 ```
 
 See [Chunking](/knowledge/concepts/chunking/overview) for available strategies.
+
+## Restricting URL Fetches
+
+By default, a URL-fetching reader will fetch any URL passed to it. Use `allowed_hosts` to restrict the reader to a fixed hostname allowlist. URLs outside the list are skipped and return no documents. Matching is case-insensitive and applies to the whole hostname, so list every subdomain you want to permit.
+
+```python
+reader = WebsiteReader(allowed_hosts=["docs.agno.com"])
+```
+
+`WebsiteReader`, `WebSearchReader`, and `LLMsTxtReader` also re-check the allowlist on each redirect, so an allowed host can't redirect to a blocked one. `FirecrawlReader` and `DoclingReader` validate the initial URL only.
 
 ## Error Handling
 

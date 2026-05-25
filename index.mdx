@@ -1,141 +1,42 @@
 ---
 title: Welcome to Agno
-description: The Runtime for Agentic Software
+description: '**Build, run, and manage your own agent platform.**'
 mode: wide
 ---
 
-**Agno turns agents into production software.**
+Agno lets you build, run, and manage your own agent platform.
 
-Build agents in any framework. Run them as a service. Ship to real users.
+Agents are becoming a core part of everyday product and operations. Workloads that were previously tedious and time-consuming are now one agent away. Agno lets you run everything in one place.
 
-<CodeGroup>
+From data labeling and document processing to product copilots, employee assistants, and agent-driven software. Agno's AgentOS productionizes agents built with any framework, any model, on any cloud.
 
-```python Agno SDK
-from agno.os import AgentOS
-from agno.agent import Agent
-from agno.db.sqlite import SqliteDb
-from agno.tools.workspace import Workspace
+<Frame caption="Your AgentOS Control Plane">
+  <img
+    src="/images/demo-os.png"
+    alt="AgentOS Control Plane"
+    style={{ borderRadius: "0.5rem" }}
+  />
+</Frame>
 
-agent = Agent(
-    name="Agno Agent",
-    model="openai:gpt-5.4",
-    tools=[Workspace(".",
-        allowed=["read", "list", "search"],
-        confirm=["write", "edit", "delete", "shell"],
-    )],
-)
+## Agno Agent Platform
 
-agent_os = AgentOS(
-    agents=[agent],
-    tracing=True,
-    db=SqliteDb(db_file="tmp/agentos.db"),
-)
-app = agent_os.get_app()
-```
+1. Build agents using any framework or the Agno SDK.
+2. Run agents as a service with tracing, scheduling, RBAC, and audit trails.
+3. Manage everything using a unified control plane.
 
-```python Claude Agent SDK
-from agno.agents.claude import ClaudeAgent
-from agno.db.sqlite import SqliteDb
-from agno.os import AgentOS
+Your platform runs in your cloud. Your data stays in your database. You log and store sessions, memory, and traces in your own database, then use that data to auto-improve your agents.
 
-agent = ClaudeAgent(
-    name="Claude Agent",
-    model="claude-opus-4-7",
-    allowed_tools=["Read", "Bash"],
-    permission_mode="acceptEdits",
-)
+**Here's how teams are using Agno:**
 
-agent_os = AgentOS(
-    agents=[agent],
-    tracing=True,
-    db=SqliteDb(db_file="tmp/agentos.db"),
-)
-app = agent_os.get_app()
-```
+- **Product teams** use Agno to build in-product agents and chat copilots. Many power their entire product using agents running on AgentOS.
+- **ML teams** use Agno to label text, image, audio and video data. Agno is natively typesafe and multi-modal, making it a natural fit for data labeling, extraction and classification.
+- **AI teams** use Agno to generate synthetic data and preference pairs for training and evals. Automating document processing, knowledge organization, and eval generation workloads using Agno.
+- **Data Science teams** use Agno for data enrichment, segmentation, and training data curation.
+- **Data Engineering teams** are automating data quality audits, failure log analysis and weekly reports.
 
-```python LangGraph
-from agno.agents.langgraph import LangGraphAgent
-from agno.db.sqlite import SqliteDb
-from agno.os import AgentOS
-from langchain_openai import ChatOpenAI
-from langgraph.graph import MessagesState, StateGraph
+Everything runs on your infrastructure, managed through a beautiful UI.
 
-def chatbot(state: MessagesState):
-    return {"messages": [ChatOpenAI(model="gpt-5.4").invoke(state["messages"])]}
+## Get started
 
-graph = StateGraph(MessagesState)
-graph.add_node("chatbot", chatbot)
-graph.set_entry_point("chatbot")
-compiled = graph.compile()
-
-agent = LangGraphAgent(
-    name="LangGraph Chatbot",
-    graph=compiled,
-)
-
-agent_os = AgentOS(
-    agents=[agent],
-    tracing=True,
-    db=SqliteDb(db_file="tmp/agentos.db"),
-)
-app = agent_os.get_app()
-```
-
-```python DSPy
-import dspy
-from agno.agents.dspy import DSPyAgent
-from agno.db.sqlite import SqliteDb
-from agno.os import AgentOS
-
-dspy.configure(lm=dspy.LM("openai/gpt-5.4"))
-
-agent = DSPyAgent(
-    name="DSPy Assistant",
-    program=dspy.ChainOfThought("question -> answer"),
-)
-
-agent_os = AgentOS(
-    agents=[agent],
-    tracing=True,
-    db=SqliteDb(db_file="tmp/agentos.db"),
-)
-app = agent_os.get_app()
-```
-
-</CodeGroup>
-
-20 lines of code and you have a FastAPI backend with 50+ endpoints, persisted sessions, tracing, scheduling and RBAC. Interact using the AgentOS UI, Slack, Discord or build a product on top.
-
-## Three layers, one architecture
-
-| Layer | Use it to | What it does |
-|-------|------|--------------|
-| **SDK** | Build | Define agents, teams, and workflows with memory, knowledge, guardrails, and 100+ integrations. |
-| **Runtime** | Run | Secure, stateless FastAPI backend with sessions, scheduling, and interfaces. |
-| **Control Plane** | Manage | Monitor and operate your system from the [AgentOS UI](https://os.agno.com). |
-
-## What AgentOS gives you
-
-- [**Production API.**](/runtime/serve-as-api) 50+ endpoints with SSE and websockets to build your product on.
-- [**Storage.**](/runtime/storage) Store sessions, memory, knowledge, and traces in your database.
-- [**Context.**](/runtime/context) Navigate live context across Slack, Drive, MCP, and custom sources.
-- [**Human approval.**](/runtime/human-approval) Pause runs for user confirmation, admin approval, or external execution.
-- [**Observability.**](/runtime/observability) OpenTelemetry tracing, run history, and audit logs out of the box.
-- [**Security & auth.**](/runtime/security-and-auth) JWT-based RBAC and multi-user, multi-tenant isolation.
-- [**Interfaces.**](/runtime/interfaces) Slack, Telegram, WhatsApp, Discord, AG-UI, or roll your own.
-- [**Scheduling.**](/runtime/scheduling) Cron-based scheduling and background jobs without any external infra.
-- [**Deploy.**](/runtime/deploy) Docker, Railway, AWS, GCP. Any container host works.
-
-## Pick a path
-
-<CardGroup cols={1}>
-  <Card title="Build your first agent" icon="bolt" iconType="duotone" href="/first-agent">
-    Spin up an agent with memory and tools in 20 lines of code.
-  </Card>
-  <Card title="Build a real product" icon="rocket-launch" iconType="duotone" href="/tutorials/pick-a-template">
-    Three production templates (Scout, Dash, Coda) you can deploy today.
-  </Card>
-  <Card title="Understand the runtime" icon="cubes" iconType="duotone" href="/runtime/overview">
-    Why AgentOS exists and the work it handles for you.
-  </Card>
-</CardGroup>
+- [Build your first agent →](/first-agent)
+- [Build an agent platform managed entirely by claude code →](/agent-platform/overview)

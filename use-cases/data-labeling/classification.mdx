@@ -1,0 +1,142 @@
+---
+title: "Classification and span labeling"
+description: "Assign one label, a set of labels, a taxonomy path, or marked spans."
+---
+
+Classification is extraction where the schema is a closed set. Use a `Literal` for one label, a `List[Literal]` for many.
+
+```python
+from typing import Literal
+
+from agno.agent import Agent
+from agno.models.google import Gemini
+from pydantic import BaseModel, Field
+
+
+class Classification(BaseModel):
+    label: Literal["positive", "negative", "neutral"] = Field(
+        ..., description="The assigned sentiment label"
+    )
+
+
+agent = Agent(
+    model=Gemini(id="gemini-3.5-flash"),
+    instructions="You classify product reviews by sentiment.",
+    output_schema=Classification,
+)
+
+result = agent.run("It works as described, nothing special.").content
+# Classification(label='neutral')
+```
+
+The `Literal` constrains the model to the closed set. There is no invalid label to clean up downstream.
+
+## Multi-label
+
+A review can touch several aspects. Return any subset.
+
+```python
+from typing import List, Literal
+
+from pydantic import BaseModel, Field
+
+Aspect = Literal["food", "service", "value", "atmosphere", "cleanliness"]
+
+
+class Tagging(BaseModel):
+    tags: List[Aspect] = Field(
+        ..., description="Every aspect the reviewer commented on; empty if none"
+    )
+```
+
+## Hierarchical
+
+For a taxonomy, return the path instead of a flat label.
+
+```python
+from typing import List
+
+from pydantic import BaseModel, Field
+
+
+class HierarchicalTag(BaseModel):
+    parent: str = Field(..., description="Top-level category")
+    child: str = Field(..., description="Sub-category under the parent")
+
+
+class Tagging(BaseModel):
+    tags: List[HierarchicalTag]
+```
+
+## Span labeling
+
+Asking the model to count characters is unreliable. Have it return the exact substring and locate offsets in Python.
+
+```python
+from typing import List, Literal
+
+from agno.agent import Agent
+from agno.models.google import Gemini
+from pydantic import BaseModel, Field
+
+
+class Entity(BaseModel):
+    text: str = Field(..., description="Exact substring from the input")
+    label: Literal["PERSON", "ORG", "LOCATION", "DATE"]
+
+
+class Entities(BaseModel):
+    entities: List[Entity]
+
+
+agent = Agent(
+    model=Gemini(id="gemini-3.5-flash"),
+    instructions=(
+        "Extract all named entities. Return the exact substring as it "
+        "appears, with its label. Do not paraphrase or normalize."
+    ),
+    output_schema=Entities,
+)
+
+text = "On March 3rd, Sarah Johnson left Acme Corp to join Lumen Labs."
+result = agent.run(text).content
+
+for e in result.entities:
+    start = text.find(e.text)
+    print(e.label, e.text, start, start + len(e.text))
+```
+
+The same shape drives PII redaction: detect the spans, then replace each with its tag in post-processing.
+
+## Choosing the shape
+
+| You need | Schema |
+|----------|--------|
+| Exactly one label | `Literal[...]` |
+| Any subset of labels | `List[Literal[...]]` |
+| A taxonomy path | A model with `parent` / `child` |
+| Marked substrings | A model with `text` + `label`, offsets in Python |
+
+## Other modalities
+
+Image, audio, video, and document classification follow the same schema pattern with a different input argument. See [Multimodal inputs](/use-cases/data-labeling/multimodal-inputs).
+
+| Modality | Cookbook |
+|----------|----------|
+| Image | [image_classification](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_06_image_classification) |
+| Audio | [audio_classification](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_10_audio_classification) |
+| Video | [video_classification](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_13_video_classification) |
+| Document | [document_classification](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_15_document_classification) |
+
+## Next steps
+
+| Task | Guide |
+|------|-------|
+| Extract fields instead of labels | [Structured extraction](/use-cases/data-labeling/structured-extraction) |
+| Score outputs against a rubric | [LLM as judge](/use-cases/data-labeling/llm-as-judge) |
+| Add reviewer agreement | [Quality pipeline](/use-cases/data-labeling/quality-pipeline) |
+
+## Developer Resources
+
+- [Text classification cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_01_text_classification)
+- [Span labeling cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_04_text_span_labeling)

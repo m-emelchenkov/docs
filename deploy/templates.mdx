@@ -1,48 +1,74 @@
 ---
 title: "Templates"
-description: "Production-ready codebases for deploying AgentOS to your infrastructure."
+sidebarTitle: "Templates"
+description: "Agent platforms and pre-built apps. Clone, deploy, and iterate with coding agents."
 ---
 
-Templates are production-ready codebases you clone and build on top of. Each
-template includes AgentOS, PostgreSQL, and deployment scripts for your target
-platform.
+Clone a template, deploy to your cloud, and use coding agents like Claude Code to build and improve agents on top.
 
-## Starter
+## Agent Platforms
 
-Deploy a clean installation of AgentOS to your infrastructure.
+Infrastructure starters for building your own agents. Pick where you want to run, then add your agents on top.
 
 <CardGroup cols={3}>
   <Card title="Docker" icon="docker" href="/deploy/templates/docker/deploy">
-    Run AgentOS locally using Docker.
+    Run locally or self-host anywhere Docker runs.
   </Card>
   <Card title="Railway" icon="train" href="/deploy/templates/railway/deploy">
-    Deploy AgentOS to Railway.
+    One-click cloud deployment. Best for getting started.
   </Card>
   <Card title="AWS" icon="aws" href="/deploy/templates/aws/deploy">
-    Deploy AgentOS to ECS.
+    Full control with infrastructure-as-code.
   </Card>
 </CardGroup>
 
-## Pre-built Solutions
+| Platform | Best for | You manage | Cost |
+|----------|----------|------------|------|
+| Docker | Local dev, self-hosted production | Everything | Free |
+| Railway | Fast cloud deployment, small teams | Just code | ~$20/mo |
+| AWS | Enterprise deployments, full control | Infrastructure-as-code | ~$75/mo |
 
-Production-ready codebases with apps already wired up.
+## Apps
 
-<CardGroup cols={3}>
+Pre-built agent systems with self-learning, context retrieval, and production infrastructure already wired up. Clone the repo, configure your data sources, and you're running.
+
+<CardGroup cols={2}>
   <Card title="Dash" icon="chart-mixed" href="/deploy/templates/dash/overview">
-    Self-learning data agent.
+    **Self-learning data agent.** Connects to your databases, learns your schema, improves with every query.
   </Card>
   <Card title="Scout" icon="radar" href="/deploy/templates/scout/overview">
-    Self-managing context agent.
+    **Company intelligence agent.** Navigates Slack, Drive, and wikis to answer questions.
+  </Card>
+  <Card title="Coda" icon="code-branch" href="/deploy/templates/coda/overview">
+    **Code companion.** PR reviews, issue triage, architecture questions. Lives in Slack.
+  </Card>
+  <Card title="PAL" icon="brain" href="/deploy/templates/pal/overview">
+    **Personal agent that learns.** Knowledge base, wiki, and structured data that compounds.
   </Card>
   <Card title="Gcode" icon="code" href="/deploy/templates/gcode/overview">
-    Lightweight coding agent.
+    **Self-improving coding agent.** Persistent workspace, git-based isolation, full audit trail.
   </Card>
 </CardGroup>
 
-## Comparison
+## What's Included
 
-| Template | Best For | Benefits | Time |
-| :--- | :--- | :--- | :--- |
-| [Docker](/deploy/templates/docker/deploy) | Local development, testing, self-hosting | Develop locally or deploy to any platform that support docker | ~5 min |
-| [Railway](/deploy/templates/railway/deploy) | Quick production deployments, MVPs | Ship fast without managing infrastructure | ~10 min |
-| [AWS](/deploy/templates/aws/deploy) | Production at scale, enterprise | Production-grade reliability and enterprise controls | ~15 min |
+Each app ships with capabilities that typically take weeks to build:
+
+| Capability | What It Does |
+|------------|--------------|
+| **Self-learning** | Agent improves from feedback. Every conversation makes the next one better. |
+| **Context retrieval** | RAG, knowledge graphs, multi-source navigation. Grounded answers, not hallucinations. |
+| **Production infrastructure** | PostgreSQL, pgvector, webhook endpoints. Deploy to Docker, Railway, or AWS. |
+| **Interfaces** | Slack, Telegram, WhatsApp ready. Add more with a few lines of config. |
+
+## Improving Your Agents
+
+Each app includes tools for iterating on agent quality:
+
+| App | Improvement Tools |
+|-----|-------------------|
+| Dash | Automated improvement loop (`python -m evals improve`) |
+| Scout | Probe library with `/loop` support |
+| Coda | Eval suite for routing and synthesis |
+| PAL | Smoke tests and behavioral evals |
+| Gcode | LearningMachine for persistent context |

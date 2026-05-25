@@ -1,0 +1,56 @@
+---
+title: Thinking (Interactions)
+---
+
+## Code
+
+```python cookbook/90_models/google/gemini_interactions/thinking.py
+import asyncio
+
+from agno.agent import Agent
+from agno.models.google import GeminiInteractions
+
+agent = Agent(
+    model=GeminiInteractions(
+        id="gemini-3-flash-preview",
+        thinking_level="high",
+    ),
+    markdown=True,
+)
+
+if __name__ == "__main__":
+    agent.print_response(
+        "Solve: If a train travels at 60 mph for 2.5 hours, then at 80 mph for 1.5 hours, what is the total distance and average speed?"
+    )
+
+    asyncio.run(
+        agent.aprint_response(
+            "Explain why the sum of angles in a triangle is always 180 degrees.",
+            stream=True,
+        )
+    )
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your API key">
+    ```bash
+    export GOOGLE_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U "google-genai>=2.0" agno
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash
+    python cookbook/90_models/google/gemini_interactions/thinking.py
+    ```
+  </Step>
+</Steps>

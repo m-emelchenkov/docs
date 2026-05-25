@@ -1,0 +1,158 @@
+---
+title: Telegram Reference
+sidebarTitle: Reference
+description: Interface parameters, endpoints, and event handling for the Telegram interface.
+keywords: [telegram, reference, parameters, endpoints, events, api]
+---
+
+## Interface Parameters
+
+Pass one of `agent`, `team`, or `workflow` to the `Telegram` constructor.
+
+```python
+from agno.os.interfaces.telegram import Telegram
+
+Telegram(agent=my_agent, streaming=True, prefix="/telegram")
+```
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `agent` | `Optional[Agent]` | `None` | Agno `Agent` instance. |
+| `team` | `Optional[Team]` | `None` | Agno `Team` instance. |
+| `workflow` | `Optional[Workflow]` | `None` | Agno `Workflow` instance. |
+| `prefix` | `str` | `"/telegram"` | URL prefix for Telegram endpoints (e.g., `/telegram/webhook`). |
+| `tags` | `Optional[List[str]]` | `["Telegram"]` | FastAPI route tags for API documentation. |
+| `token` | `Optional[str]` | `None` | Bot token. Falls back to `TELEGRAM_TOKEN` environment variable. |
+| `streaming` | `bool` | `True` | Enable token-by-token streaming with live message edits. |
+| `show_reasoning` | `bool` | `False` | Send reasoning content as a blockquote message before the response. |
+| `reply_to_mentions_only` | `bool` | `True` | In groups, respond only to @mentions and replies to the bot. In DMs, always respond. |
+| `reply_to_bot_messages` | `bool` | `True` | Respond when users reply to the bot's own messages in groups. |
+| `start_message` | `str` | `"Hello! I'm ready..."` | Message sent for `/start` command. |
+| `help_message` | `str` | `"Send me text..."` | Message sent for `/help` command. |
+| `error_message` | `str` | `"Sorry, error..."` | Message sent when processing fails. |
+| `new_message` | `str` | `"New conversation..."` | Message sent for `/new` command (requires database). |
+| `commands` | `Optional[List[Dict]]` | See below | Bot commands to register. Each dict has `command` and `description` keys. |
+| `register_commands` | `bool` | `True` | Register commands with Telegram Bot API on first message. |
+| `quoted_responses` | `bool` | `False` | Bot replies quote the user's message (reply-to behavior). |
+
+**Default commands:**
+```python
+[
+    {"command": "start", "description": "Start the bot"},
+    {"command": "help", "description": "Show help"},
+    {"command": "new", "description": "Start a new conversation"},
+]
+```
+
+## Endpoints
+
+### `POST {prefix}/webhook`
+
+Receives Telegram updates (messages, edited messages, media).
+
+| Status | Response | Description |
+| --- | --- | --- |
+| **200** | `{"status": "processing"}` | Message accepted for background processing. |
+| **200** | `{"status": "duplicate"}` | Webhook retry detected (ignored). |
+| **200** | `{"status": "ignored"}` | Not a message event (callback query, etc.). |
+| **403** | Error | Invalid `X-Telegram-Bot-Api-Secret-Token` header. |
+| **500** | Error | Processing error or missing `TELEGRAM_TOKEN`. |
+
+### `GET {prefix}/status`
+
+Health check. Returns `{"status": "available"}`.
+
+## Security
+
+Webhook requests must include the `X-Telegram-Bot-Api-Secret-Token` header, validated against `TELEGRAM_WEBHOOK_SECRET_TOKEN` using constant-time comparison.
+
+**Development mode:** Set `APP_ENV=development` to bypass validation (logs a warning).
+
+## Message Processing
+
+| Step | Behavior |
+| --- | --- |
+| Deduplication | Updates tracked by `update_id` for 60 seconds. Retries ignored. |
+| Bot filtering | Messages from other bots ignored. |
+| Group filtering | When `reply_to_mentions_only=True`, only process @mentions and replies to the bot. |
+| Command handling | `/start`, `/help`, `/new` handled with configurable messages. |
+| Text cleanup | Bot mentions stripped from message text before passing to agent. |
+| Media processing | Photos, voice, audio, video, documents, stickers, animations downloaded (max 20 MB). |
+
+## Session Scope
+
+Session IDs are scoped to prevent cross-chat context leakage:
+
+| Chat Type | Session Scope Format |
+| --- | --- |
+| DMs, basic groups | `tg:{entity_id}:{chat_id}` |
+| Supergroup threads, forum topics | `tg:{entity_id}:{chat_id}:{message_thread_id}` |
+
+## Streaming Events
+
+When `streaming=True`, the interface dispatches real-time status updates:
+
+| Event | Display |
+| --- | --- |
+| `reasoning_started` | "Reasoning..." |
+| `tool_call_started` | "{ToolName}..." |
+| `tool_call_completed` | Status cleared |
+| `tool_call_error` | "{ToolName} failed" |
+| `run_content` | Accumulated content, edited every 1.0s |
+| `memory_update_started` | "Updating memory..." |
+
+**Workflow events:** Step names, loop iterations, and parallel execution status shown with indentation.
+
+**Rate limiting:** Respects Telegram's 429 `retry_after` field. Pauses edits during rate-limit periods.
+
+## Text Formatting
+
+Markdown is converted to Telegram HTML:
+
+| Markdown | Telegram HTML |
+| --- | --- |
+| `**bold**` | `<b>bold</b>` |
+| `*italic*` | `<i>italic</i>` |
+| `__underline__` | `<u>underline</u>` |
+| `~~strike~~` | `<s>strike</s>` |
+| `` `code` `` | `<code>code</code>` |
+| ` ```lang\ncode\n``` ` | `<pre><code class="language-lang">code</code></pre>` |
+| `> quote` | `<blockquote>quote</blockquote>` |
+| `[text](url)` | `<a href="url">text</a>` |
+| `- item` | `• item` |
+
+Messages exceeding 4096 characters are automatically split.
+
+## Media Support
+
+**Input (from users):**
+
+| Type | Converted To |
+| --- | --- |
+| Photos | `Image` |
+| Voice, Audio | `Audio` |
+| Video, Animation, Video Note | `Video` |
+| Documents | `File` |
+
+Max download size: 20 MB.
+
+**Output (from agent):** Images, audio, videos, and files sent via respective Telegram API methods.
+
+## Environment Variables
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `TELEGRAM_TOKEN` | Yes | Bot token from @BotFather. Can also pass via `token` parameter. |
+| `TELEGRAM_WEBHOOK_SECRET_TOKEN` | Production | Webhook validation secret. Bypassed when `APP_ENV=development`. |
+| `APP_ENV` | No | Set to `development` to bypass webhook secret validation. |
+
+## Developer Resources
+
+<CardGroup cols={2}>
+  <Card title="Telegram Guide" icon="book" href="/agent-os/interfaces/telegram/introduction">
+    Setup, code examples, and streaming behavior.
+  </Card>
+  <Card title="TelegramTools" icon="wrench" href="/tools/toolkits/social/telegram">
+    Toolkit for sending messages and media from agents.
+  </Card>
+</CardGroup>

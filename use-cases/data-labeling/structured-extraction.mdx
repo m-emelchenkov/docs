@@ -1,0 +1,123 @@
+---
+title: "Data extraction"
+description: "Extract typed Pydantic objects from text, images, audio, video, and PDF."
+---
+
+Define the schema, pass the input, get a validated object back.
+
+<Tip>
+Use a fast, low-cost model like `gemini-3.5-flash` for high-volume extraction.
+</Tip>
+
+```python
+from typing import Optional
+
+from agno.agent import Agent
+from agno.models.google import Gemini
+from pydantic import BaseModel, Field
+
+
+class Contact(BaseModel):
+    name: Optional[str] = Field(None, description="Full name as written")
+    email: Optional[str] = Field(None, description="Email address")
+    phone: Optional[str] = Field(None, description="Phone number, raw format")
+    company: Optional[str] = Field(None, description="Company or organization")
+    title: Optional[str] = Field(None, description="Job title")
+
+
+agent = Agent(
+    model=Gemini(id="gemini-3.5-flash"),
+    instructions=(
+        "Extract contact information from the input. Use exactly what the "
+        "text shows. If a field is missing, leave it null. Do not guess."
+    ),
+    output_schema=Contact,
+)
+
+result = agent.run(
+    "Hi - Sarah Johnson, VP of Marketing at Acme Corp. "
+    "sarah@acme.com / +1-555-0102."
+).content
+# Contact(name='Sarah Johnson', email='sarah@acme.com',
+#         phone='+1-555-0102', company='Acme Corp.', title='VP of Marketing')
+```
+
+> The hard part is getting missing fields as `null` instead of a hallucinated value.
+
+## Nested objects
+
+Lists of sub-objects work the same way. Define the inner model and reference it.
+
+```python
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
+
+
+class ActionItem(BaseModel):
+    owner: str = Field(..., description="Person responsible")
+    description: str = Field(..., description="What needs to be done")
+    due_date: Optional[str] = Field(None, description="Due date if stated")
+
+
+class Meeting(BaseModel):
+    action_items: List[ActionItem] = Field(default_factory=list)
+```
+
+Pass `output_schema=Meeting` and the agent returns a `Meeting` with a populated `action_items` list.
+
+## Per-field confidence
+
+When downstream needs to route uncertain fields to a human, wrap each value in a confidence carrier.
+
+```python
+from typing import Literal, Optional
+
+from pydantic import BaseModel
+
+Confidence = Literal["high", "medium", "low"]
+
+
+class ConfidentField(BaseModel):
+    value: Optional[str] = None
+    confidence: Confidence
+
+
+class Contact(BaseModel):
+    name: ConfidentField
+    email: ConfidentField
+    company: ConfidentField
+```
+
+<Warning>
+OpenAI strict structured output rejects a `description` on a field whose type is itself a referenced model. Keep `Field(..., description=...)` off fields typed as a sub-model; put the explanation in a comment or the instructions instead.
+</Warning>
+
+## Any modality, same pattern
+
+The only thing that changes per modality is the input argument and the model. See [Multimodal inputs](/use-cases/data-labeling/multimodal-inputs) for the input plumbing.
+
+| Input | Argument | Cookbook |
+|-------|----------|----------|
+| Text | `agent.run(text)` | [text_extraction](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_03_text_extraction) |
+| Image | `images=[Image(url=...)]` | [image_extraction](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_07_image_extraction) |
+| Audio | `audio=[Audio(content=...)]` | [audio_extraction](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_12_audio_extraction) |
+| Video | `videos=[Video(content=...)]` | [video_extraction](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_14_video_extraction) |
+| PDF | `files=[File(url=...)]` | [document_extraction](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_16_document_extraction) |
+
+## Extract then embed
+
+`image_extraction_to_vectordb` extends extraction with an embed-and-store step: describe each image into a typed object, flatten it to a searchable string, embed it, and store it in LanceDb for similarity search. See the [cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_09_image_extraction_to_vectordb).
+
+## Next steps
+
+| Task | Guide |
+|------|-------|
+| Assign labels instead of fields | [Classification](/use-cases/data-labeling/classification) |
+| Feed non-text input | [Multimodal inputs](/use-cases/data-labeling/multimodal-inputs) |
+| Add a reviewer and adjudicator | [Quality pipeline](/use-cases/data-labeling/quality-pipeline) |
+
+## Developer Resources
+
+- [Text extraction cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/data_labeling/_03_text_extraction)
+- [Structured output](/input-output/structured-output/agent)

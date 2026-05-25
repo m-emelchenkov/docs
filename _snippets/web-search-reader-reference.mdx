@@ -11,3 +11,4 @@
 | `rate_limit_delay` | `float` | `5.0` | Delay when rate limited in seconds |
 | `exponential_backoff` | `bool` | `True` | Whether to use exponential backoff for retries |
 | `chunking_strategy` | `Optional[ChunkingStrategy]` | `SemanticChunking()` | Strategy for chunking content |
+| `allowed_hosts` | `Optional[List[str]]` | `None` | Hostnames the reader is allowed to fetch from. See [Restricting URL Fetches](/knowledge/concepts/readers/overview#restricting-url-fetches). |

@@ -1,0 +1,51 @@
+---
+title: Use Agno with Coding Agents
+description: "Give your coding agent access to Agno documentation."
+---
+
+Agno is designed to be used with coding agents, and there are two ways to give your coding agents access to the Agno documentation.
+
+## Option 1: Add the Docs as an MCP Server
+
+Add [https://docs.agno.com/mcp](https://docs.agno.com/mcp) as an MCP server in your coding agent.
+
+This works with any MCP-aware client: Claude Code, Cursor, Codex, and others.
+
+The agent gets live access to the docs directly. **This is the recommended approach.**
+
+### Example: Claude Code
+
+Two ways to give claude code access to agno. **1)** Add it using the CLI:
+
+```bash
+claude mcp add agno-docs https://docs.agno.com/mcp
+```
+
+Or **2)** Add a `.mcp.json` to your repo so anyone using it gets the docs wired in automatically:
+
+```json .mcp.json
+{
+  "mcpServers": {
+    "agno-docs": {
+      "type": "http",
+      "url": "https://docs.agno.com/mcp"
+    }
+  }
+}
+```
+
+Then your coding agent can search, read pages, and pull code samples on demand.
+
+## Option 2: Index the docs
+
+Add `https://docs.agno.com/llms-full.txt` as an indexed source to your documentation.
+
+Your coding agent reads it like any other doc reference.
+
+| Tool         | Where to add it                                                    |
+| ------------ | ------------------------------------------------------------------ |
+| **Cursor**   | Settings → Indexing & Docs → Add `https://docs.agno.com/llms-full.txt` |
+| **VSCode**   | Add the URL as a doc source via your AI extension's settings.       |
+| **Windsurf** | Add it to your indexed sources in the Cascade settings.             |
+
+Re-index periodically as the docs change.

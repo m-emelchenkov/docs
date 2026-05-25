@@ -67,7 +67,6 @@
       "display": "swap"
     }
   },
-  "scripts": [],
   "integrations": {
     "gtm": {
       "tagId": "GTM-WBTFNG7M"
@@ -81,105 +80,120 @@
           {
             "group": "Welcome",
             "pages": [
-              "index",
-              "first-agent"
+              "index"
             ]
           },
           {
-            "group": "Tutorials",
+            "group": "Get Started",
             "pages": [
-              "tutorials/pick-a-template",
+              "first-agent",
+              "coding-agents",
               {
-                "group": "Scout",
+                "group": "Build Your Agent Platform",
                 "pages": [
-                  "tutorials/scout/overview",
-                  "tutorials/scout/setup",
-                  "tutorials/scout/knowledge-and-crm",
-                  "tutorials/scout/connect-slack",
-                  "tutorials/scout/connect-google-drive",
-                  "tutorials/scout/connect-mcp-servers",
-                  "tutorials/scout/deploy-to-railway"
-                ]
-              },
-              {
-                "group": "Dash",
-                "pages": [
-                  "tutorials/dash/overview",
-                  "tutorials/dash/setup",
-                  "tutorials/dash/connect-slack",
-                  "tutorials/dash/deploy-to-railway",
-                  "tutorials/dash/next-steps"
-                ]
-              },
-              {
-                "group": "Coda",
-                "pages": [
-                  "tutorials/coda/overview",
-                  "tutorials/coda/setup",
-                  "tutorials/coda/connect-slack",
-                  "tutorials/coda/deploy-to-railway",
-                  "tutorials/coda/next-steps"
-                ]
-              },
-              {
-                "group": "Starter",
-                "pages": [
-                  "tutorials/starter/overview",
-                  "tutorials/starter/setup",
-                  "tutorials/starter/deploy-to-railway",
-                  "tutorials/starter/next-steps"
+                  "agent-platform/overview",
+                  "agent-platform/run-local",
+                  "agent-platform/create-agent",
+                  "agent-platform/improve-agent",
+                  "agent-platform/run-railway",
+                  "agent-platform/evals",
+                  "agent-platform/next-steps"
                 ]
               }
             ]
           },
           {
-            "group": "Runtime",
+            "group": "Features",
             "pages": [
-              "runtime/overview",
-              "runtime/serve-as-api",
-              "runtime/storage",
-              "runtime/context",
-              "runtime/human-approval",
-              "runtime/observability",
-              "runtime/security-and-auth",
-              "runtime/interfaces",
-              "runtime/scheduling",
-              "runtime/deploy",
-              "runtime/build-a-product"
+              "features/sdk",
+              "features/runtime",
+              "features/api",
+              "features/storage",
+              "features/observability",
+              "features/security-and-auth",
+              "features/scheduling"
             ]
           },
           {
-            "group": "Demo OS",
+            "group": "Use Cases",
             "pages": [
-              "demo-os/overview",
               {
-                "group": "Knowledge & Memory",
+                "group": "Data Labeling",
                 "pages": [
-                  "demo-os/rag",
-                  "demo-os/knowledge",
-                  "demo-os/memory",
-                  "demo-os/learning"
+                  "use-cases/data-labeling/overview",
+                  "use-cases/data-labeling/structured-extraction",
+                  "use-cases/data-labeling/classification",
+                  "use-cases/data-labeling/llm-as-judge",
+                  "use-cases/data-labeling/preference-data",
+                  "use-cases/data-labeling/multimodal-inputs",
+                  "use-cases/data-labeling/quality-pipeline"
                 ]
               },
               {
-                "group": "Tools & Integrations",
+                "group": "Product Copilots & Agents",
                 "pages": [
-                  "demo-os/mcp",
-                  "demo-os/context-providers"
+                  "use-cases/product-agents/overview",
+                  "use-cases/product-agents/serve-as-an-api",
+                  "use-cases/product-agents/sessions-and-memory",
+                  "use-cases/product-agents/connecting-your-data",
+                  "use-cases/product-agents/interfaces",
+                  {
+                    "group": "Tutorial: Scout",
+                    "pages": [
+                      "tutorials/scout/overview",
+                      "tutorials/scout/setup",
+                      "tutorials/scout/knowledge-and-crm",
+                      "tutorials/scout/connect-slack",
+                      "tutorials/scout/connect-google-drive",
+                      "tutorials/scout/connect-mcp-servers",
+                      "tutorials/scout/deploy-to-railway"
+                    ]
+                  }
                 ]
               },
               {
-                "group": "State & Patterns",
+                "group": "Data & Analytics Agents",
                 "pages": [
-                  "demo-os/session-state",
-                  "demo-os/human-in-the-loop"
+                  "use-cases/data-agents/overview",
+                  "use-cases/data-agents/querying-your-data",
+                  "use-cases/data-agents/grounding-in-context",
+                  "use-cases/data-agents/self-correcting-agents",
+                  "use-cases/data-agents/safe-data-access",
+                  "use-cases/data-agents/materialization",
+                  "use-cases/data-agents/serve-and-embed",
+                  {
+                    "group": "Tutorial: Dash",
+                    "pages": [
+                      "tutorials/dash/overview",
+                      "tutorials/dash/setup",
+                      "tutorials/dash/connect-slack",
+                      "tutorials/dash/deploy-to-railway",
+                      "tutorials/dash/next-steps"
+                    ]
+                  }
                 ]
               },
               {
-                "group": "Multi-Agent Teams",
+                "group": "Deep Research & Analysis",
                 "pages": [
-                  "demo-os/multi-agent-teams/text-to-sql",
-                  "demo-os/multi-agent-teams/investment"
+                  "use-cases/deep-research/overview",
+                  "use-cases/deep-research/orchestration-patterns",
+                  "use-cases/deep-research/parallel-investigation",
+                  "use-cases/deep-research/grounding-research",
+                  "use-cases/deep-research/structured-deliverable",
+                  "use-cases/deep-research/institutional-learning",
+                  "use-cases/deep-research/serve-and-embed"
+                ]
+              },
+              {
+                "group": "Document Processing",
+                "pages": [
+                  "use-cases/document-processing/overview",
+                  "use-cases/document-processing/invoices-and-receipts",
+                  "use-cases/document-processing/contracts",
+                  "use-cases/document-processing/forms-and-intake",
+                  "use-cases/document-processing/batch-and-durability",
+                  "use-cases/document-processing/human-routing-and-eval"
                 ]
               }
             ]
@@ -192,7 +206,8 @@
           {
             "group": "Get Started",
             "pages": [
-              "sdk/introduction"
+              "sdk/introduction",
+              "sdk/setup"
             ]
           },
           {
@@ -266,6 +281,9 @@
                       "workflows/hitl/overview",
                       "workflows/hitl/human-review",
                       "workflows/hitl/step",
+                      "workflows/hitl/executor",
+                      "workflows/hitl/nested",
+                      "workflows/hitl/pause-anatomy",
                       "workflows/hitl/output-review",
                       "workflows/hitl/router",
                       "workflows/hitl/condition",
@@ -739,6 +757,7 @@
                           "knowledge/concepts/readers/json-reader",
                           "knowledge/concepts/readers/markdown-reader",
                           "knowledge/concepts/readers/website-reader",
+                          "knowledge/concepts/readers/llms-txt-reader",
                           "knowledge/concepts/readers/youtube-reader"
                         ]
                       },
@@ -1183,6 +1202,30 @@
                                   "models/providers/native/google/usage/video-input-bytes-content",
                                   "models/providers/native/google/usage/video-input-file-upload",
                                   "models/providers/native/google/usage/video-input-local-file-upload"
+                                ]
+                              },
+                              "models/providers/native/google/gemini-interactions",
+                              {
+                                "group": "Interactions Usage",
+                                "pages": [
+                                  "models/providers/native/google/usage/interactions-basic",
+                                  "models/providers/native/google/usage/interactions-tool-use",
+                                  "models/providers/native/google/usage/interactions-multi-turn",
+                                  "models/providers/native/google/usage/interactions-thinking",
+                                  "models/providers/native/google/usage/interactions-search",
+                                  "models/providers/native/google/usage/interactions-structured-output",
+                                  "models/providers/native/google/usage/interactions-deep-research",
+                                  "models/providers/native/google/usage/interactions-deep-research-streaming",
+                                  "models/providers/native/google/usage/interactions-deep-research-multi-turn",
+                                  "models/providers/native/google/usage/interactions-deep-research-collaborative-planning",
+                                  "models/providers/native/google/usage/interactions-deep-research-file-search",
+                                  "models/providers/native/google/usage/interactions-deep-research-mcp",
+                                  "models/providers/native/google/usage/interactions-deep-research-multimodal",
+                                  "models/providers/native/google/usage/interactions-deep-research-visualization",
+                                  "models/providers/native/google/usage/interactions-antigravity",
+                                  "models/providers/native/google/usage/interactions-antigravity-streaming",
+                                  "models/providers/native/google/usage/interactions-antigravity-multi-turn",
+                                  "models/providers/native/google/usage/interactions-antigravity-environment-config"
                                 ]
                               }
                             ]
@@ -1940,6 +1983,30 @@
                 ]
               },
               {
+                "group": "Context Providers",
+                "pages": [
+                  "context-providers/overview",
+                  "context-providers/using-providers",
+                  {
+                    "group": "Providers",
+                    "pages": [
+                      "context-providers/providers/overview",
+                      "context-providers/providers/slack",
+                      "context-providers/providers/gmail",
+                      "context-providers/providers/calendar",
+                      "context-providers/providers/drive",
+                      "context-providers/providers/database",
+                      "context-providers/providers/filesystem",
+                      "context-providers/providers/web",
+                      "context-providers/providers/mcp",
+                      "context-providers/providers/wiki",
+                      "context-providers/providers/workspace"
+                    ]
+                  },
+                  "context-providers/custom-providers"
+                ]
+              },
+              {
                 "group": "Tools",
                 "pages": [
                   "tools/overview",
@@ -2102,12 +2169,14 @@
                         "group": "Local",
                         "pages": [
                           "tools/toolkits/local/calculator",
+                          "tools/toolkits/local/coding",
                           "tools/toolkits/local/docker",
                           "tools/toolkits/local/file",
                           "tools/toolkits/local/local-file-system",
                           "tools/toolkits/local/python",
                           "tools/toolkits/local/shell",
-                          "tools/toolkits/local/sleep"
+                          "tools/toolkits/local/sleep",
+                          "tools/toolkits/local/workspace"
                         ]
                       },
                       {
@@ -2131,6 +2200,7 @@
                         "group": "Additional Toolkits",
                         "pages": [
                           "tools/toolkits/others/airflow",
+                          "tools/toolkits/others/antigravity",
                           "tools/toolkits/others/apify",
                           "tools/toolkits/others/aws-lambda",
                           "tools/toolkits/others/aws-ses",
@@ -2154,6 +2224,7 @@
                           "tools/toolkits/others/giphy",
                           "tools/toolkits/others/github",
                           "tools/toolkits/others/gitlab",
+                          "tools/toolkits/others/google-drive",
                           "tools/toolkits/others/google-maps",
                           "tools/toolkits/others/googlecalendar",
                           "tools/toolkits/others/google-sheets",
@@ -2161,6 +2232,7 @@
                           "tools/toolkits/others/jira",
                           "tools/toolkits/others/knowledge",
                           "tools/toolkits/others/linear",
+                          "tools/toolkits/others/llms-txt",
                           "tools/toolkits/others/lumalabs",
                           "tools/toolkits/others/mem0",
                           "tools/toolkits/others/mlx-transcribe",
@@ -2181,6 +2253,7 @@
                           "tools/toolkits/others/todoist",
                           "tools/toolkits/others/trello",
                           "tools/toolkits/others/user-control-flow",
+                          "tools/toolkits/others/user-feedback",
                           "tools/toolkits/others/visualization",
                           "tools/toolkits/others/web-browser",
                           "tools/toolkits/others/webtools",
@@ -2427,6 +2500,12 @@
                   "run-cancellation/agent-cancel-run",
                   "run-cancellation/team-cancel-run",
                   "run-cancellation/workflow-cancel-run"
+                ]
+              },
+              {
+                "group": "Background Execution",
+                "pages": [
+                  "background-execution/overview"
                 ]
               },
               {
@@ -2946,6 +3025,30 @@
                               "models/providers/native/google/usage/video-input-bytes-content",
                               "models/providers/native/google/usage/video-input-file-upload",
                               "models/providers/native/google/usage/video-input-local-file-upload"
+                            ]
+                          },
+                          "models/providers/native/google/gemini-interactions",
+                          {
+                            "group": "Interactions Usage",
+                            "pages": [
+                              "models/providers/native/google/usage/interactions-basic",
+                              "models/providers/native/google/usage/interactions-tool-use",
+                              "models/providers/native/google/usage/interactions-multi-turn",
+                              "models/providers/native/google/usage/interactions-thinking",
+                              "models/providers/native/google/usage/interactions-search",
+                              "models/providers/native/google/usage/interactions-structured-output",
+                              "models/providers/native/google/usage/interactions-deep-research",
+                              "models/providers/native/google/usage/interactions-deep-research-streaming",
+                              "models/providers/native/google/usage/interactions-deep-research-multi-turn",
+                              "models/providers/native/google/usage/interactions-deep-research-collaborative-planning",
+                              "models/providers/native/google/usage/interactions-deep-research-file-search",
+                              "models/providers/native/google/usage/interactions-deep-research-mcp",
+                              "models/providers/native/google/usage/interactions-deep-research-multimodal",
+                              "models/providers/native/google/usage/interactions-deep-research-visualization",
+                              "models/providers/native/google/usage/interactions-antigravity",
+                              "models/providers/native/google/usage/interactions-antigravity-streaming",
+                              "models/providers/native/google/usage/interactions-antigravity-multi-turn",
+                              "models/providers/native/google/usage/interactions-antigravity-environment-config"
                             ]
                           }
                         ]
@@ -4349,6 +4452,15 @@
                 ]
               },
               {
+                "group": "Dynamic Agents",
+                "pages": [
+                  "agent-os/factories/overview",
+                  "agent-os/factories/agent-factory",
+                  "agent-os/factories/team-factory",
+                  "agent-os/factories/workflow-factory"
+                ]
+              },
+              {
                 "group": "Knowledge",
                 "pages": [
                   "agent-os/knowledge/manage-knowledge",
@@ -4369,6 +4481,17 @@
                     ]
                   },
                   "agent-os/studio/registry"
+                ]
+              },
+              {
+                "group": "Multi-Framework",
+                "tag": "BETA",
+                "pages": [
+                  "agent-os/multi-framework/overview",
+                  "agent-os/multi-framework/antigravity",
+                  "agent-os/multi-framework/claude-agent-sdk",
+                  "agent-os/multi-framework/langgraph",
+                  "agent-os/multi-framework/dspy"
                 ]
               },
               "agent-os/config",
@@ -4413,10 +4536,17 @@
                     "group": "Slack",
                     "pages": [
                       "agent-os/interfaces/slack/introduction",
+                      "agent-os/interfaces/slack/hitl",
                       "agent-os/interfaces/slack/reference"
                     ]
                   },
-                  "agent-os/interfaces/telegram/introduction"
+                  {
+                    "group": "Telegram",
+                    "pages": [
+                      "agent-os/interfaces/telegram/introduction",
+                      "agent-os/interfaces/telegram/reference"
+                    ]
+                  }
                 ]
               },
               {
@@ -4576,7 +4706,6 @@
             "pages": [
               "deploy/introduction",
               "deploy/templates",
-              "deploy/apps",
               "deploy/interfaces"
             ]
           },
@@ -4668,106 +4797,28 @@
                   }
                 ]
               },
-              {
-                "group": "Dash",
-                "pages": [
-                  "deploy/templates/dash/overview"
-                ]
-              },
-              {
-                "group": "Scout",
-                "pages": [
-                  "deploy/templates/scout/overview"
-                ]
-              },
-              {
-                "group": "Gcode",
-                "pages": [
-                  "deploy/templates/gcode/overview"
-                ]
-              }
+              "deploy/templates/improve-agents"
             ]
           },
           {
-            "group": "Applications",
+            "group": "Solutions",
             "pages": [
-              {
-                "group": "Agents",
-                "pages": [
-                  "deploy/apps/agents/text-to-sql",
-                  "deploy/apps/agents/research-agent",
-                  "deploy/apps/agents/invoice-extractor",
-                  "deploy/apps/agents/document-summarizer",
-                  "deploy/apps/agents/social-media-analyst",
-                  "deploy/apps/agents/knowledge-agent",
-                  "deploy/apps/agents/inbox-agent",
-                  "deploy/apps/agents/customer-support",
-                  "deploy/apps/agents/contract-review",
-                  "deploy/apps/agents/code-review"
-                ]
-              },
-              {
-                "group": "Teams",
-                "pages": [
-                  "deploy/apps/teams/content-team"
-                ]
-              },
-              {
-                "group": "Workflows",
-                "pages": [
-                  "deploy/apps/workflows/meeting-to-tasks",
-                  "deploy/apps/workflows/lead-enrichment",
-                  "deploy/apps/workflows/sales-call-analyzer",
-                  "deploy/apps/workflows/competitor-tracker"
-                ]
-              }
+              "deploy/templates/dash/overview",
+              "deploy/templates/scout/overview",
+              "deploy/templates/coda/overview",
+              "deploy/templates/pal/overview",
+              "deploy/templates/gcode/overview"
             ]
           },
           {
             "group": "Interfaces",
             "pages": [
-              {
-                "group": "Slack",
-                "pages": [
-                  "deploy/interfaces/slack/overview"
-                ]
-              },
-              {
-                "group": "Discord",
-                "pages": [
-                  "deploy/interfaces/discord/overview"
-                ]
-              },
-              {
-                "group": "WhatsApp",
-                "pages": [
-                  "deploy/interfaces/whatsapp/overview"
-                ]
-              },
-              {
-                "group": "MCP",
-                "pages": [
-                  "deploy/interfaces/mcp/overview"
-                ]
-              },
-              {
-                "group": "AG-UI",
-                "pages": [
-                  "deploy/interfaces/ag-ui/overview"
-                ]
-              },
-              {
-                "group": "Telegram",
-                "pages": [
-                  "deploy/interfaces/telegram/overview"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Agno Infra",
-            "pages": [
-              "deploy/infra/overview"
+              "deploy/interfaces/slack/overview",
+              "deploy/interfaces/telegram/overview",
+              "deploy/interfaces/whatsapp/overview",
+              "deploy/interfaces/discord/overview",
+              "deploy/interfaces/ag-ui/overview",
+              "deploy/interfaces/a2a/overview"
             ]
           }
         ]
@@ -4953,6 +5004,7 @@
                       "examples/agents/advanced/automatic-cultural-management",
                       "examples/agents/advanced/background-execution",
                       "examples/agents/advanced/background-execution-structured",
+                      "examples/agents/advanced/sse-reconnect",
                       "examples/agents/advanced/basic-agent-events",
                       "examples/agents/advanced/cache-model-response",
                       "examples/agents/advanced/cancel-run",
@@ -5160,6 +5212,7 @@
                       "examples/teams/multimodal/media-input-for-tool",
                       "examples/teams/multimodal/video-caption-generation",
                       "examples/teams/other/background-execution",
+                      "examples/teams/other/sse-reconnect",
                       "examples/teams/reasoning/reasoning-multi-purpose-team",
                       "examples/teams/run-control/cancel-run",
                       "examples/teams/run-control/model-inheritance",
@@ -6879,6 +6932,16 @@
                     ]
                   },
                   {
+                    "group": "Dynamic Agents",
+                    "pages": [
+                      "examples/agent-os/factories/overview",
+                      "examples/agent-os/factories/tenant-agent-factory",
+                      "examples/agent-os/factories/input-schema-factory",
+                      "examples/agent-os/factories/jwt-role-factory",
+                      "examples/agent-os/factories/hitl-factory"
+                    ]
+                  },
+                  {
                     "group": "Integrations",
                     "pages": [
                       "examples/agent-os/integrations/overview",
@@ -7377,7 +7440,8 @@
                   "reference/agent-os/agent-os",
                   "reference/agent-os/configuration",
                   "reference/agent-os/authorization-config",
-                  "reference/agent-os/jwt-middleware"
+                  "reference/agent-os/jwt-middleware",
+                  "reference/agent-os/factories"
                 ]
               },
               {
@@ -7839,6 +7903,66 @@
     ]
   },
   "redirects": [
+    {
+      "source": "/runtime/build-a-product",
+      "destination": "/features/runtime"
+    },
+    {
+      "source": "/runtime/overview",
+      "destination": "/features/runtime"
+    },
+    {
+      "source": "/runtime/serve-as-api",
+      "destination": "/features/api"
+    },
+    {
+      "source": "/runtime/storage",
+      "destination": "/features/storage"
+    },
+    {
+      "source": "/runtime/observability",
+      "destination": "/features/observability"
+    },
+    {
+      "source": "/runtime/context",
+      "destination": "/features/context"
+    },
+    {
+      "source": "/runtime/human-approval",
+      "destination": "/features/human-approval"
+    },
+    {
+      "source": "/runtime/security-and-auth",
+      "destination": "/features/security-and-auth"
+    },
+    {
+      "source": "/runtime/interfaces",
+      "destination": "/features/interfaces"
+    },
+    {
+      "source": "/runtime/scheduling",
+      "destination": "/features/scheduling"
+    },
+    {
+      "source": "/runtime/deploy",
+      "destination": "/features/deploy"
+    },
+    {
+      "source": "/tutorials/starter/overview",
+      "destination": "/tutorials/agent-platform/overview"
+    },
+    {
+      "source": "/tutorials/starter/setup",
+      "destination": "/tutorials/agent-platform/setup"
+    },
+    {
+      "source": "/tutorials/starter/deploy-to-railway",
+      "destination": "/tutorials/agent-platform/deploy-to-railway"
+    },
+    {
+      "source": "/tutorials/starter/next-steps",
+      "destination": "/tutorials/agent-platform/next-steps"
+    },
     {
       "source": "/home",
       "destination": "/"
@@ -14881,11 +15005,15 @@
     },
     {
       "source": "/deploy/agno-infra",
-      "destination": "/deploy/infra/overview"
+      "destination": "/reference/agno-infra/cli/ws/up"
     },
     {
       "source": "/infra/overview",
-      "destination": "/deploy/infra/overview"
+      "destination": "/reference/agno-infra/cli/ws/up"
+    },
+    {
+      "source": "/deploy/infra/overview",
+      "destination": "/reference/agno-infra/cli/ws/up"
     },
     {
       "source": "/deploy/templates/aws/customize/ci-cd",
@@ -14940,10 +15068,6 @@
       "destination": "/cookbook/agents/deep_knowledge"
     },
     {
-      "source": "/examples/agents/overview",
-      "destination": "/cookbook/agents/overview"
-    },
-    {
       "source": "/examples/agents/quickstart/agent-with-instructions",
       "destination": "/examples/agents/basics/agent-with-instructions"
     },
@@ -14996,20 +15120,12 @@
       "destination": "/cookbook/knowledge/embedders"
     },
     {
-      "source": "/examples/knowledge/overview",
-      "destination": "/cookbook/knowledge/overview"
-    },
-    {
       "source": "/examples/knowledge/readers",
       "destination": "/cookbook/knowledge/readers"
     },
     {
       "source": "/examples/knowledge/vector-databases",
       "destination": "/cookbook/knowledge/vector-databases"
-    },
-    {
-      "source": "/examples/learning/overview",
-      "destination": "/cookbook/learning/overview"
     },
     {
       "source": "/examples/learning/personal-assistant",
@@ -15080,10 +15196,6 @@
       "destination": "/examples/basics/sequential-workflow"
     },
     {
-      "source": "/examples/storage/overview",
-      "destination": "/cookbook/storage/overview"
-    },
-    {
       "source": "/examples/streamlit/agentic-rag",
       "destination": "/cookbook/streamlit/agentic-rag"
     },
@@ -15114,10 +15226,6 @@
     {
       "source": "/examples/teams/news_agency_team",
       "destination": "/cookbook/teams/news_agency_team"
-    },
-    {
-      "source": "/examples/teams/overview",
-      "destination": "/cookbook/teams/overview"
     },
     {
       "source": "/examples/teams/quickstart/basic-coordination",
@@ -15184,16 +15292,8 @@
       "destination": "/cookbook/tools/built-in"
     },
     {
-      "source": "/examples/tools/custom-tools",
-      "destination": "/cookbook/tools/custom-tools"
-    },
-    {
       "source": "/examples/tools/mcp",
       "destination": "/cookbook/tools/mcp"
-    },
-    {
-      "source": "/examples/tools/overview",
-      "destination": "/cookbook/tools/overview"
     },
     {
       "source": "/examples/tools/tool-calls-accesing-agent",
@@ -15326,10 +15426,6 @@
     {
       "source": "/examples/workflows/notion-knowledge-manager",
       "destination": "/cookbook/workflows/notion-knowledge-manager"
-    },
-    {
-      "source": "/examples/workflows/overview",
-      "destination": "/cookbook/workflows/overview"
     },
     {
       "source": "/features/evals/telemetry",

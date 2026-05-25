@@ -10,6 +10,7 @@ sidebarTitle: Conditional Steps
 | `else_steps` | `WorkflowSteps` | `None` | Steps to execute if the condition is not met (else branch) |
 | `name` | `Optional[str]` | `None` | Name of the condition step |
 | `description` | `Optional[str]` | `None` | Description of the condition step |
+| `human_review` | `Optional[HumanReview]` | `None` | All HITL settings in a single config. See [HumanReview Config](/workflows/hitl/human-review). |
 | `requires_confirmation` | `bool` | `False` | Pause for user to decide which branch to execute |
 | `confirmation_message` | `Optional[str]` | `None` | Message shown to user when requesting decision |
 | `on_reject` | `OnReject` | `OnReject.else_branch` | Action when rejected: `else_branch` (execute else_steps), `skip`, `cancel` |

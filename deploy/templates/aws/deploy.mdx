@@ -17,6 +17,13 @@ keywords:
 
 Deploy AgentOS to AWS with ECS Fargate, RDS PostgreSQL, and an Application Load Balancer. Production-grade infrastructure that runs entirely in your cloud.
 
+The template includes agents you can extend with Claude Code:
+
+| Agent | Pattern | Description |
+| :--- | :--- | :--- |
+| WebSearch | Direct tools | Search the web using Parallel SDK or keyless MCP. |
+| CodeSearch | Context provider | Answer questions about this codebase. |
+
 ## Architecture
 
 <img
@@ -297,27 +304,24 @@ Should return: `{"status": "ok", "instantiated_at": "..."}`
 
 ## Next Steps
 
+<CardGroup cols={2}>
+  <Card title="Extend" icon="wand-magic-sparkles" href="/deploy/templates/improve-agents">
+    Build and improve agents with Claude Code and evals.
+  </Card>
+  <Card title="Interfaces" icon="comments" href="/deploy/interfaces">
+    Connect Slack, Discord, WhatsApp, or MCP.
+  </Card>
+</CardGroup>
+
 <CardGroup cols={3}>
-  <Card
-    title="Configure Settings"
-    icon="gear"
-    href="/deploy/templates/aws/configure/infra-settings"
-  >
+  <Card title="Configure" icon="gear" href="/deploy/templates/aws/configure/infra-settings">
     Region, subnets, and ECR
   </Card>
-  <Card
-    title="Connect to AgentOS"
-    icon="key"
-    href="/deploy/templates/aws/go-live/connect"
-  >
+  <Card title="Connect" icon="key" href="/deploy/templates/aws/go-live/connect">
     Run your agents in the cloud
   </Card>
-  <Card
-    title="Verify Deployment"
-    icon="check"
-    href="/deploy/templates/aws/go-live/verify"
-  >
-    Confirm everything is working
+  <Card title="Verify" icon="check" href="/deploy/templates/aws/go-live/verify">
+    Confirm everything works
   </Card>
 </CardGroup>
 

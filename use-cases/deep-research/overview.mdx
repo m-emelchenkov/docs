@@ -1,0 +1,70 @@
+---
+title: "Deep research and analysis"
+sidebarTitle: "Overview"
+description: "Orchestrate agents for grounded, auditable research and structured deliverables."
+---
+
+The gap between an agent using tools and a deep research system is orchestration, grounding, and auditable deliverables. Agno lets you build a deterministic, step-based research pipeline in a few lines. Run steps in parallel, in loops, or one after the other.
+
+```python
+from agno.workflow import Parallel, Step, Workflow
+
+investment_workflow = Workflow(
+    id="investment-workflow",
+    name="Investment Review Pipeline",
+    steps=[
+        Step(name="Market Assessment", agent=market_analyst),
+        Parallel(
+            Step(name="Fundamental Analysis", agent=financial_analyst),
+            Step(name="Technical Analysis", agent=technical_analyst),
+            name="Deep Dive",
+        ),
+        Step(name="Risk Assessment", agent=risk_officer),
+        Step(name="Investment Memo", agent=memo_writer),
+        Step(name="Committee Decision", agent=committee_chair),
+    ],
+)
+
+result = investment_workflow.run("Run a full investment review on NVDA")
+# result.content holds the Committee Decision. Same steps, every run.
+```
+
+That is an auditable five-step review with a parallel deep-dive. Swap the agents and the mandate and the same shape researches anything.
+
+## Learn How To
+
+| Concern | Page |
+|---------|------|
+| Pick the orchestration shape | [Orchestration patterns](/use-cases/deep-research/orchestration-patterns) |
+| Run specialists in parallel | [Parallel investigation](/use-cases/deep-research/parallel-investigation) |
+| Ground every agent | [Grounding research](/use-cases/deep-research/grounding-research) |
+| End in an auditable artifact | [Structured deliverable](/use-cases/deep-research/structured-deliverable) |
+| Make research compound | [Institutional learning](/use-cases/deep-research/institutional-learning) |
+| Put it behind a surface | [Serve and embed](/use-cases/deep-research/serve-and-embed) |
+
+## Explore
+
+<CardGroup cols={2}>
+  <Card title="Orchestration patterns" icon="diagram-project" href="/use-cases/deep-research/orchestration-patterns">
+    Route, coordinate, broadcast, task, and deterministic pipelines.
+  </Card>
+  <Card title="Parallel investigation" icon="arrows-split-up-and-left" href="/use-cases/deep-research/parallel-investigation">
+    Fan specialists out at once, synthesize the results.
+  </Card>
+  <Card title="Grounding research" icon="book-open" href="/use-cases/deep-research/grounding-research">
+    Mandate in the prompt, a library in RAG, prior work on disk.
+  </Card>
+  <Card title="Structured deliverable" icon="file-contract" href="/use-cases/deep-research/structured-deliverable">
+    End in a memo and a decision, with citations and conviction.
+  </Card>
+  <Card title="Institutional learning" icon="arrows-rotate" href="/use-cases/deep-research/institutional-learning">
+    Shared learnings so the next review starts ahead.
+  </Card>
+</CardGroup>
+
+## Developer Resources
+
+- [Workflows](/workflows/overview)
+- [Teams](/teams/overview)
+- [Workflows cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/04_workflows)
+- [Investment committee on GitHub](https://github.com/agno-agi/investment-team)
