@@ -35,6 +35,8 @@ Chat with agents, collaborate with teams, and run workflows from one screen.
   </video>
 </Frame>
 
+See [Agents](/agents/overview), [Teams](/teams/overview), and [Workflows](/workflows/overview) for more details.
+
 ### Agents
 
 Select an agent from the right panel and start a conversation. Each agent maintains its own history, tools, and instructions. Switching agents won't mix contexts.
@@ -87,6 +89,8 @@ Pending tool executions can require human confirmation. Approvals pause runs unt
   </video>
 </Frame>
 
+See [Approvals](/agent-os/approvals/overview) for setup details.
+
 ## Tracing
 
 Traces capture the complete execution flow of agents and teams. Each trace contains spans representing individual operations (LLM calls, tool executions, etc.) with token usage, latency, and error information.
@@ -123,6 +127,8 @@ Visualizes spans on a time axis showing when each operation started, how long it
   </video>
 </Frame>
 
+See [Tracing](/agent-os/tracing/overview) for configuration and filter options.
+
 ## Session Tracking
 
 Sessions group related runs under a single `session_id`. Each session captures messages, tool calls, metrics, and summaries for a single conversation. Sessions are stored in your database and can be queried and managed from the control plane.
@@ -138,6 +144,8 @@ Sessions group related runs under a single `session_id`. Each session captures m
     <source src="/videos/agentos-session-management.mp4" type="video/mp4" />
   </video>
 </Frame>
+
+See [Chat History](/database/chat-history) and [Session Storage](/database/session-storage) for more details.
 
 ## Knowledge
 
@@ -155,6 +163,8 @@ Knowledge bases provide agents with domain-specific information through RAG (Ret
   </video>
 </Frame>
 
+See [Manage Knowledge](/agent-os/knowledge/manage-knowledge) for setup details.
+
 ## Memories
 
 Memories store information that agents learn about users across conversations. Each memory is tied to a user ID and contains content, topics, timestamps, and the input that generated it. You can view, create, edit, or delete memories from the control plane.
@@ -171,6 +181,7 @@ Memories store information that agents learn about users across conversations. E
   </video>
 </Frame>
 
+See [Memory](/memory/overview) for more details.
 
 ## Schedules
 
@@ -206,9 +217,11 @@ Connect and inspect your AgentOS runtimes from a single interface. Switch betwee
   </video>
 </Frame>
 
+See [Connect Your AgentOS](/agent-os/connect-your-os) for the connection steps.
+
 ## Authorization
 
-Toggle JWT verification on or off from the Settings page. Generate key pairs and configure RBAC without leaving the control plane.
+Enable JWT verification and generate key pairs from the control plane, either when connecting an OS or later from Settings.
 
 <Frame>
   <video
@@ -218,20 +231,25 @@ Toggle JWT verification on or off from the Settings page. Generate key pairs and
     playsInline
     style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
   >
-    <source src="/videos/auth-from-settings-web.mp4" type="video/mp4" />
+    <source src="/videos/auth-on-connect-web.mp4" type="video/mp4" />
   </video>
 </Frame>
 
-See [AgentOS Security](/agent-os/security/overview) for setup details.
+See [AgentOS Security](/agent-os/security/overview) and [RBAC](/agent-os/security/rbac) for setup details.
 
 ## User Management
 
 Invite team members by entering their email addresses. Separate multiple emails with commas or press Enter/Tab between addresses.
 
+Every organization has three default roles. Custom roles are available on the Enterprise plan.
+
 | Role | Access |
 |------|--------|
-| **Owner** | Full administrative access including billing and member management |
-| **Member** | Access to AgentOS features and collaboration |
+| **Owner** | Full access including billing, organization settings, and deletion |
+| **Administrator** | Manage members, roles, settings, and resources; cannot update billing or delete the organization |
+| **Member** | Run and edit AgentOS resources; cannot delete resources or manage members |
+
+See [RBAC](/agent-os/security/rbac) for the full capability matrix and custom role setup.
 
 <Frame>
   <video
