@@ -116,6 +116,28 @@ export JWT_VERIFICATION_KEY="your-public-key"
 export JWT_JWKS_FILE="/path/to/jwks.json"
 ```
 
+## Running AgentOS Independently
+
+The control plane is one way to issue verification keys, not the only way. AgentOS verifies any JWT signed with a key you provide, so you can mint and verify tokens entirely on your own infrastructure.
+
+See [Asymmetric RBAC](/examples/agent-os/rbac/asymmetric/basic) for a complete runnable example with keypair generation and signed token output.
+
+### Accepting multiple issuers
+
+`verification_keys` is a list. AgentOS tries each key in order until one verifies the token. Pass a second key to accept tokens from both the Agno control plane and your own backend at the same time.
+
+```python
+authorization_config=AuthorizationConfig(
+    verification_keys=[
+        AGNO_CONTROL_PLANE_PUBLIC_KEY,  # tokens issued by os.agno.com
+        YOUR_BACKEND_PUBLIC_KEY,        # tokens minted by your service
+    ],
+    algorithm="RS256",
+)
+```
+
+This keeps the AgentOS UI working through the control plane while your backend mints its own tokens for service-to-service or production traffic. All keys in the list must use the algorithm set in `algorithm`.
+
 ## Scope Format
 
 RBAC uses a hierarchical scope format:
@@ -504,11 +526,18 @@ These routes are excluded from RBAC checks by default:
 
 <CardGroup cols={2}>
   <Card
-    title="Basic RBAC"
+    title="Basic RBAC (HS256)"
     icon="lock"
     href="/agent-os/usage/rbac/basic"
   >
-    Basic RBAC example
+    Enable RBAC with a shared-secret JWT
+  </Card>
+  <Card
+    title="Asymmetric RBAC (RS256)"
+    icon="key"
+    href="/examples/agent-os/rbac/asymmetric/basic"
+  >
+    Sign with a private key, verify with the public key
   </Card>
   <Card
     title="Per-Agent Permissions"
