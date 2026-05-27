@@ -1,9 +1,9 @@
 ---
 title: Agent Observability
-description: "Store traces, run history, and audit logs in your database."
+description: "Store traces, run history, and audit logs in your own database. No third-party platform required."
 ---
 
-AgentOS comes with a built-in tracing provider that routes traces to your database. Every run produces a trace tree: spans for the LLM call, each tool, hook, retrieval, and team delegation. These can be stored in `agno_traces` and `agno_spans` in the same `db` you use for sessions.
+AgentOS comes with a built-in tracing provider that routes every run to your database. There is no external observability SaaS to sign up for, no API key to manage, and no data egress. Your traces live in `agno_traces` and `agno_spans` in the same `db` you already use for sessions and memory.
 
 ```python
 from agno.os import AgentOS
@@ -15,27 +15,25 @@ agent_os = AgentOS(
 )
 ```
 
-## Multi-database tracing
+Every run produces a trace tree: spans for the LLM call, each tool, hook, retrieval, and team delegation. Tracing is built on [OpenTelemetry](https://opentelemetry.io/) and instruments your agents with zero code changes.
 
-Traces are high-volume and write-heavy. For production deployments, you'll often want them in a separate database from sessions and memory.
+## Your data never leaves your server
 
-Traces generally have a different cost profile, different retention and different access patterns:
+This is the difference between AgentOS tracing and hosted observability platforms.
 
-```python
-from agno.db.postgres import PostgresDb
+| | AgentOS tracing | Hosted observability SaaS |
+|---|---|---|
+| Where traces live | Your database | Their servers |
+| Data egress | None | Every prompt, tool call, and response leaves your network |
+| Vendor dependency | None | Your observability stops if they go down or you stop paying |
+| Cost model | Your existing database | Per-seat or per-event billing |
+| Querying | Direct SQL on your tables | Their API and UI only |
 
-primary_db = PostgresDb(db_url="postgresql://primary/...")
-trace_db = PostgresDb(db_url="postgresql://traces/...")
+Prompts, tool arguments, and model outputs often contain customer PII, internal data, and proprietary logic. With AgentOS tracing, none of it crosses your network boundary. You own the data, you control retention, and you can query it with the database tools you already run.
 
-agent_os = AgentOS(
-    agents=[agent],
-    db=primary_db,
-    tracing=True,
-    trace_db=trace_db,
-)
-```
-
-See [Multi-DB tracing](/agent-os/tracing/usage/tracing-with-multi-db-scenario) for the full setup.
+<Frame caption="Traces stored in your own database, viewed in a SQL client">
+  <img src="/images/traces-in-db.png" alt="agno_traces and agno_spans tables in a database client" style={{ borderRadius: "0.5rem" }} />
+</Frame>
 
 ## What gets captured
 
@@ -48,10 +46,10 @@ See [Multi-DB tracing](/agent-os/tracing/usage/tracing-with-multi-db-scenario) f
 | **Retrieval** | Query, vector store, k, returned docs, scores |
 | **Team delegation** | Member name, mode, sub-run trace |
 
-Traces follow OpenTelemetry semantic conventions and you can query them directly:
+Traces follow OpenTelemetry semantic conventions, so you can query them directly:
 
 ```sql
--- Top-10 slowest span types by average duration
+-- Top 10 slowest span types by average duration
 SELECT
     name,
     AVG(duration_ms) AS avg_ms,
@@ -64,8 +62,48 @@ LIMIT 10;
 
 ## In the AgentOS UI
 
-The [control plane](https://os.agno.com) renders the same traces visually. Click a run and see the full tree: LLM hops, tool calls with their inputs and outputs, hooks, sub-agent traces. Filter by user, session, time range.
+The [control plane](https://os.agno.com) renders the same traces visually. Click a run to see the full tree: LLM hops, tool calls with their inputs and outputs, hooks, and sub-agent traces. Filter by user, session, or time range.
+
+<Frame caption="The same traces, rendered in the AgentOS control plane">
+  <img src="/images/traces-in-os.png" alt="Trace tree in the AgentOS UI" style={{ borderRadius: "0.5rem" }} />
+</Frame>
+
+## Multi-database tracing
+
+Traces are high-volume and write-heavy, with a different cost profile, retention, and access pattern than sessions. For production, route them to a dedicated database by pointing the AgentOS `db` at it:
+
+```python
+from agno.agent import Agent
+from agno.db.postgres import PostgresDb
+from agno.os import AgentOS
+
+# Each agent keeps its own database
+agent_db = PostgresDb(db_url="postgresql://primary/...")
+
+# Dedicated database for traces
+trace_db = PostgresDb(db_url="postgresql://traces/...")
+
+agent = Agent(name="Research Agent", model=..., db=agent_db)
+
+agent_os = AgentOS(
+    agents=[agent],
+    db=trace_db,   # All traces are written here
+    tracing=True,
+)
+```
+
+The AgentOS `db` is where traces land. Keeping it separate isolates trace write volume from your agent data and gives you independent retention and scaling.
+
+See [Multi-DB tracing](/agent-os/tracing/usage/tracing-with-multi-db-scenario) for the `setup_tracing()` variant with batch tuning.
 
 ## External providers
 
-Send traces to Langfuse, Langsmith, Arize, or any OpenTelemetry endpoint by adding an exporter. Check out the [Observability section](/observability/agentops): [Langfuse](/observability/langfuse), [Langsmith](/observability/langsmith), [Arize](/observability/arize), [Logfire](/observability/logfire), [MLflow](/observability/mlflow).
+If you already run an observability platform, AgentOS can export to it instead of (or alongside) your database. Add an OpenTelemetry exporter to send traces to Langfuse, Langsmith, Arize, Logfire, MLflow, or any OTel endpoint.
+
+See the [Observability section](/observability/overview): [Langfuse](/observability/langfuse), [Langsmith](/observability/langsmith), [Arize](/observability/arize), [Logfire](/observability/logfire), [MLflow](/observability/mlflow).
+
+## Developer Resources
+
+- [Tracing overview](/tracing/overview)
+- [Tracing in AgentOS](/agent-os/tracing/overview)
+- [Query traces from your database](/tracing/db-functions)
