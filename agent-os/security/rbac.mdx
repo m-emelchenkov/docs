@@ -120,7 +120,17 @@ export JWT_JWKS_FILE="/path/to/jwks.json"
 
 The control plane is one way to issue verification keys, not the only way. AgentOS verifies any JWT signed with a key you provide, so you can mint and verify tokens entirely on your own infrastructure.
 
-See [Basic RBAC (Asymmetric)](/agent-os/usage/rbac/basic-asymmetric) for a complete runnable example with keypair generation and signed token output.
+### Issuing tokens
+
+AgentOS verifies tokens but doesn't issue them. Generate them in your backend or identity provider, signed with the key whose public half or shared secret you set as a verification key. Include the claims from [JWT Token Structure](#jwt-token-structure); `scopes` is the claim RBAC checks.
+
+Send the token in the `Authorization` header:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:7777/agents
+```
+
+See the [Basic RBAC (Symmetric)](/agent-os/usage/rbac/basic-symmetric) and [Basic RBAC (Asymmetric)](/agent-os/usage/rbac/basic-asymmetric) examples for generating signed tokens end to end.
 
 ### Accepting multiple issuers
 
