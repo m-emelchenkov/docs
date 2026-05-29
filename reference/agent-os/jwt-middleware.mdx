@@ -34,7 +34,7 @@ from agno.os.middleware.jwt import TokenSource
 | `dependencies_claims` | `Optional[List[str]]` | `None` | Claims to extract for `dependencies` parameter |
 | `session_state_claims` | `Optional[List[str]]` | `None` | Claims to extract for `session_state` parameter |
 | `scope_mappings` | `Optional[Dict[str, List[str]]]` | `None` | Custom route-to-scope mappings (additive to defaults) |
-| `excluded_route_paths` | `Optional[List[str]]` | See below | Routes to skip JWT/RBAC checks. Replaces the defaults, not additive. |
+| `excluded_route_paths` | `Optional[List[str]]` | See below | Routes to skip JWT/RBAC checks. |
 | `admin_scope` | `Optional[str]` | `"agent_os:admin"` | Scope that grants full admin access |
 | `user_isolation` | `bool` | `False` | Opt in to per-user data isolation. When `True`, AgentOS uses the JWT `sub` claim as the `user_id` for every non-admin caller: reads are scoped to it and writes are coerced to it, so callers can't see or persist other users' rows. Callers holding `admin_scope` bypass it. Requires a database that records `user_id`. |
 
