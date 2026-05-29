@@ -4,7 +4,13 @@ sidebarTitle: "Introduction"
 description: "The runtime for your agent platform."
 ---
 
-**AgentOS is the FastAPI runtime for your agent platform.** It serves agents, teams, and workflows over HTTP and SSE, with tracing, scheduling, RBAC, and audit trails built-in. Sessions, memory, knowledge, and traces are stored in your database.
+**AgentOS is a FastAPI app that runs your agent platform.** It's a live service that:
+
+1. Runs agents on demand, via API requests or interfaces like Slack,  Telegram, and others.
+2. Maintains long-running sessions that last from minutes to days to weeks.
+3. Is durable across restarts, replicas, and infrastructure failures.
+4. Is secure against unauthenticated access.
+5. Logs every run and action taken.
 
 Build your agents using the [Agno SDK](/sdk/introduction), run them using the AgentOS runtime.
 
