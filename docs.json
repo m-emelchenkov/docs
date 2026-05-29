@@ -4596,7 +4596,8 @@
               {
                 "group": "RBAC",
                 "pages": [
-                  "agent-os/usage/rbac/basic",
+                  "agent-os/usage/rbac/basic-symmetric",
+                  "agent-os/usage/rbac/basic-asymmetric",
                   "agent-os/usage/rbac/advanced-scopes",
                   "agent-os/usage/rbac/per-agent-permissions",
                   "agent-os/usage/rbac/custom-scope-mappings"

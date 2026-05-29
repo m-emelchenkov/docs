@@ -3,7 +3,7 @@ title: "AgentOS Control Plane"
 description: "A web interface for testing, monitoring, and managing your multi-agent system."
 ---
 
-The control plane is where you chat with agents, view traces, manage knowledge, track sessions, and monitor performance.
+The control plane at [os.agno.com](https://os.agno.com) is where you chat with agents, view traces, manage knowledge, track sessions, and monitor performance.
 
 <Frame>
   <img
@@ -34,6 +34,8 @@ Chat with agents, collaborate with teams, and run workflows from one screen.
     <source src="/videos/agentos-chat.mp4" type="video/mp4" />
   </video>
 </Frame>
+
+See [Agents](/agents/overview), [Teams](/teams/overview), and [Workflows](/workflows/overview) for more details.
 
 ### Agents
 
@@ -71,6 +73,25 @@ Switch to Workflows. Provide input (plain text or structured, depending on the w
   </video>
 </Frame>
 
+## Studio
+
+Build agents, teams, and workflows visually on a live canvas. Drag, drop, configure, and deploy without leaving the control plane.
+
+{/* TODO: replace placeholder with the real Studio walkthrough video */}
+<Frame>
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
+  >
+    <source src="/videos/studio.mp4" type="video/mp4" />
+  </video>
+</Frame>
+
+See [Studio](/agent-os/studio/introduction) for setup details.
+
 ## Approvals
 
 Pending tool executions can require human confirmation. Approvals pause runs until an admin resolves the request.
@@ -86,6 +107,8 @@ Pending tool executions can require human confirmation. Approvals pause runs unt
     <source src="/videos/approvalsdemo.mp4" type="video/mp4" />
   </video>
 </Frame>
+
+See [Approvals](/agent-os/approvals/overview) for setup details.
 
 ## Tracing
 
@@ -123,6 +146,8 @@ Visualizes spans on a time axis showing when each operation started, how long it
   </video>
 </Frame>
 
+See [Tracing](/agent-os/tracing/overview) for configuration and filter options.
+
 ## Session Tracking
 
 Sessions group related runs under a single `session_id`. Each session captures messages, tool calls, metrics, and summaries for a single conversation. Sessions are stored in your database and can be queried and managed from the control plane.
@@ -138,6 +163,8 @@ Sessions group related runs under a single `session_id`. Each session captures m
     <source src="/videos/agentos-session-management.mp4" type="video/mp4" />
   </video>
 </Frame>
+
+See [Chat History](/database/chat-history) and [Session Storage](/database/session-storage) for more details.
 
 ## Knowledge
 
@@ -155,6 +182,8 @@ Knowledge bases provide agents with domain-specific information through RAG (Ret
   </video>
 </Frame>
 
+See [Manage Knowledge](/agent-os/knowledge/manage-knowledge) for setup details.
+
 ## Memories
 
 Memories store information that agents learn about users across conversations. Each memory is tied to a user ID and contains content, topics, timestamps, and the input that generated it. You can view, create, edit, or delete memories from the control plane.
@@ -171,6 +200,7 @@ Memories store information that agents learn about users across conversations. E
   </video>
 </Frame>
 
+See [Memory](/memory/overview) for more details.
 
 ## Schedules
 
@@ -206,14 +236,39 @@ Connect and inspect your AgentOS runtimes from a single interface. Switch betwee
   </video>
 </Frame>
 
+See [Connect Your AgentOS](/agent-os/connect-your-os) for the connection steps.
+
+## Authorization
+
+Enable JWT verification and generate key pairs from the control plane, either when connecting an OS or later from Settings.
+
+<Frame>
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    style={{ borderRadius: "0.5rem", width: "100%", height: "auto" }}
+  >
+    <source src="/videos/auth-on-connect-web.mp4" type="video/mp4" />
+  </video>
+</Frame>
+
+See [AgentOS Security](/agent-os/security/overview) and [RBAC](/agent-os/security/rbac) for setup details.
+
 ## User Management
 
 Invite team members by entering their email addresses. Separate multiple emails with commas or press Enter/Tab between addresses.
 
+Every organization has three default roles. Custom roles are available on the Enterprise plan.
+
 | Role | Access |
 |------|--------|
-| **Owner** | Full administrative access including billing and member management |
-| **Member** | Access to AgentOS features and collaboration |
+| **Owner** | Full access including billing, organization settings, and deletion |
+| **Administrator** | Manage members, roles, settings, and resources; cannot update billing or delete the organization |
+| **Member** | Run and edit AgentOS resources; cannot delete resources or manage members |
+
+See [RBAC](/agent-os/security/rbac) for the full capability matrix and custom role setup.
 
 <Frame>
   <video

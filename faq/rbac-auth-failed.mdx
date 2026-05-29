@@ -3,60 +3,102 @@ title: Authorization Failed - JWT Verification
 sidebarTitle: Authorization Failed - JWT Verification
 ---
 
-If you are experiencing authorization failures when both security key and authorization are enabled in your AgentOS, this guide will help you resolve the issue.
-
-## The Issue
-
-When both security key authentication and authorization are enabled simultaneously, you may encounter an authorization failed error:
+If you see "Authorization Failed" in your AgentOS, the entries below cover the most common causes.
 
 ![Authorization Failed Error](/images/auth-failed.png)
 
-This occurs because authorization is preferred over security key. Learn more about [security key](https://docs.agno.com/agent-os/security/overview#security-key-authentication).
+## 401 Unauthorized: algorithm mismatch
 
-## Solution
+You see "Authorization Failed" on every request, consistently across machines.
 
-The solution depends on your AgentOS version:
+**Cause:** The algorithm configured on `AuthorizationConfig` does not match how the token was signed.
 
-### For Older Versions (Before v2.3.13)
+**Fix:** depends on your setup.
 
-If you are running an AgentOS version older than **v2.3.13**, the platform only supports security key authentication.
+| Setup | What to set |
+|-------|-------------|
+| AgentOS platform | `algorithm="RS256"` or omit it (RS256 is the default). Platform-issued public keys are always RS256, so any other value fails verification. |
+| Standalone AgentOS | `algorithm` must match how you signed the token. |
 
-<Accordion title="Switch Off Authorization" defaultOpen={true}>
-  1. **Disable Authorization** on the AgentOS Control Plane
-  2. Continue using security key authentication only
-</Accordion>
+```python
+from agno.os.config import AuthorizationConfig
 
-### For Newer Versions <Badge icon="code-branch" color="orange"><Tooltip tip="Introduced in v2.3.13" cta="View release notes" href="https://github.com/agno-agi/agno/releases/tag/v2.3.13">v2.3.13</Tooltip></Badge> and Later
+AuthorizationConfig(
+    verification_keys=[YOUR_KEY],
+    algorithm="HS256",  # match your signing algorithm
+)
+```
 
-If you are running AgentOS version **v2.3.13** or newer, you have two options to resolve this conflict:
+Supported algorithms: `RS256` and `ES256` (asymmetric, public key), `HS256` (symmetric, shared secret).
+
+## 401 Unauthorized: PEM key may be mangled in env var
+
+You see "Authorization Failed" on some machines but not others, even with the same verification key.
+
+**Cause:** Multi-line PEM keys can lose their newlines when passed through shell environment variables. Depending on your shell, `.env` loader, or how the key was pasted, the `-----BEGIN PUBLIC KEY-----` header, body, and footer may collapse onto one line, producing an unparseable key.
+
+**Fix:** Save the key to a file and load it in code:
+
+```python
+from agno.os.config import AuthorizationConfig
+
+with open("/path/to/public.pem") as f:
+    public_key = f.read()
+
+AuthorizationConfig(verification_keys=[public_key], algorithm="RS256")
+```
+
+Or place the key in a JWKS file and point AgentOS at it:
+
+```bash
+export JWT_JWKS_FILE="/path/to/jwks.json"
+```
+
+## 403 Forbidden: insufficient scopes
+
+The token is valid but AgentOS returns `403` on a specific endpoint.
+
+**Cause:** The token's `scopes` claim does not include the scope required by the endpoint. Unlike a `401`, the token itself is fine.
+
+**Fix:** Check the [Scope Reference](/agent-os/security/rbac#scope-reference) for which scope each endpoint needs. A few scopes act as gates in the platform and a token missing any of them fails before finer-grained checks run. See [Access Prerequisites](/agent-os/security/rbac#access-prerequisites) for the full list.
+
+## Both security key and JWT authorization enabled
+
+You enabled both security key authentication and JWT authorization on the AgentOS Control Plane at the same time.
+
+**Cause:** Authorization is preferred over security key. When both are enabled, security key requests fail. Learn more about [security key](https://docs.agno.com/agent-os/security/overview#security-key-authentication).
+
+**Fix:** depends on your AgentOS version.
+
+### Before v2.3.13
+
+The platform only supports security key authentication on these versions. Disable Authorization on the AgentOS Control Plane and continue using security key.
+
+### v2.3.13 and later <Badge icon="code-branch" color="orange"><Tooltip tip="Introduced in v2.3.13" cta="View release notes" href="https://github.com/agno-agi/agno/releases/tag/v2.3.13">v2.3.13</Tooltip></Badge>
 
 <Note>
-Authorization (JWT verification) is preferred over security key authentication as it provides fine-grained permissions of RBAC.
+Authorization (JWT verification) is preferred over security key authentication as it provides fine-grained RBAC permissions.
 </Note>
 
-<AccordionGroup>
-  <Accordion title="Option 1: Switch Off Authorization">
-    If you want to continue using security key authentication:
+Pick one:
 
+<AccordionGroup>
+  <Accordion title="Option 1: Switch off Authorization">
     1. **Disable Authorization** from the AgentOS Control Plane
     2. Continue using security key authentication only
   </Accordion>
 
   <Accordion title="Option 2: Switch to Authorization (Preferred)" defaultOpen={true}>
-    If you want to use Authorization with JWT verification:
-
     1. **Disable security key authentication** from the AgentOS Control Plane
     2. **Unset the security key** from your environment:
 
     ```bash
-    # Remove the old security key
     unset OS_SECURITY_KEY
     ```
 
-    3. **Ensure Authorization is enabled** on the AgentOS Control Plane and set the verification key. [More info](https://docs.agno.com/agent-os/security/overview#switching-to-rbac)
+    3. **Ensure Authorization is enabled** on the AgentOS Control Plane and set the verification key. [More info](/agent-os/security/rbac)
 
     ```bash
-    # Set the new JWT verification key
     export JWT_VERIFICATION_KEY="your-public-key"
     ```
   </Accordion>
@@ -64,5 +106,6 @@ Authorization (JWT verification) is preferred over security key authentication a
 
 ## Next Steps
 
-- [JWT Authorization configuration](https://docs.agno.com/agent-os/security/overview)
-- [Migration to RBAC](https://docs.agno.com/agent-os/security/overview#switching-to-rbac)
+- [AgentOS Security overview](/agent-os/security/overview)
+- [RBAC reference](/agent-os/security/rbac)
+- [AuthorizationConfig reference](/reference/agent-os/authorization-config)

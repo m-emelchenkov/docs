@@ -38,19 +38,9 @@ Set the `JWT_VERIFICATION_KEY` environment variable to your public key in your `
 export JWT_VERIFICATION_KEY="your-public-key"
 ```
 
-You can generate a key pair from the control plane when connecting a new OS or from the Settings page for an existing OS.
-
-<video
-  autoPlay
-  muted
-  controls
-  className="w-full aspect-video"
-  src="/videos/auth-on-connect-web.mp4"
-></video>
-
 Requests without a valid JWT return `401 Unauthorized`. Requests with insufficient scopes return `403 Forbidden`.
 
-See [RBAC Documentation](/agent-os/security/rbac) for scope format, available scopes, and endpoint mappings.
+See the [RBAC documentation](/agent-os/security/rbac) for the full setup flow, scope reference, and endpoint mappings.
 
 <CardGroup cols={2}>
   <Card

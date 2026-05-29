@@ -1,0 +1,193 @@
+---
+title: Basic RBAC (Asymmetric)
+sidebarTitle: Basic (Asymmetric)
+---
+
+Enable RBAC with JWT token authentication using RS256 asymmetric keys. Your auth server signs tokens with the private key. AgentOS verifies them with the matching public key.
+
+<Steps>
+
+  <Step title="Create a Python file">
+    ```python basic_rbac_asymmetric.py
+    """
+    Basic RBAC Example with AgentOS (Asymmetric Keys)
+
+    This example demonstrates how to enable RBAC (Role-Based Access Control)
+    with JWT token authentication using RS256 asymmetric keys.
+
+    RS256 uses:
+    - Private key: Used by your auth server to SIGN tokens
+    - Public key: Used by AgentOS to VERIFY token signatures
+
+    Prerequisites:
+    - Set JWT_SIGNING_KEY and JWT_VERIFICATION_KEY environment variables with your public and private keys (PEM format)
+    - Or generate keys at runtime for testing (as shown below)
+    - Endpoints are automatically protected with default scope mappings
+    """
+
+    import os
+    from datetime import UTC, datetime, timedelta
+
+    import jwt
+    from agno.agent import Agent
+    from agno.db.postgres import PostgresDb
+    from agno.models.openai import OpenAIChat
+    from agno.os import AgentOS
+    from agno.os.config import AuthorizationConfig
+    from agno.tools.websearch import WebSearchTools
+    from agno.utils.cryptography import generate_rsa_keys
+
+    # Keys file path for persistence across reloads
+    _KEYS_FILE = "/tmp/agno_rbac_demo_keys.json"
+
+
+    def _load_or_generate_keys():
+        """Load keys from file or generate new ones. Persists keys for reload consistency."""
+        import json
+
+        public_key = os.getenv("JWT_VERIFICATION_KEY", None)
+        private_key = os.getenv("JWT_SIGNING_KEY", None)
+
+        if public_key and private_key:
+            return private_key, public_key
+
+        if os.path.exists(_KEYS_FILE):
+            with open(_KEYS_FILE, "r") as f:
+                keys = json.load(f)
+                return keys["private_key"], keys["public_key"]
+
+        private_key, public_key = generate_rsa_keys()
+        with open(_KEYS_FILE, "w") as f:
+            json.dump({"private_key": private_key, "public_key": public_key}, f)
+
+        return private_key, public_key
+
+
+    PRIVATE_KEY, PUBLIC_KEY = _load_or_generate_keys()
+
+    # Setup database
+    db = PostgresDb(db_url="postgresql+psycopg://ai:ai@localhost:5532/ai")
+
+    # Create agent
+    research_agent = Agent(
+        id="research-agent",
+        name="Research Agent",
+        model=OpenAIChat(id="gpt-4o"),
+        db=db,
+        tools=[WebSearchTools()],
+        add_history_to_context=True,
+        markdown=True,
+    )
+
+    # Create AgentOS with RS256 (default algorithm)
+    agent_os = AgentOS(
+        id="my-agent-os",
+        description="RBAC Protected AgentOS",
+        agents=[research_agent],
+        authorization=True,
+        authorization_config=AuthorizationConfig(
+            verification_keys=[PUBLIC_KEY],
+            algorithm="RS256",
+        ),
+    )
+
+    # Get the app
+    app = agent_os.get_app()
+
+
+    if __name__ == "__main__":
+        if PRIVATE_KEY:
+            # Create test tokens signed with the PRIVATE key
+            user_token_payload = {
+                "sub": "user_123",
+                "session_id": "session_456",
+                "scopes": ["agents:read", "agents:run"],
+                "exp": datetime.now(UTC) + timedelta(hours=24),
+                "iat": datetime.now(UTC),
+            }
+            user_token = jwt.encode(user_token_payload, PRIVATE_KEY, algorithm="RS256")
+
+            admin_token_payload = {
+                "sub": "admin_789",
+                "session_id": "admin_session_123",
+                "scopes": ["agent_os:admin"],
+                "exp": datetime.now(UTC) + timedelta(hours=24),
+                "iat": datetime.now(UTC),
+            }
+            admin_token = jwt.encode(admin_token_payload, PRIVATE_KEY, algorithm="RS256")
+
+            print("\n" + "=" * 60)
+            print("RBAC Test Tokens (RS256 Asymmetric)")
+            print("=" * 60)
+            print(
+                "Keys loaded from: "
+                + (_KEYS_FILE if os.path.exists(_KEYS_FILE) else "environment variables")
+            )
+            print("To generate fresh keys, delete: " + _KEYS_FILE)
+
+            print("Public Key: \n" + PUBLIC_KEY)
+
+            print("\nAdmin Token (agent_os:admin - full access):")
+            print(admin_token)
+            print("\n" + "=" * 60 + "\n")
+
+        agent_os.serve(app="basic_rbac_asymmetric:app", port=7777, reload=True)
+    ```
+  </Step>
+
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U agno openai pyjwt cryptography ddgs "fastapi[standard]" uvicorn sqlalchemy pgvector psycopg
+    ```
+  </Step>
+
+  <Step title="Export your OpenAI API key">
+    <CodeGroup>
+    ```bash Mac/Linux
+    export OPENAI_API_KEY="your_openai_api_key_here"
+    ```
+
+    ```bash Windows
+    $Env:OPENAI_API_KEY="your_openai_api_key_here"
+    ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Setup PostgreSQL Database">
+    ```bash
+    docker run -d \
+      --name agno-postgres \
+      -e POSTGRES_DB=ai \
+      -e POSTGRES_USER=ai \
+      -e POSTGRES_PASSWORD=ai \
+      -p 5532:5432 \
+      pgvector/pgvector:pg17
+    ```
+  </Step>
+
+  <Step title="Run the AgentOS">
+    ```bash
+    python basic_rbac_asymmetric.py
+    ```
+
+    The server starts and prints a signed admin token to the console.
+  </Step>
+
+  <Step title="Test RBAC">
+    ```bash
+    # Set the token from console output
+    export TOKEN="<admin_token_from_console>"
+
+    # List agents
+    curl -H "Authorization: Bearer $TOKEN" http://localhost:7777/agents
+
+    # Run an agent
+    curl -X POST -H "Authorization: Bearer $TOKEN" \
+      -F "message=Search for latest AI news" \
+      http://localhost:7777/agents/research-agent/runs
+    ```
+  </Step>
+
+</Steps>
