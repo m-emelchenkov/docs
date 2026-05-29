@@ -307,7 +307,7 @@ See the [JWTMiddleware Reference](/reference/agent-os/jwt-middleware) for the co
 | `authorization` | Enable RBAC scope checking. If left `None` and `scope_mappings` is provided, RBAC is auto-enabled. | `None` (disabled unless `scope_mappings` set) |
 | `verify_audience` | Verify `aud` claim matches AgentOS ID | `False` |
 | `audience` | Expected audience(s) to validate the token's `aud` claim against. Accepts a string or a list of strings; the token matches if its audience matches any of them. | `AgentOS ID` |
-| `user_isolation` | Opt in to per-user data isolation. When `True`, route handlers scope the database per request and enforce session/run ownership for non-admin callers. When `False`, JWT and RBAC still apply but ownership gates stay dormant. | `False` |
+| `user_isolation` | Opt in to per-user data isolation. When `True`, AgentOS uses the JWT `sub` claim as the `user_id` for every non-admin caller: reads are scoped to it and writes are coerced to it, so callers can't see or persist other users' rows. Callers holding `admin_scope` bypass it. | `False` |
 | `scope_mappings` | Custom route-to-scope mappings (additive to defaults) | `None` |
 | `admin_scope` | Scope that grants full admin access | `"agent_os:admin"` |
 | `excluded_route_paths` | Routes to skip JWT/RBAC checks | See below |
