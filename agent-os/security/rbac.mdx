@@ -4,7 +4,7 @@ sidebarTitle: "RBAC"
 description: "Secure your AgentOS with fine-grained permissions."
 ---
 
-AgentOS validates the JWT on every request, then checks its scopes against the permissions required for each endpoint therefore adding  control for who can access and run your agents, teams, and workflows.
+AgentOS validates the JWT on every request, then checks its scopes against the permissions each endpoint requires. This controls who can access and run your agents, teams, and workflows.
 
 <img
   className="block dark:hidden"
@@ -40,7 +40,6 @@ agent_os = AgentOS(
 
 app = agent_os.get_app()
 ```
-
 
 
 ## Generate a Verification Key
@@ -120,7 +119,17 @@ export JWT_JWKS_FILE="/path/to/jwks.json"
 
 The control plane is one way to issue verification keys, not the only way. AgentOS verifies any JWT signed with a key you provide, so you can mint and verify tokens entirely on your own infrastructure.
 
-See [Basic RBAC (Asymmetric)](/agent-os/usage/rbac/basic-asymmetric) for a complete runnable example with keypair generation and signed token output.
+### Issuing tokens
+
+AgentOS verifies tokens but doesn't issue them. Generate them in your backend or identity provider, signed with the key whose public half or shared secret you set as a verification key. Include the claims from [JWT Token Structure](#jwt-token-structure); `scopes` is the claim RBAC checks.
+
+Send the token in the `Authorization` header:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:7777/agents
+```
+
+See the [Basic RBAC (Symmetric)](/agent-os/usage/rbac/basic-symmetric) and [Basic RBAC (Asymmetric)](/agent-os/usage/rbac/basic-asymmetric) examples for generating signed tokens end to end.
 
 ### Accepting multiple issuers
 
@@ -137,6 +146,50 @@ authorization_config=AuthorizationConfig(
 ```
 
 This keeps the AgentOS UI working through the control plane while your backend mints its own tokens for service-to-service or production traffic. All keys in the list must use the algorithm set in `algorithm`.
+
+## JWT Token Structure
+
+Your JWT tokens should include:
+```json
+{
+  "sub": "user-123",
+  "scopes": ["agents:read", "agents:my-agent:run"],
+  "exp": 1735689600,
+  "iat": 1735603200
+}
+```
+
+| Claim | Required | Description |
+|-------|----------|-------------|
+| `scopes` | Yes | Array of permission scopes |
+| `sub` | No | User ID (extracted as `user_id`) |
+| `session_id` | No | Session ID for session tracking |
+| `aud` | No | Audience (must match AgentOS `id` when `verify_audience=True`) |
+| `exp` | No | Expiry timestamp. Recommended; expired tokens are rejected. |
+| `iat` | No | Issued-at timestamp. |
+
+### Example Tokens
+
+**Read-only access:**
+```json
+{
+  "scopes": ["agents:read", "teams:read", "sessions:read"]
+}
+```
+
+**Run a specific agent:**
+```json
+{
+  "scopes": ["agents:my-agent:run", "agents:my-agent:read", "sessions:write"]
+}
+```
+
+**Admin access:**
+```json
+{
+  "scopes": ["agent_os:admin"]
+}
+```
 
 ## Scope Format
 
@@ -467,48 +520,6 @@ A caller holding `admin_scope` (default `agent_os:admin`) bypasses isolation and
 Isolation is off by default. JWT/RBAC still apply when `user_isolation=False`, but routes operate on the unscoped database and add no per-user ownership gates on top of RBAC. Per-user isolation requires a database that records `user_id` (PostgreSQL recommended for production).
 </Note>
 
-## JWT Token Structure
-
-Your JWT tokens should include:
-```json
-{
-  "sub": "user-123",
-  "scopes": ["agents:read", "agents:my-agent:run"],
-  "exp": 1735689600,
-  "iat": 1735603200
-}
-```
-
-| Claim | Required | Description |
-|-------|----------|-------------|
-| `scopes` | Yes | Array of permission scopes |
-| `sub` | No | User ID (extracted as `user_id`) |
-| `session_id` | No | Session ID for session tracking |
-| `aud` | No | Audience (must match AgentOS `id` when `verify_audience=True`) |
-
-### Example Tokens
-
-**Read-only access:**
-```json
-{
-  "scopes": ["agents:read", "teams:read", "sessions:read"]
-}
-```
-
-**Run a specific agent:**
-```json
-{
-  "scopes": ["agents:my-agent:run", "agents:my-agent:read", "sessions:write"]
-}
-```
-
-**Admin access:**
-```json
-{
-  "scopes": ["agent_os:admin"]
-}
-```
-
 ## Excluded Routes
 
 These routes are excluded from RBAC checks by default:
@@ -558,6 +569,13 @@ These routes are excluded from RBAC checks by default:
 ## Developer Resources
 
 <CardGroup cols={2}>
+  <Card
+    title="JWT Middleware"
+    icon="key"
+    href="/agent-os/middleware/jwt"
+  >
+    Configure token sources, claim extraction, and scope checking
+  </Card>
   <Card
     title="AuthorizationConfig Reference"
     icon="gear"
