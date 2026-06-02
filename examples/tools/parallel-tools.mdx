@@ -4,17 +4,7 @@ description: "Web search, deep research, and continuous monitoring with Parallel
 keywords: [parallel, web search, task api, monitor api, deep research, web monitoring]
 ---
 
-ParallelTools provide four APIs: Search (quick lookups), Extract (pull URL content), Task (deep research), and Monitor (track changes over time).
-
-## Prerequisites
-
-```bash
-uv pip install parallel-web
-```
-
-```bash
-export PARALLEL_API_KEY=***
-```
+Enable Agno agents with web search and extraction infrastructure from Parallel that prioritizes token efficiency and multi-hop reasoning.
 
 ## Search API
 
@@ -107,21 +97,36 @@ agent.print_response("List my monitors and fetch recent events", stream=True)
 
 ## Run the Examples
 
-```bash
-git clone https://github.com/agno-agi/agno.git
-cd agno
+<Steps>
+  <Step title="Clone and set up">
+    ```bash
+    git clone https://github.com/agno-agi/agno.git
+    cd agno
+    ```
+  </Step>
+  <Step title="Create virtual environment">
+    ```bash
+    ./scripts/demo_setup.sh
+    source .venvs/demo/bin/activate
+    ```
+  </Step>
+  <Step title="Export your API key">
+    ```bash
+    export PARALLEL_API_KEY=***
+    ```
+  </Step>
+  <Step title="Run an example">
+    ```bash
+    # Search API
+    python cookbook/91_tools/parallel/news_search.py
 
-./scripts/demo_setup.sh
-source .venvs/demo/bin/activate
+    # Task API
+    python cookbook/91_tools/parallel/company_enrichment.py
 
-# Search API
-python cookbook/91_tools/parallel/news_search.py
-
-# Task API
-python cookbook/91_tools/parallel/company_enrichment.py
-
-# Monitor API
-python cookbook/91_tools/parallel/competitor_tracker.py
-```
+    # Monitor API
+    python cookbook/91_tools/parallel/competitor_tracker.py
+    ```
+  </Step>
+</Steps>
 
 For more examples, see the [Parallel cookbook](https://github.com/agno-agi/agno/tree/main/cookbook/91_tools/parallel).
