@@ -1,26 +1,29 @@
 ---
-title: "Deepseek Tool Use"
-description: "Deepseek model example."
+title: "Xiaomi MiMo Tool Use"
+description: "Cookbook example for `xiaomi/tool_use.py`."
 ---
 ```python
-"""Run `uv pip install ddgs` to install dependencies."""
+"""
+Xiaomi MiMo Tool Use
+====================
 
-import asyncio
+Give the agent a web search tool and let it call tools while thinking mode is on
+(`use_thinking=True`). The model reasons about which tool to call, runs it, and
+folds the result into its answer.
+
+Run `uv pip install ddgs` to install dependencies.
+"""
 
 from agno.agent import Agent
-from agno.models.deepseek import DeepSeek
+from agno.models.xiaomi import MiMo
 from agno.tools.websearch import WebSearchTools
 
 # ---------------------------------------------------------------------------
 # Create Agent
 # ---------------------------------------------------------------------------
 
-"""
-DeepSeek V4 models support tool calls in both thinking and non-thinking modes.
-"""
-
 agent = Agent(
-    model=DeepSeek(id="deepseek-v4-flash"),
+    model=MiMo(id="mimo-v2.5-pro", use_thinking=True),
     tools=[WebSearchTools()],
     markdown=True,
 )
@@ -29,18 +32,18 @@ agent = Agent(
 # Run Agent
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    # --- Sync ---
-    agent.print_response("Whats happening in France?")
-
-    # --- Async + Streaming ---
-    asyncio.run(agent.aprint_response("Whats happening in France?", stream=True))
+    agent.print_response(
+        "What is happening in France?",
+        stream=True,
+        show_full_reasoning=True,
+    )
 ```
 
 ## Run the Example
 ```bash
 # Clone and setup repo
 git clone https://github.com/agno-agi/agno.git
-cd agno/cookbook/90_models/deepseek
+cd agno/cookbook/90_models/xiaomi
 
 # Create and activate virtual environment
 ./scripts/demo_setup.sh

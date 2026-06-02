@@ -1,0 +1,95 @@
+---
+title: Cloudflare
+sidebarTitle: Overview
+description: Use Cloudflare AI Gateway models with Agno agents.
+---
+
+[Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/) exposes an OpenAI-compatible unified API, so you reach multiple vendors through a single endpoint by setting the model id to a `vendor/model` route. The default vendor is [Workers AI](https://developers.cloudflare.com/workers-ai/models/), which needs only a Cloudflare token and account id.
+
+The `Cloudflare` class defaults to `@cf/meta/llama-3.3-70b-instruct-fp8-fast`. Agno rewrites any `@cf/...` id to `workers-ai/@cf/...` for the gateway.
+
+## Authentication
+
+Cloudflare needs an API token and your account id. The AI Gateway id is optional and falls back to `default`.
+
+| Variable                   | Required | Description                                                          |
+| -------------------------- | -------- | ------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`     | Yes      | API token. Create one at [dash.cloudflare.com](https://dash.cloudflare.com/profile/api-tokens). |
+| `CLOUDFLARE_ACCOUNT_ID`    | Yes      | Your account id, found in the Cloudflare dashboard.                  |
+| `CLOUDFLARE_AI_GATEWAY_ID` | No       | AI Gateway id. Defaults to `default`.                               |
+
+<CodeGroup>
+
+```bash Mac
+export CLOUDFLARE_API_TOKEN=***
+export CLOUDFLARE_ACCOUNT_ID=***
+export CLOUDFLARE_AI_GATEWAY_ID=***  # optional
+```
+
+```bash Windows
+setx CLOUDFLARE_API_TOKEN ***
+setx CLOUDFLARE_ACCOUNT_ID ***
+setx CLOUDFLARE_AI_GATEWAY_ID ***
+```
+
+</CodeGroup>
+
+## Example
+
+Use `Cloudflare` with your `Agent`:
+
+<CodeGroup>
+
+```python agent.py
+from agno.agent import Agent
+from agno.models.cloudflare import Cloudflare
+
+agent = Agent(
+    model=Cloudflare(id="@cf/meta/llama-3.3-70b-instruct-fp8-fast"),
+    markdown=True,
+)
+
+# Print the response in the terminal
+agent.print_response("Share a 2 sentence horror story.")
+```
+
+</CodeGroup>
+
+<Note> View more examples [here](/models/providers/gateways/cloudflare/usage/basic). </Note>
+
+## Parameters
+
+| Parameter    | Type            | Default                                       | Description                                                            |
+| ------------ | --------------- | --------------------------------------------- | --------------------------------------------------------------------- |
+| `id`         | `str`           | `"@cf/meta/llama-3.3-70b-instruct-fp8-fast"`  | The gateway model id. See [Model selection](#model-selection).        |
+| `name`       | `str`           | `"Cloudflare"`                                | The name of the model                                                 |
+| `provider`   | `str`           | `"Cloudflare"`                                | The provider of the model                                             |
+| `api_key`    | `Optional[str]` | `None`                                        | API token (defaults to `CLOUDFLARE_API_TOKEN` env var)                |
+| `account_id` | `Optional[str]` | `None`                                        | Account id (defaults to `CLOUDFLARE_ACCOUNT_ID` env var)              |
+| `gateway_id` | `Optional[str]` | `None`                                        | AI Gateway id (defaults to `CLOUDFLARE_AI_GATEWAY_ID`, or `default`)  |
+| `base_url`   | `Optional[str]` | `None`                                        | Override the gateway URL. Skips env-var lookup when set.              |
+| `max_tokens` | `Optional[int]` | `None`                                        | Maximum tokens to generate                                            |
+
+`Cloudflare` extends the OpenAI-compatible interface and supports most parameters from the [OpenAI model](/models/providers/native/openai/completion/overview). Use `use_json_mode=True` for structured output when a model does not support native structured outputs.
+
+## Model selection
+
+Pick the route by setting `id`:
+
+| Vendor              | Id format                          | Notes                                                                 |
+| ------------------- | ---------------------------------- | --------------------------------------------------------------------- |
+| Workers AI          | `@cf/<org>/<model>`                | Copy the binding id from the [model catalog](https://developers.cloudflare.com/workers-ai/models/). Agno prepends `workers-ai/`. |
+| OpenAI, Google, etc | `openai/<model>`, `google/<model>` | Requires the vendor's BYOK key stored in the AI Gateway dashboard.     |
+| Dynamic route       | `dynamic/<route>`                  | A route configured in the dashboard for fallbacks.                     |
+
+```python
+from agno.agent import Agent
+from agno.models.cloudflare import Cloudflare
+
+# Workers AI (Agno rewrites to workers-ai/@cf/...)
+agent = Agent(model=Cloudflare(id="@cf/google/gemma-4-26b-a4b-it"), markdown=True)
+```
+
+<Warning>
+Workers AI serves Google's open-weight Gemma models, not the standard Gemini API. Invented ids such as `@cf/.../gemini-...` return HTTP 400. For Gemini, use a `google/...` route with BYOK credentials. Vendor routes also need a model id from the Cloudflare docs.
+</Warning>

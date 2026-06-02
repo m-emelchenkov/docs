@@ -1,39 +1,32 @@
 ---
-title: "Deepseek Tool Use"
-description: "Deepseek model example."
+title: "Deepseek Reasoning Effort"
+description: "Cookbook example for `deepseek/reasoning_effort.py`."
 ---
 ```python
-"""Run `uv pip install ddgs` to install dependencies."""
-
-import asyncio
-
 from agno.agent import Agent
 from agno.models.deepseek import DeepSeek
-from agno.tools.websearch import WebSearchTools
 
 # ---------------------------------------------------------------------------
 # Create Agent
 # ---------------------------------------------------------------------------
 
-"""
-DeepSeek V4 models support tool calls in both thinking and non-thinking modes.
-"""
-
 agent = Agent(
-    model=DeepSeek(id="deepseek-v4-flash"),
-    tools=[WebSearchTools()],
+    model=DeepSeek(id="deepseek-v4-pro", reasoning_effort="max"),
     markdown=True,
+)
+
+task = (
+    "A farmer needs to cross a river with a fox, a chicken and a sack of grain. "
+    "The boat only fits the farmer and one item. The fox cannot be left alone with "
+    "the chicken, and the chicken cannot be left alone with the grain. "
+    "Provide a step-by-step solution."
 )
 
 # ---------------------------------------------------------------------------
 # Run Agent
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    # --- Sync ---
-    agent.print_response("Whats happening in France?")
-
-    # --- Async + Streaming ---
-    asyncio.run(agent.aprint_response("Whats happening in France?", stream=True))
+    agent.print_response(task, stream=True, show_full_reasoning=True)
 ```
 
 ## Run the Example
@@ -46,5 +39,5 @@ cd agno/cookbook/90_models/deepseek
 ./scripts/demo_setup.sh
 source .venvs/demo/bin/activate
 
-python tool_use.py
+python reasoning_effort.py
 ```

@@ -1,0 +1,47 @@
+---
+title: "Xiaomi MiMo Thinking Mode"
+description: "Cookbook example for `xiaomi/thinking_mode.py`."
+---
+```python
+from agno.agent import Agent
+from agno.models.xiaomi import MiMo
+
+# ---------------------------------------------------------------------------
+# Thinking enabled - returns reasoning_content
+# ---------------------------------------------------------------------------
+
+thinking_agent = Agent(
+    model=MiMo(id="mimo-v2.5-pro", use_thinking=True),
+    markdown=True,
+)
+
+# ---------------------------------------------------------------------------
+# Thinking disabled - faster, no reasoning_content
+# ---------------------------------------------------------------------------
+
+non_thinking_agent = Agent(
+    model=MiMo(id="mimo-v2.5-pro", use_thinking=False),
+    markdown=True,
+)
+
+# ---------------------------------------------------------------------------
+# Run Agents
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    thinking_agent.print_response("Why is the sky blue?", stream=True)
+
+    non_thinking_agent.print_response("Why is the sky blue?", stream=True)
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/90_models/xiaomi
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python thinking_mode.py
+```

@@ -1161,7 +1161,9 @@
                                   "models/providers/native/deepseek/usage/basic",
                                   "models/providers/native/deepseek/usage/basic-stream",
                                   "models/providers/native/deepseek/usage/tool-use",
-                                  "models/providers/native/deepseek/usage/structured-output"
+                                  "models/providers/native/deepseek/usage/structured-output",
+                                  "models/providers/native/deepseek/usage/thinking-mode",
+                                  "models/providers/native/deepseek/usage/reasoning-effort"
                                 ]
                               }
                             ]
@@ -1231,6 +1233,20 @@
                             ]
                           },
                           {
+                            "group": "Inception",
+                            "pages": [
+                              "models/providers/native/inception/overview",
+                              {
+                                "group": "Usage",
+                                "pages": [
+                                  "models/providers/native/inception/usage/basic",
+                                  "models/providers/native/inception/usage/tool-use",
+                                  "models/providers/native/inception/usage/structured-output"
+                                ]
+                              }
+                            ]
+                          },
+                          {
                             "group": "Meta",
                             "pages": [
                               "models/providers/native/meta/overview",
@@ -1247,6 +1263,20 @@
                                   "models/providers/native/meta/usage/image-input-bytes",
                                   "models/providers/native/meta/usage/knowledge",
                                   "models/providers/native/meta/usage/memory"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "group": "MiniMax",
+                            "pages": [
+                              "models/providers/native/minimax/overview",
+                              {
+                                "group": "Usage",
+                                "pages": [
+                                  "models/providers/native/minimax/usage/basic",
+                                  "models/providers/native/minimax/usage/tool-use",
+                                  "models/providers/native/minimax/usage/structured-output"
                                 ]
                               }
                             ]
@@ -1396,6 +1426,23 @@
                                   "models/providers/native/xai/usage/live-search-agent",
                                   "models/providers/native/xai/usage/live-search-agent-stream",
                                   "models/providers/native/xai/usage/reasoning-agent"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "group": "Xiaomi MiMo",
+                            "pages": [
+                              "models/providers/native/xiaomi/overview",
+                              {
+                                "group": "Usage",
+                                "pages": [
+                                  "models/providers/native/xiaomi/usage/basic",
+                                  "models/providers/native/xiaomi/usage/string-model",
+                                  "models/providers/native/xiaomi/usage/tool-use",
+                                  "models/providers/native/xiaomi/usage/structured-output",
+                                  "models/providers/native/xiaomi/usage/thinking-mode",
+                                  "models/providers/native/xiaomi/usage/reasoning-agent"
                                 ]
                               }
                             ]
@@ -1679,6 +1726,21 @@
                                       "models/providers/gateways/cerebras-openai/usage/knowledge"
                                     ]
                                   }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "group": "Cloudflare",
+                            "pages": [
+                              "models/providers/gateways/cloudflare/overview",
+                              {
+                                "group": "Usage",
+                                "pages": [
+                                  "models/providers/gateways/cloudflare/usage/basic",
+                                  "models/providers/gateways/cloudflare/usage/switch-model",
+                                  "models/providers/gateways/cloudflare/usage/tool-use",
+                                  "models/providers/gateways/cloudflare/usage/structured-output"
                                 ]
                               }
                             ]
@@ -2985,7 +3047,9 @@
                               "models/providers/native/deepseek/usage/basic",
                               "models/providers/native/deepseek/usage/basic-stream",
                               "models/providers/native/deepseek/usage/tool-use",
-                              "models/providers/native/deepseek/usage/structured-output"
+                              "models/providers/native/deepseek/usage/structured-output",
+                              "models/providers/native/deepseek/usage/thinking-mode",
+                              "models/providers/native/deepseek/usage/reasoning-effort"
                             ]
                           }
                         ]
@@ -3055,6 +3119,20 @@
                         ]
                       },
                       {
+                        "group": "Inception",
+                        "pages": [
+                          "models/providers/native/inception/overview",
+                          {
+                            "group": "Usage",
+                            "pages": [
+                              "models/providers/native/inception/usage/basic",
+                              "models/providers/native/inception/usage/tool-use",
+                              "models/providers/native/inception/usage/structured-output"
+                            ]
+                          }
+                        ]
+                      },
+                      {
                         "group": "Meta",
                         "pages": [
                           "models/providers/native/meta/overview",
@@ -3071,6 +3149,20 @@
                               "models/providers/native/meta/usage/image-input-bytes",
                               "models/providers/native/meta/usage/knowledge",
                               "models/providers/native/meta/usage/memory"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "group": "MiniMax",
+                        "pages": [
+                          "models/providers/native/minimax/overview",
+                          {
+                            "group": "Usage",
+                            "pages": [
+                              "models/providers/native/minimax/usage/basic",
+                              "models/providers/native/minimax/usage/tool-use",
+                              "models/providers/native/minimax/usage/structured-output"
                             ]
                           }
                         ]
@@ -3220,6 +3312,23 @@
                               "models/providers/native/xai/usage/live-search-agent",
                               "models/providers/native/xai/usage/live-search-agent-stream",
                               "models/providers/native/xai/usage/reasoning-agent"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "group": "Xiaomi MiMo",
+                        "pages": [
+                          "models/providers/native/xiaomi/overview",
+                          {
+                            "group": "Usage",
+                            "pages": [
+                              "models/providers/native/xiaomi/usage/basic",
+                              "models/providers/native/xiaomi/usage/string-model",
+                              "models/providers/native/xiaomi/usage/tool-use",
+                              "models/providers/native/xiaomi/usage/structured-output",
+                              "models/providers/native/xiaomi/usage/thinking-mode",
+                              "models/providers/native/xiaomi/usage/reasoning-agent"
                             ]
                           }
                         ]
@@ -3489,6 +3598,21 @@
                                   "models/providers/gateways/cerebras-openai/usage/knowledge"
                                 ]
                               }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "group": "Cloudflare",
+                        "pages": [
+                          "models/providers/gateways/cloudflare/overview",
+                          {
+                            "group": "Usage",
+                            "pages": [
+                              "models/providers/gateways/cloudflare/usage/basic",
+                              "models/providers/gateways/cloudflare/usage/switch-model",
+                              "models/providers/gateways/cloudflare/usage/tool-use",
+                              "models/providers/gateways/cloudflare/usage/structured-output"
                             ]
                           }
                         ]
@@ -6002,8 +6126,10 @@
                       "examples/models/deepseek/overview",
                       "examples/models/deepseek/basic",
                       "examples/models/deepseek/reasoning-agent",
+                      "examples/models/deepseek/reasoning-effort",
                       "examples/models/deepseek/retry",
                       "examples/models/deepseek/structured-output",
+                      "examples/models/deepseek/thinking-mode",
                       "examples/models/deepseek/thinking-tool-calls",
                       "examples/models/deepseek/tool-use"
                     ]
@@ -6324,6 +6450,16 @@
                     ]
                   },
                   {
+                    "group": "Cloudflare",
+                    "pages": [
+                      "examples/models/cloudflare/overview",
+                      "examples/models/cloudflare/basic",
+                      "examples/models/cloudflare/switch-model",
+                      "examples/models/cloudflare/tool-use",
+                      "examples/models/cloudflare/structured-output"
+                    ]
+                  },
+                  {
                     "group": "CometAPI",
                     "pages": [
                       "examples/models/cometapi/overview",
@@ -6358,6 +6494,15 @@
                       "examples/models/deepinfra/json-output",
                       "examples/models/deepinfra/retry",
                       "examples/models/deepinfra/tool-use"
+                    ]
+                  },
+                  {
+                    "group": "Inception",
+                    "pages": [
+                      "examples/models/inception/overview",
+                      "examples/models/inception/basic",
+                      "examples/models/inception/tool-use",
+                      "examples/models/inception/structured-output"
                     ]
                   },
                   {
@@ -6409,6 +6554,15 @@
                       "examples/models/litellm-openai/audio-input-agent",
                       "examples/models/litellm-openai/basic",
                       "examples/models/litellm-openai/tool-use"
+                    ]
+                  },
+                  {
+                    "group": "MiniMax",
+                    "pages": [
+                      "examples/models/minimax/overview",
+                      "examples/models/minimax/basic",
+                      "examples/models/minimax/tool-use",
+                      "examples/models/minimax/structured-output"
                     ]
                   },
                   {
@@ -6543,6 +6697,18 @@
                       "examples/models/vercel/knowledge",
                       "examples/models/vercel/retry",
                       "examples/models/vercel/tool-use"
+                    ]
+                  },
+                  {
+                    "group": "Xiaomi MiMo",
+                    "pages": [
+                      "examples/models/xiaomi/overview",
+                      "examples/models/xiaomi/basic",
+                      "examples/models/xiaomi/string-model",
+                      "examples/models/xiaomi/tool-use",
+                      "examples/models/xiaomi/structured-output",
+                      "examples/models/xiaomi/thinking-mode",
+                      "examples/models/xiaomi/reasoning-agent"
                     ]
                   }
                 ]

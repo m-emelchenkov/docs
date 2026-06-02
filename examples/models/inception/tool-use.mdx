@@ -1,26 +1,18 @@
 ---
-title: "Deepseek Tool Use"
-description: "Deepseek model example."
+title: "Inception Tool Use"
+description: "Cookbook example for `inception/tool_use.py`."
 ---
 ```python
-"""Run `uv pip install ddgs` to install dependencies."""
-
-import asyncio
-
 from agno.agent import Agent
-from agno.models.deepseek import DeepSeek
+from agno.models.inception import Inception
 from agno.tools.websearch import WebSearchTools
 
 # ---------------------------------------------------------------------------
 # Create Agent
 # ---------------------------------------------------------------------------
 
-"""
-DeepSeek V4 models support tool calls in both thinking and non-thinking modes.
-"""
-
 agent = Agent(
-    model=DeepSeek(id="deepseek-v4-flash"),
+    model=Inception(id="mercury-2"),
     tools=[WebSearchTools()],
     markdown=True,
 )
@@ -29,18 +21,14 @@ agent = Agent(
 # Run Agent
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    # --- Sync ---
-    agent.print_response("Whats happening in France?")
-
-    # --- Async + Streaming ---
-    asyncio.run(agent.aprint_response("Whats happening in France?", stream=True))
+    agent.print_response("Whats happening in France?", stream=True)
 ```
 
 ## Run the Example
 ```bash
 # Clone and setup repo
 git clone https://github.com/agno-agi/agno.git
-cd agno/cookbook/90_models/deepseek
+cd agno/cookbook/90_models/inception
 
 # Create and activate virtual environment
 ./scripts/demo_setup.sh

@@ -1,0 +1,60 @@
+---
+title: "Cloudflare Switching Models"
+description: "Cookbook example for `cloudflare/switch_model.py`."
+---
+```python
+"""
+Cloudflare AI Gateway - switching models (OpenRouter-style ids)
+===============================================================
+
+Pick one slash-separated route per client via ``id``. Changing model = new
+``Cloudflare(id=...)`` or a new ``Agent(model="cloudflare:...")`` string.
+
+The Cloudflare compat API does not support ``models=[...]`` fallbacks in the
+request body. Use AI Gateway Dynamic Routes and ``id="dynamic/<route>"`` instead.
+
+Requires ``CLOUDFLARE_API_TOKEN`` and ``CLOUDFLARE_ACCOUNT_ID``.
+"""
+
+from agno.agent import Agent
+from agno.models.cloudflare import DEFAULT_GATEWAY_MODEL, Cloudflare
+
+# Second Workers AI model: paste the same string as the catalog "copy" box on the model page.
+ALT_WORKERS_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+
+if __name__ == "__main__":
+    # Default Workers AI model (no explicit id).
+    Agent(model=Cloudflare(), markdown=True).print_response("Say hello in five words.")
+
+    # Pass the gateway route string as ``id``.
+    Agent(model=Cloudflare(id=DEFAULT_GATEWAY_MODEL), markdown=True).print_response(
+        "Say hello in five words."
+    )
+
+    # Switch model: new client instance with a different ``id``.
+    Agent(model=Cloudflare(id=ALT_WORKERS_MODEL), markdown=True).print_response(
+        "Say hello in five words."
+    )
+
+    # String syntax: everything after the first colon is the gateway ``model`` id.
+    Agent(
+        model=f"cloudflare:{ALT_WORKERS_MODEL}",
+        markdown=True,
+    ).print_response("Say hello in five words.")
+
+    # Dynamic route configured in the Cloudflare dashboard (example id only).
+    # Agent(model=Cloudflare(id="dynamic/my-route"), markdown=True).print_response("...")
+```
+
+## Run the Example
+```bash
+# Clone and setup repo
+git clone https://github.com/agno-agi/agno.git
+cd agno/cookbook/90_models/cloudflare
+
+# Create and activate virtual environment
+./scripts/demo_setup.sh
+source .venvs/demo/bin/activate
+
+python switch_model.py
+```

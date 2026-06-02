@@ -1,0 +1,81 @@
+---
+title: MiniMax
+sidebarTitle: Overview
+description: Use MiniMax models with Agno agents.
+---
+
+[MiniMax](https://www.minimax.io/) serves its text models through an OpenAI-compatible API, so you drive them through Agno like any other OpenAI-compatible provider.
+
+The `MiniMax` class defaults to `MiniMax-M2.7` and points at the international endpoint `https://api.minimax.io/v1`.
+
+## Authentication
+
+Create an API key from the [MiniMax platform dashboard](https://platform.minimax.io/).
+
+Set your `MINIMAX_API_KEY` environment variable.
+
+<CodeGroup>
+
+```bash Mac
+export MINIMAX_API_KEY=***
+```
+
+```bash Windows
+setx MINIMAX_API_KEY ***
+```
+
+</CodeGroup>
+
+## Example
+
+Use `MiniMax` with your `Agent`:
+
+<CodeGroup>
+
+```python agent.py
+from agno.agent import Agent
+from agno.models.minimax import MiniMax
+
+agent = Agent(model=MiniMax(id="MiniMax-M2.7"), markdown=True)
+
+# Print the response in the terminal
+agent.print_response("Share a 2 sentence horror story.")
+```
+
+</CodeGroup>
+
+<Note> View more examples [here](/models/providers/native/minimax/usage/basic). </Note>
+
+## Parameters
+
+| Parameter  | Type            | Default                       | Description                                                       |
+| ---------- | --------------- | ----------------------------- | --------------------------------------------------------------- |
+| `id`       | `str`           | `"MiniMax-M2.7"`              | The id of the MiniMax model to use                              |
+| `name`     | `str`           | `"MiniMax"`                   | The name of the model                                           |
+| `provider` | `str`           | `"MiniMax"`                   | The provider of the model                                       |
+| `api_key`  | `Optional[str]` | `None`                        | The API key for MiniMax (defaults to `MINIMAX_API_KEY` env var) |
+| `base_url` | `str`           | `"https://api.minimax.io/v1"` | The base URL for the MiniMax API                               |
+
+`MiniMax` extends the OpenAI-compatible interface and supports most parameters from the [OpenAI model](/models/providers/native/openai/completion/overview).
+
+**Note**: MiniMax does not implement OpenAI-style native `response_format` / strict `json_schema`, so `supports_native_structured_outputs` is set to `False`. Use `use_json_mode=True` for structured output.
+
+To hit a different host (private deployment, regional endpoint), pass `base_url`:
+
+```python
+MiniMax(id="MiniMax-M2.7", base_url="https://your-host.example.com/v1")
+```
+
+## Available Models
+
+The OpenAI-compatible endpoint exposes the M2 family. See the [models intro](https://platform.minimax.io/docs/guides/models-intro) for the current catalog.
+
+| Model id                  | Notes                                                       |
+| ------------------------- | ---------------------------------------------------------- |
+| `MiniMax-M2.7`            | Flagship MoE (230B total / 10B active), 205k context       |
+| `MiniMax-M2.7-highspeed`  | Same weights as M2.7, ~1.6-1.7x throughput                 |
+| `MiniMax-M2.5`            | Previous flagship                                          |
+| `MiniMax-M2.5-highspeed`  | Higher-throughput variant of M2.5                          |
+| `MiniMax-M2.1`            | Earlier release                                            |
+| `MiniMax-M2.1-highspeed`  | Higher-throughput variant of M2.1                          |
+| `MiniMax-M2`              | Earlier release                                            |

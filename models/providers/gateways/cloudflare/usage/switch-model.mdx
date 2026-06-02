@@ -1,0 +1,64 @@
+---
+title: Switching Models
+---
+
+## Code
+
+Pick one slash-separated route per client via `id`. Switching models means a new `Cloudflare(id=...)` or a new `Agent(model="cloudflare:...")` string. For fallbacks, configure an AI Gateway Dynamic Route and pass `id="dynamic/<route>"`.
+
+```python cookbook/90_models/cloudflare/switch_model.py
+from agno.agent import Agent
+from agno.models.cloudflare import DEFAULT_GATEWAY_MODEL, Cloudflare
+
+# Second Workers AI model: paste the same string as the catalog "copy" box on the model page.
+ALT_WORKERS_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+
+if __name__ == "__main__":
+    # Default Workers AI model (no explicit id).
+    Agent(model=Cloudflare(), markdown=True).print_response("Say hello in five words.")
+
+    # Pass the gateway route string as `id`.
+    Agent(model=Cloudflare(id=DEFAULT_GATEWAY_MODEL), markdown=True).print_response(
+        "Say hello in five words."
+    )
+
+    # Switch model: new client instance with a different `id`.
+    Agent(model=Cloudflare(id=ALT_WORKERS_MODEL), markdown=True).print_response(
+        "Say hello in five words."
+    )
+
+    # String syntax: everything after the first colon is the gateway `model` id.
+    Agent(
+        model=f"cloudflare:{ALT_WORKERS_MODEL}",
+        markdown=True,
+    ).print_response("Say hello in five words.")
+
+    # Dynamic route configured in the Cloudflare dashboard (example id only).
+    # Agent(model=Cloudflare(id="dynamic/my-route"), markdown=True).print_response("...")
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your environment variables">
+    ```bash
+    export CLOUDFLARE_API_TOKEN=xxx
+    export CLOUDFLARE_ACCOUNT_ID=xxx
+    export CLOUDFLARE_AI_GATEWAY_ID=xxx  # optional, defaults to "default"
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U openai agno
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash
+    python cookbook/90_models/cloudflare/switch_model.py
+    ```
+  </Step>
+</Steps>

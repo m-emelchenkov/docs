@@ -1,0 +1,79 @@
+---
+title: Xiaomi MiMo
+sidebarTitle: Overview
+description: Use Xiaomi MiMo models with Agno agents.
+---
+
+[Xiaomi MiMo](https://platform.xiaomimimo.com/) serves its models through an OpenAI-compatible API, so you drive them through Agno like any other OpenAI-compatible provider.
+
+The `MiMo` class defaults to `mimo-v2.5-pro` and points at `https://api.xiaomimimo.com/v1`.
+
+## Authentication
+
+Sign in with a Xiaomi account (register at [id.mi.com](https://id.mi.com) if you don't have one), then create a key in the [console](https://platform.xiaomimimo.com/) under **API Keys**.
+
+Set your `MIMO_API_KEY` environment variable.
+
+<CodeGroup>
+
+```bash Mac
+export MIMO_API_KEY=***
+```
+
+```bash Windows
+setx MIMO_API_KEY ***
+```
+
+</CodeGroup>
+
+## Example
+
+Use `MiMo` with your `Agent`:
+
+<CodeGroup>
+
+```python agent.py
+from agno.agent import Agent
+from agno.models.xiaomi import MiMo
+
+agent = Agent(model=MiMo(id="mimo-v2.5-pro"), markdown=True)
+
+# Print the response in the terminal
+agent.print_response("Share a 2 sentence horror story.")
+```
+
+</CodeGroup>
+
+<Note> View more examples [here](/models/providers/native/xiaomi/usage/basic). </Note>
+
+## Parameters
+
+| Parameter      | Type             | Default                          | Description                                                      |
+| -------------- | ---------------- | -------------------------------- | --------------------------------------------------------------- |
+| `id`           | `str`            | `"mimo-v2.5-pro"`                | The id of the MiMo model to use                                 |
+| `name`         | `str`            | `"MiMo"`                         | The name of the model                                           |
+| `provider`     | `str`            | `"Xiaomi MiMo"`                  | The provider of the model                                       |
+| `api_key`      | `Optional[str]`  | `None`                           | The API key for MiMo (defaults to `MIMO_API_KEY` env var)       |
+| `base_url`     | `str`            | `"https://api.xiaomimimo.com/v1"`| The base URL for the MiMo API                                   |
+| `use_thinking` | `Optional[bool]` | `None`                           | Control thinking mode. See [Thinking mode](#thinking-mode).     |
+
+`MiMo` extends the OpenAI-compatible interface and supports most parameters from the [OpenAI model](/models/providers/native/openai/completion/overview).
+
+**Note**: MiMo supports JSON mode but not native `json_schema` structured outputs, so `supports_native_structured_outputs` is set to `False`. Use `use_json_mode=True` for structured output.
+
+## Thinking mode
+
+Control thinking mode with the `use_thinking` flag:
+
+| Value             | Behavior                                                        |
+| ----------------- | -------------------------------------------------------------- |
+| `None` (default)  | The flag is not sent; the API uses the model default.          |
+| `True`            | Force thinking on. The model returns `reasoning_content`.      |
+| `False`           | Force thinking off for a faster, cheaper response.            |
+
+```python
+from agno.agent import Agent
+from agno.models.xiaomi import MiMo
+
+agent = Agent(model=MiMo(id="mimo-v2.5-pro", use_thinking=True), markdown=True)
+```

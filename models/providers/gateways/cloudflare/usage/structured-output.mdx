@@ -4,12 +4,13 @@ title: Agent with Structured Outputs
 
 ## Code
 
-```python cookbook/90_models/deepseek/structured_output.py
+```python cookbook/90_models/cloudflare/structured_output.py
 from typing import List
 
 from agno.agent import Agent, RunOutput  # noqa
-from agno.models.deepseek import DeepSeek
+from agno.models.cloudflare import Cloudflare
 from pydantic import BaseModel, Field
+from rich.pretty import pprint  # noqa
 
 
 class MovieScript(BaseModel):
@@ -31,27 +32,23 @@ class MovieScript(BaseModel):
     )
 
 
-# Agent that uses JSON mode (recommended for DeepSeek).
-# DeepSeek supports JSON mode but not native json_schema structured outputs,
-# so use_json_mode=True is the reliable path.
+# Agent that uses JSON mode
 json_mode_agent = Agent(
-    model=DeepSeek(id="deepseek-v4-flash"),
-    description="You help people write movie scripts.",
+    model=Cloudflare(id="@cf/google/gemma-4-26b-a4b-it"),
+    description="You write movie scripts.",
     output_schema=MovieScript,
     use_json_mode=True,
 )
 
-# Agent that uses native structured outputs (output_schema without JSON mode).
+# Agent that uses structured outputs
 structured_output_agent = Agent(
-    model=DeepSeek(id="deepseek-v4-flash"),
-    description="You help people write movie scripts.",
+    model=Cloudflare(id="@cf/google/gemma-4-26b-a4b-it"),
+    description="You write movie scripts.",
     output_schema=MovieScript,
 )
 
-if __name__ == "__main__":
-    json_mode_agent.print_response("New York")
-
-    structured_output_agent.print_response("New York")
+json_mode_agent.print_response("New York")
+structured_output_agent.print_response("New York")
 ```
 
 ## Usage
@@ -59,9 +56,11 @@ if __name__ == "__main__":
 <Steps>
   <Snippet file="create-venv-step.mdx" />
 
-  <Step title="Set your API key">
+  <Step title="Set your environment variables">
     ```bash
-    export DEEPSEEK_API_KEY=xxx
+    export CLOUDFLARE_API_TOKEN=xxx
+    export CLOUDFLARE_ACCOUNT_ID=xxx
+    export CLOUDFLARE_AI_GATEWAY_ID=xxx  # optional, defaults to "default"
     ```
   </Step>
 
@@ -73,7 +72,7 @@ if __name__ == "__main__":
 
   <Step title="Run Agent">
     ```bash
-    python cookbook/90_models/deepseek/structured_output.py
+    python cookbook/90_models/cloudflare/structured_output.py
     ```
   </Step>
 </Steps>

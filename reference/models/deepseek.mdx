@@ -9,11 +9,12 @@ The DeepSeek model provides access to DeepSeek's language models.
 
 | Parameter    | Type               | Default                                        | Description                                                           |
 | ------------ | ------------------ | ---------------------------------------------- | --------------------------------------------------------------------- |
-| `id`         | `str`              | `"deepseek-chat"`                              | The id of the DeepSeek model to use                                  |
+| `id`         | `str`              | `"deepseek-v4-flash"`                          | The id of the DeepSeek model to use                                  |
 | `name`       | `str`              | `"DeepSeek"`                                   | The name of the model                                                 |
 | `provider`   | `str`              | `"DeepSeek"`                                   | The provider of the model                                             |
 | `api_key`    | `Optional[str]`    | `None`                                         | The API key for DeepSeek (defaults to DEEPSEEK_API_KEY env var)      |
 | `base_url`   | `str`              | `"https://api.deepseek.com"`                   | The base URL for the DeepSeek API                                     |
+| `use_thinking` | `Optional[bool]` | `None`                                        | Control thinking mode. V4 models think by default                    |
 | `retries`    | `int`              | `0`                            | Number of retries to attempt before raising a ModelProviderError      |
 | `delay_between_retries` | `int`    | `1`                            | Delay between retries, in seconds                                     |
 | `exponential_backoff` | `bool`     | `False`                        | If True, the delay between retries is doubled each time               |

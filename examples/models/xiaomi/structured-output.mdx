@@ -1,24 +1,16 @@
 ---
-title: "Deepseek Structured Output"
-description: "Cookbook example for `deepseek/structured_output.py`."
+title: "Xiaomi MiMo Structured Output"
+description: "Cookbook example for `xiaomi/structured_output.py`."
 ---
 ```python
-"""
-Deepseek Structured Output
-==========================
-
-Cookbook example for `deepseek/structured_output.py`.
-"""
-
 from typing import List
 
-from agno.agent import Agent, RunOutput  # noqa
-from agno.models.deepseek import DeepSeek
+from agno.agent import Agent
+from agno.models.xiaomi import MiMo
 from pydantic import BaseModel, Field
-from rich.pretty import pprint  # noqa
 
 # ---------------------------------------------------------------------------
-# Create Agent
+# Define the output schema
 # ---------------------------------------------------------------------------
 
 
@@ -41,19 +33,19 @@ class MovieScript(BaseModel):
     )
 
 
-# Agent that uses JSON mode (recommended for DeepSeek).
-# DeepSeek supports JSON mode but not native json_schema structured outputs,
-# so use_json_mode=True is the reliable path.
-json_mode_agent = Agent(
-    model=DeepSeek(id="deepseek-v4-flash"),
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+# MiMo does not support native json_schema structured outputs, so use JSON mode.
+jsonagent = Agent(
+    model=MiMo(id="mimo-v2.5-pro"),
     description="You help people write movie scripts.",
     output_schema=MovieScript,
     use_json_mode=True,
 )
-
-# Agent that uses native structured outputs (output_schema without JSON mode).
-structured_output_agent = Agent(
-    model=DeepSeek(id="deepseek-v4-flash"),
+structureagent = Agent(
+    model=MiMo(id="mimo-v2.5-pro"),
     description="You help people write movie scripts.",
     output_schema=MovieScript,
 )
@@ -61,18 +53,16 @@ structured_output_agent = Agent(
 # ---------------------------------------------------------------------------
 # Run Agent
 # ---------------------------------------------------------------------------
-
 if __name__ == "__main__":
-    json_mode_agent.print_response("New York")
-
-    structured_output_agent.print_response("New York")
+    jsonagent.print_response("New York")
+    structureagent.print_response("New York")
 ```
 
 ## Run the Example
 ```bash
 # Clone and setup repo
 git clone https://github.com/agno-agi/agno.git
-cd agno/cookbook/90_models/deepseek
+cd agno/cookbook/90_models/xiaomi
 
 # Create and activate virtual environment
 ./scripts/demo_setup.sh

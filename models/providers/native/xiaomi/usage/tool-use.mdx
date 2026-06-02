@@ -1,0 +1,51 @@
+---
+title: Agent with Tools
+---
+
+## Code
+
+```python cookbook/90_models/xiaomi/tool_use.py
+from agno.agent import Agent
+from agno.models.xiaomi import MiMo
+from agno.tools.websearch import WebSearchTools
+
+# Give the agent a web search tool and let it call tools while thinking mode is
+# on (`use_thinking=True`). The model reasons about which tool to call, runs it,
+# and folds the result into its answer.
+agent = Agent(
+    model=MiMo(id="mimo-v2.5-pro", use_thinking=True),
+    tools=[WebSearchTools()],
+    markdown=True,
+)
+
+if __name__ == "__main__":
+    agent.print_response(
+        "What is happening in France?",
+        stream=True,
+        show_full_reasoning=True,
+    )
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your API key">
+    ```bash
+    export MIMO_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U openai ddgs agno
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash
+    python cookbook/90_models/xiaomi/tool_use.py
+    ```
+  </Step>
+</Steps>

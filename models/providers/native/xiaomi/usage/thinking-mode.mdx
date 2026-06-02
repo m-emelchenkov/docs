@@ -1,0 +1,51 @@
+---
+title: Toggle Thinking Mode
+---
+
+## Code
+
+```python cookbook/90_models/xiaomi/thinking_mode.py
+from agno.agent import Agent
+from agno.models.xiaomi import MiMo
+
+# Thinking enabled - returns reasoning_content
+thinking_agent = Agent(
+    model=MiMo(id="mimo-v2.5-pro", use_thinking=True),
+    markdown=True,
+)
+
+# Thinking disabled - faster, no reasoning_content
+non_thinking_agent = Agent(
+    model=MiMo(id="mimo-v2.5-pro", use_thinking=False),
+    markdown=True,
+)
+
+if __name__ == "__main__":
+    thinking_agent.print_response("Why is the sky blue?", stream=True)
+
+    non_thinking_agent.print_response("Why is the sky blue?", stream=True)
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your API key">
+    ```bash
+    export MIMO_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U openai agno
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash
+    python cookbook/90_models/xiaomi/thinking_mode.py
+    ```
+  </Step>
+</Steps>

@@ -1,50 +1,52 @@
 ---
-title: "Deepseek Tool Use"
-description: "Deepseek model example."
+title: "MiniMax Basic"
+description: "Cookbook example for `minimax/basic.py`."
 ---
 ```python
-"""Run `uv pip install ddgs` to install dependencies."""
+"""
+MiniMax Basic
+=============
+
+Cookbook example for `minimax/basic.py`.
+"""
 
 import asyncio
 
 from agno.agent import Agent
-from agno.models.deepseek import DeepSeek
-from agno.tools.websearch import WebSearchTools
+from agno.models.minimax import MiniMax
 
 # ---------------------------------------------------------------------------
 # Create Agent
 # ---------------------------------------------------------------------------
 
-"""
-DeepSeek V4 models support tool calls in both thinking and non-thinking modes.
-"""
-
-agent = Agent(
-    model=DeepSeek(id="deepseek-v4-flash"),
-    tools=[WebSearchTools()],
-    markdown=True,
-)
+agent = Agent(model=MiniMax(id="MiniMax-M2.7"), markdown=True)
 
 # ---------------------------------------------------------------------------
 # Run Agent
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     # --- Sync ---
-    agent.print_response("Whats happening in France?")
+    agent.print_response("Share a 2 sentence horror story.")
+
+    # --- Sync + Streaming ---
+    agent.print_response("Share a 2 sentence horror story.", stream=True)
+
+    # --- Async ---
+    asyncio.run(agent.aprint_response("Share a 2 sentence horror story."))
 
     # --- Async + Streaming ---
-    asyncio.run(agent.aprint_response("Whats happening in France?", stream=True))
+    asyncio.run(agent.aprint_response("Share a 2 sentence horror story.", stream=True))
 ```
 
 ## Run the Example
 ```bash
 # Clone and setup repo
 git clone https://github.com/agno-agi/agno.git
-cd agno/cookbook/90_models/deepseek
+cd agno/cookbook/90_models/minimax
 
 # Create and activate virtual environment
 ./scripts/demo_setup.sh
 source .venvs/demo/bin/activate
 
-python tool_use.py
+python basic.py
 ```

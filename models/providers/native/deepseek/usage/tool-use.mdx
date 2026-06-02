@@ -4,18 +4,26 @@ title: Agent with Tools
 
 ## Code
 
-```python cookbook/11_models/deepseek/tool_use.py
+```python cookbook/90_models/deepseek/tool_use.py
+import asyncio
+
 from agno.agent import Agent
 from agno.models.deepseek import DeepSeek
-from agno.tools.hackernews import HackerNewsTools
+from agno.tools.websearch import WebSearchTools
 
+# DeepSeek V4 models support tool calls in both thinking and non-thinking modes.
 agent = Agent(
-    model=DeepSeek(id="deepseek-chat"),
-    tools=[HackerNewsTools()],
+    model=DeepSeek(id="deepseek-v4-flash"),
+    tools=[WebSearchTools()],
     markdown=True,
 )
 
-agent.print_response("Whats happening in France?")
+if __name__ == "__main__":
+    # --- Sync ---
+    agent.print_response("Whats happening in France?")
+
+    # --- Async + Streaming ---
+    asyncio.run(agent.aprint_response("Whats happening in France?", stream=True))
 ```
 
 ## Usage
@@ -31,13 +39,13 @@ agent.print_response("Whats happening in France?")
 
   <Step title="Install dependencies">
     ```bash
-    uv pip install -U openai agno
+    uv pip install -U openai ddgs agno
     ```
   </Step>
 
   <Step title="Run Agent">
     ```bash
-    python cookbook/11_models/deepseek/tool_use.py
+    python cookbook/90_models/deepseek/tool_use.py
     ```
   </Step>
 </Steps>

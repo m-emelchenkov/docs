@@ -1,0 +1,51 @@
+---
+title: Basic Agent
+---
+
+## Code
+
+```python cookbook/90_models/minimax/basic.py
+import asyncio
+
+from agno.agent import Agent
+from agno.models.minimax import MiniMax
+
+agent = Agent(model=MiniMax(id="MiniMax-M2.7"), markdown=True)
+
+if __name__ == "__main__":
+    # --- Sync ---
+    agent.print_response("Share a 2 sentence horror story.")
+
+    # --- Sync + Streaming ---
+    agent.print_response("Share a 2 sentence horror story.", stream=True)
+
+    # --- Async ---
+    asyncio.run(agent.aprint_response("Share a 2 sentence horror story."))
+
+    # --- Async + Streaming ---
+    asyncio.run(agent.aprint_response("Share a 2 sentence horror story.", stream=True))
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your API key">
+    ```bash
+    export MINIMAX_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U openai agno
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash
+    python cookbook/90_models/minimax/basic.py
+    ```
+  </Step>
+</Steps>

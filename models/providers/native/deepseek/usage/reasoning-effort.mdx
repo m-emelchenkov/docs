@@ -1,0 +1,51 @@
+---
+title: Reasoning Effort
+---
+
+## Code
+
+Set `reasoning_effort` to `"high"` or `"max"` for deeper reasoning on complex tasks. While thinking is active, `temperature`, `top_p`, `presence_penalty` and `frequency_penalty` are ignored by the API.
+
+```python cookbook/90_models/deepseek/reasoning_effort.py
+from agno.agent import Agent
+from agno.models.deepseek import DeepSeek
+
+agent = Agent(
+    model=DeepSeek(id="deepseek-v4-pro", reasoning_effort="max"),
+    markdown=True,
+)
+
+task = (
+    "A farmer needs to cross a river with a fox, a chicken and a sack of grain. "
+    "The boat only fits the farmer and one item. The fox cannot be left alone with "
+    "the chicken, and the chicken cannot be left alone with the grain. "
+    "Provide a step-by-step solution."
+)
+
+if __name__ == "__main__":
+    agent.print_response(task, stream=True, show_full_reasoning=True)
+```
+
+## Usage
+
+<Steps>
+  <Snippet file="create-venv-step.mdx" />
+
+  <Step title="Set your API key">
+    ```bash
+    export DEEPSEEK_API_KEY=xxx
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    uv pip install -U openai agno
+    ```
+  </Step>
+
+  <Step title="Run Agent">
+    ```bash
+    python cookbook/90_models/deepseek/reasoning_effort.py
+    ```
+  </Step>
+</Steps>
