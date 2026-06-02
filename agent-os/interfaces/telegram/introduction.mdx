@@ -7,6 +7,18 @@ keywords: [telegram, bot, interface, webhook, streaming, group chat, media, tool
 
 The Telegram interface exposes an Agno Agent, Team, or Workflow on Telegram via FastAPI webhook endpoints. It handles inbound messages (text, photos, audio, video, documents, stickers) and streams responses back to the originating chat.
 
+## Setup
+
+Requires a bot token from [@BotFather](https://t.me/BotFather) and a webhook URL.
+
+**Environment variables:**
+```bash
+export TELEGRAM_TOKEN="..."
+export TELEGRAM_WEBHOOK_SECRET_TOKEN="..."  # production only
+```
+
+See the [full setup guide](/agent-os/interfaces/telegram/setup) for step-by-step instructions.
+
 ## Example Usage
 
 Create an agent, expose it with the `Telegram` interface, and serve via `AgentOS`:
