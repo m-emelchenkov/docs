@@ -4939,27 +4939,9 @@
           {
             "group": "Interfaces",
             "pages": [
-              {
-                "group": "Slack",
-                "pages": [
-                  "deploy/interfaces/slack/overview",
-                  "deploy/interfaces/slack/setup"
-                ]
-              },
-              {
-                "group": "Telegram",
-                "pages": [
-                  "deploy/interfaces/telegram/overview",
-                  "deploy/interfaces/telegram/setup"
-                ]
-              },
-              {
-                "group": "WhatsApp",
-                "pages": [
-                  "deploy/interfaces/whatsapp/overview",
-                  "deploy/interfaces/whatsapp/setup"
-                ]
-              },
+              "deploy/interfaces/slack/overview",
+              "deploy/interfaces/telegram/overview",
+              "deploy/interfaces/whatsapp/overview",
               "deploy/interfaces/discord/overview",
               "deploy/interfaces/ag-ui/overview",
               "deploy/interfaces/a2a/overview"
