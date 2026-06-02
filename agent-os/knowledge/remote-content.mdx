@@ -1,0 +1,171 @@
+---
+title: Remote Content
+description: Upload content from registered cloud sources via the AgentOS Knowledge API.
+keywords: [knowledge, agentos, remote content, s3, gcs, sharepoint, github, azure blob, api]
+---
+
+Once a Knowledge instance has `content_sources` registered, AgentOS exposes them through the Knowledge API.
+
+```bash
+# Upload a file from a registered S3 source
+curl -X POST http://localhost:7777/knowledge/remote-content \
+  -F "config_id=company-s3" \
+  -F "path=reports/q4-2025.pdf" \
+  -F "name=Q4 Report"
+```
+
+## Register sources
+
+Register at least one source in `content_sources` on your Knowledge instance. See [Cloud Storage Sources](/knowledge/concepts/cloud-storage) for the provider classes (`S3Config`, `GcsConfig`, `SharePointConfig`, `GitHubConfig`, `AzureBlobConfig`) and their parameters.
+
+```python
+from agno.knowledge.knowledge import Knowledge
+from agno.knowledge.remote_content import S3Config, GitHubConfig
+
+knowledge = Knowledge(
+    vector_db=vector_db,
+    contents_db=contents_db,
+    content_sources=[
+        S3Config(id="company-s3", name="Company S3", bucket_name="my-bucket"),
+        GitHubConfig(id="docs-repo", name="Docs Repo", repo="acme/docs", token="..."),
+    ],
+)
+```
+
+The `id` values (`company-s3`, `docs-repo`) are what later cURL examples pass as `config_id`.
+
+## Discover registered sources
+
+The root `/knowledge/config` endpoint lists every configured remote source under `remote_content_sources`:
+
+```bash
+curl http://localhost:7777/knowledge/config | jq '.remote_content_sources'
+```
+
+```json
+[
+  { "id": "company-s3", "name": "Company S3", "type": "s3", "prefix": null },
+  { "id": "docs-repo",  "name": "Docs Repo",  "type": "github", "prefix": null }
+]
+```
+
+To scope to a specific Knowledge instance, use the per-instance endpoint:
+
+```bash
+curl http://localhost:7777/knowledge/{knowledge_id}/sources
+```
+
+The `id` returned here is the value to pass as `config_id` when uploading.
+
+| `type` value | Provider |
+|---|---|
+| `s3` | Amazon S3 |
+| `gcs` | Google Cloud Storage |
+| `sharepoint` | SharePoint |
+| `github` | GitHub |
+| `azureblob` | Azure Blob Storage |
+
+## Upload remote content
+
+`POST /knowledge/remote-content` accepts `application/x-www-form-urlencoded` and processes the content asynchronously.
+
+<CodeGroup>
+```python Python
+import requests
+
+response = requests.post(
+    "http://localhost:7777/knowledge/remote-content",
+    data={
+        "config_id": "company-s3",
+        "path": "reports/q4-2025.pdf",
+        "name": "Q4 Report",
+        "metadata": '{"team": "finance", "year": 2025}',
+    },
+)
+
+# 202 Accepted while the content is being processed
+print(response.status_code, response.json())
+```
+
+```bash cURL
+curl -X POST http://localhost:7777/knowledge/remote-content \
+  -F "config_id=company-s3" \
+  -F "path=reports/q4-2025.pdf" \
+  -F "name=Q4 Report" \
+  -F 'metadata={"team": "finance", "year": 2025}'
+```
+</CodeGroup>
+
+### Path semantics
+
+- A trailing `/` ingests every file under the prefix as a folder. Example: `reports/`.
+- No trailing `/` ingests a single file. Example: `reports/q4-2025.pdf`.
+
+`config_id` and `path` are required. See the [upload-remote-content reference](/reference-api/schema/knowledge/upload-remote-content) for all form fields and query parameters. Valid `reader_id` and `chunker` values come from [`/knowledge/config`](/reference-api/schema/knowledge/get-config) under `readers` and `chunkers`.
+
+## Per-request overrides with `source_params`
+
+`source_params` lets one configured source serve multiple targets. Today GitHub is the supported case: pass `repo` to point a single `GitHubConfig` at a different repository per request.
+
+```bash
+curl -X POST http://localhost:7777/knowledge/remote-content \
+  -F "config_id=docs-repo" \
+  -F "path=README.md" \
+  -F 'source_params={"repo": "acme/other-repo"}'
+```
+
+Without `source_params`, the request uses the values baked into the registered config.
+
+## Browse files in a source
+
+`GET /knowledge/{knowledge_id}/sources/{source_id}/files` returns paginated files and folder prefixes inside a source.
+
+<Warning>
+File listing is currently **S3 only**. Calls against `gcs`, `sharepoint`, `github`, or `azureblob` sources return `400 Bad Request` with detail `Source type '<ConfigClass>' does not support file listing`.
+</Warning>
+
+```bash
+curl "http://localhost:7777/knowledge/{knowledge_id}/sources/company-s3/files?prefix=reports/&limit=50"
+```
+
+```json
+{
+  "source_id": "company-s3",
+  "source_name": "Company S3",
+  "prefix": "reports/",
+  "folders": [
+    { "prefix": "reports/2025/", "name": "2025", "is_empty": false }
+  ],
+  "files": [
+    {
+      "key": "reports/annual-summary.pdf",
+      "name": "annual-summary.pdf",
+      "size": 102400,
+      "last_modified": "2025-01-15T10:30:00Z",
+      "content_type": "application/pdf"
+    }
+  ],
+  "meta": { "page": 1, "limit": 50, "total_pages": 1, "total_count": 1 }
+}
+```
+
+See the [list-files-in-source reference](/reference-api/schema/knowledge/list-files-in-source) for `prefix`, `limit`, `page`, `delimiter`, and `db_id`.
+
+For non-S3 sources, list available content with the provider's own tooling (for example, the GitHub API or the Azure portal) and pass the resulting path directly to `POST /knowledge/remote-content`.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Cloud Storage Sources" icon="cloud" href="/knowledge/concepts/cloud-storage">
+    Configure S3, GCS, SharePoint, GitHub, and Azure Blob providers.
+  </Card>
+  <Card title="Manage Knowledge" icon="database" href="/agent-os/knowledge/manage-knowledge">
+    Attach Knowledge instances to AgentOS and find their IDs.
+  </Card>
+  <Card title="Filter Knowledge" icon="filter" href="/agent-os/knowledge/filter-knowledge">
+    Apply metadata filters when agents search the knowledge base.
+  </Card>
+  <Card title="Upload Remote Content API" icon="code" href="/reference-api/schema/knowledge/upload-remote-content">
+    Full reference for `POST /knowledge/remote-content`.
+  </Card>
+</CardGroup>

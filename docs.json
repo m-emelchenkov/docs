@@ -4464,6 +4464,7 @@
                 "group": "Knowledge",
                 "pages": [
                   "agent-os/knowledge/manage-knowledge",
+                  "agent-os/knowledge/remote-content",
                   "agent-os/knowledge/filter-knowledge"
                 ]
               },
@@ -7793,6 +7794,8 @@
                   "reference-api/schema/knowledge/upload-content",
                   "reference-api/schema/knowledge/delete-all-content",
                   "reference-api/schema/knowledge/upload-remote-content",
+                  "reference-api/schema/knowledge/list-content-sources",
+                  "reference-api/schema/knowledge/list-files-in-source",
                   "reference-api/schema/knowledge/get-content-by-id",
                   "reference-api/schema/knowledge/delete-content-by-id",
                   "reference-api/schema/knowledge/update-content",

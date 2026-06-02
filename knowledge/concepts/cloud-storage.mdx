@@ -271,12 +271,17 @@ knowledge.insert(name="S3 Doc", remote_content=s3.file("doc.pdf"))
 knowledge.insert(name="GitHub Doc", remote_content=github.file("README.md"))
 ```
 
-When running with [AgentOS](/agent-os/overview), registered sources are exposed via the `/knowledge/{id}/sources` API endpoint for listing and browsing.
+## Using sources through AgentOS
+
+When the Knowledge instance is attached to [AgentOS](/agent-os/overview), every config registered in `content_sources` is exposed through the HTTP API. Discover them with `GET /knowledge/config` (under `remote_content_sources`), upload with `POST /knowledge/remote-content` using the config's `id`, and (for S3) browse files with `GET /knowledge/{knowledge_id}/sources/{source_id}/files`.
+
+See [Remote Content](/agent-os/knowledge/remote-content) for the full API workflow, `source_params` overrides, and per-source behavior.
 
 ## Next Steps
 
 | Task | Guide |
 |------|-------|
+| Ingest via the AgentOS API | [Remote Content](/agent-os/knowledge/remote-content) |
 | Content types overview | [Content Types](/knowledge/concepts/content-types) |
 | Filter search results | [Filtering](/knowledge/concepts/filters/overview) |
 | Set up a vector database | [Vector Databases](/knowledge/concepts/vector-db) |

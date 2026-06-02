@@ -36,19 +36,27 @@ Best for complex filtering with full logical control. Send structured filter obj
 <Tip>
 **When to use which:**
 - Use **dict filters** for simple queries like filtering by category or status
-- Use **filter expressions** when you need OR logic, exclusions (NOT), or range queries (GT/LT)
+- Use **filter expressions** when you need OR logic, exclusions (`NOT`), range queries (`GT`/`LT`/`GTE`/`LTE`), inequality (`NEQ`), or substring/prefix matching (`CONTAINS`/`STARTSWITH`)
 </Tip>
 
 ## Filter Operators
 
-Filter expressions support a range of comparison and logical operators:
+Filter expressions support comparison, string-matching, and logical operators.
 
 ### Comparison Operators
 
 - **`EQ(key, value)`** - Equality: field equals value
-- **`GT(key, value)`** - Greater than: field > value  
-- **`LT(key, value)`** - Less than: field < value
+- **`NEQ(key, value)`** - Inequality: field does not equal value
+- **`GT(key, value)`** - Greater than: `field > value`
+- **`GTE(key, value)`** - Greater than or equal: `field >= value`
+- **`LT(key, value)`** - Less than: `field < value`
+- **`LTE(key, value)`** - Less than or equal: `field <= value`
 - **`IN(key, [values])`** - Inclusion: field in list of values
+
+### String Matching Operators
+
+- **`CONTAINS(key, value)`** - field contains the substring (case-insensitive)
+- **`STARTSWITH(key, value)`** - field starts with the given prefix
 
 ### Logical Operators
 
@@ -56,17 +64,53 @@ Filter expressions support a range of comparison and logical operators:
 - **`OR(*filters)`** - At least one condition must be true
 - **`NOT(filter)`** - Negate a condition
 
-## Serialization Format
+<Note>
+**Nesting limit:** Filter expressions can be nested up to 10 levels deep. Deeper expressions are rejected during deserialization, fall into the error-handling path, and the request proceeds without filters (with a warning logged).
+</Note>
 
-Filter expression objects use a dictionary format with an `"op"` key that distinguishes them from regular dict filters:
+### Python operator overloads
+
+Filter expressions support Python's bitwise operators as shorthand for `AND`, `OR`, and `NOT`:
 
 ```python
-from agno.filters import EQ, GT, AND
+from agno.filters import EQ, GT
 
-# Python filter expression
-filter_expr = AND(EQ("status", "published"), GT("views", 1000))
+# These two are equivalent
+EQ("status", "published") & GT("views", 1000)
+AND(EQ("status", "published"), GT("views", 1000))
 
-# Serialized to JSON
+# OR
+EQ("priority", "high") | EQ("urgent", True)
+
+# NOT
+~EQ("status", "draft")
+```
+
+## Serialization Format
+
+Filter expression objects use a dictionary format with an `"op"` key that distinguishes them from regular dict filters. Field names differ per operator: `IN` takes `values` (plural); `NOT` takes `condition` (singular); `AND`/`OR` take `conditions` (plural); everything else takes `value`.
+
+### Comparison and string operators
+
+All comparison operators (`EQ`, `NEQ`, `GT`, `GTE`, `LT`, `LTE`) and string operators (`CONTAINS`, `STARTSWITH`) share the same shape:
+
+```json
+{"op": "EQ", "key": "status", "value": "published"}
+{"op": "GTE", "key": "views", "value": 1000}
+{"op": "CONTAINS", "key": "title", "value": "agno"}
+```
+
+### IN takes values (plural)
+
+```json
+{"op": "IN", "key": "category", "values": ["tech", "science"]}
+```
+
+Passing `"value"` instead of `"values"` is rejected by the deserializer.
+
+### AND and OR take conditions (plural)
+
+```json
 {
   "op": "AND",
   "conditions": [
@@ -74,6 +118,31 @@ filter_expr = AND(EQ("status", "published"), GT("views", 1000))
     {"op": "GT", "key": "views", "value": 1000}
   ]
 }
+```
+
+### NOT takes condition (singular)
+
+```json
+{
+  "op": "NOT",
+  "condition": {"op": "EQ", "key": "status", "value": "archived"}
+}
+```
+
+### Round-trip example
+
+```python
+from agno.filters import EQ, GT, AND
+
+filter_expr = AND(EQ("status", "published"), GT("views", 1000))
+filter_expr.to_dict()
+# {
+#   "op": "AND",
+#   "conditions": [
+#     {"op": "EQ", "key": "status", "value": "published"},
+#     {"op": "GT", "key": "views", "value": 1000}
+#   ]
+# }
 ```
 
 <Note>
@@ -238,6 +307,10 @@ curl ... -F 'knowledge_filters={"op": "UNKNOWN", "key": "status", "value": "x"}'
 # Invalid JSON
 curl ... -F 'knowledge_filters={invalid json}'
 # Result: Filter ignored, warning logged
+
+# Filter nested deeper than 10 levels
+curl ... -F 'knowledge_filters={"op": "NOT", "condition": {"op": "NOT", "condition": ...}}'
+# Result: Filter ignored, warning logged (depth limit exceeded)
 ```
 
 <Warning>

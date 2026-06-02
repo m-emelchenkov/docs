@@ -14,10 +14,12 @@ across different Agents or Teams as needed.
 
 Before setting up Knowledge management in AgentOS, ensure you have:
 
-- PostgreSQL database running and accessible - used for this example
-- Required dependencies installed: `uv pip install agno`
-- OpenAI API key configured (for embeddings)
+- A running [vector database](/knowledge/concepts/vector-db) and [contents database](/knowledge/concepts/contents-db) accessible to your application
+- An [embedder](/knowledge/concepts/embedder/overview) configured with any required API keys or credentials
+- Agno installed: `uv pip install agno`
 - Basic understanding of [Knowledge concepts](/knowledge/quickstart)
+
+The example below uses PostgreSQL (with pgvector) and OpenAI embeddings. Swap in any [supported vector database](/knowledge/vector-stores/index) or [embedder](/knowledge/concepts/embedder/overview).
 
 ## Example
 
@@ -97,34 +99,35 @@ if __name__ == "__main__":
 
 ### Screenshots
 The screenshots below show how you can access and manage your different Knowledge bases through the AgentOS interface:
-<img src="/images/agno_knowledge_db.png" alt="llm-app-aidev-run" />
-<img src="/images/agno_faq_db.png" alt="llm-app-aidev-run" />
+<img src="/images/agentos-manage-knowledge.png" alt="llm-app-aidev-run" />
 
 ## Knowledge ID
 
-Each Knowledge instance registered with AgentOS gets a deterministic `knowledge_id`. This ID is generated from the combination of the instance's `name`, database ID, and table name. The same inputs always produce the same ID, so it is stable across restarts.
+Each Knowledge instance registered with AgentOS gets a deterministic `knowledge_id`. It is a SHA256 hash of the instance's `name`, contents-database `id`, and `knowledge_table` name, formatted as a UUID-shaped string (8-4-4-4-12 hex). The same inputs always produce the same ID, so it is stable across restarts.
 
 Use `knowledge_id` in API calls to target a specific Knowledge instance:
 
 ```bash
 # List content sources
-curl http://localhost:7777/v1/knowledge/{knowledge_id}/sources
+curl http://localhost:7777/knowledge/{knowledge_id}/sources
 
 # Browse files in an S3 source
-curl "http://localhost:7777/v1/knowledge/{knowledge_id}/sources/{source_id}/files?prefix=reports/"
+curl "http://localhost:7777/knowledge/{knowledge_id}/sources/{source_id}/files?prefix=reports/"
 
 # Upload content
-curl -X POST http://localhost:7777/v1/knowledge/{knowledge_id}/content \
+curl -X POST http://localhost:7777/knowledge/{knowledge_id}/content \
   -F "file=@report.pdf" \
   -F "name=Q4 Report"
 ```
 
+For uploads from S3, GCS, SharePoint, GitHub, or Azure Blob (including `source_params` and S3 file browsing), see [Remote Content](/agent-os/knowledge/remote-content).
+
 ### Finding your Knowledge ID
 
-The `/knowledge/config` endpoint returns all registered Knowledge instances with their IDs:
+The root `/config` endpoint returns the full AgentOS configuration, including a `knowledge.knowledge_instances` list with the ID, name, and database details for every registered Knowledge instance:
 
 ```bash
-curl http://localhost:7777/v1/knowledge/config | jq '.knowledge_instances'
+curl http://localhost:7777/config | jq '.knowledge.knowledge_instances'
 ```
 
 ```json
@@ -132,21 +135,24 @@ curl http://localhost:7777/v1/knowledge/config | jq '.knowledge_instances'
   {
     "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "name": "documents_knowledge",
+    "description": null,
     "db_id": "agno_knowledge_db",
     "table": "agno_knowledge_contents"
   },
   {
     "id": "f9e8d7c6-b5a4-3210-fedc-ba0987654321",
     "name": "faq_knowledge",
+    "description": null,
     "db_id": "agno_faq_db",
     "table": "agno_faq_contents"
   }
 ]
 ```
 
+
 ### Backward compatibility
 
-If you have a single Knowledge instance, you can omit `knowledge_id` from API calls. For multiple instances, you can also use the `db_id` query parameter, but `knowledge_id` is preferred as it uniquely identifies the instance even when multiple instances share the same database.
+If you have a single Knowledge instance, you can omit `knowledge_id` from API calls. AgentOS will route to it automatically. For multiple instances, you can also use the `db_id` query parameter, but `knowledge_id` is preferred as it uniquely identifies the instance even when multiple instances share the same database.
 
 ## Best Practices
 
