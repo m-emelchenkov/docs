@@ -4649,16 +4649,6 @@
                 "pages": [
                   "agent-os/interfaces/overview",
                   {
-                    "group": "WhatsApp",
-                    "pages": [
-                      "agent-os/interfaces/whatsapp/introduction",
-                      "agent-os/interfaces/whatsapp/setup",
-                      "agent-os/interfaces/whatsapp/reference"
-                    ]
-                  },
-                  "agent-os/interfaces/a2a/introduction",
-                  "agent-os/interfaces/ag-ui/introduction",
-                  {
                     "group": "Slack",
                     "pages": [
                       "agent-os/interfaces/slack/introduction",
@@ -4674,7 +4664,17 @@
                       "agent-os/interfaces/telegram/setup",
                       "agent-os/interfaces/telegram/reference"
                     ]
-                  }
+                  },
+                  {
+                    "group": "WhatsApp",
+                    "pages": [
+                      "agent-os/interfaces/whatsapp/introduction",
+                      "agent-os/interfaces/whatsapp/setup",
+                      "agent-os/interfaces/whatsapp/reference"
+                    ]
+                  },
+                  "agent-os/interfaces/a2a/introduction",
+                  "agent-os/interfaces/ag-ui/introduction"
                 ]
               },
               {
