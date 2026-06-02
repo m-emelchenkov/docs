@@ -67,9 +67,11 @@ if __name__ == "__main__":
   <Step title="Export API keys">
     ```bash
     export ANTHROPIC_API_KEY=***
-    # Optional — keyless access is rate-limited
     export PARALLEL_API_KEY=***
     ```
+    <Tip>
+    The Parallel API key is optional. Keyless access is rate-limited; setting a key raises the ceiling.
+    </Tip>
   </Step>
   <Step title="Run the example">
     ```bash

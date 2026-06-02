@@ -15,6 +15,8 @@ keywords: [parallel, web search, extract, task api, monitor api, deep research, 
 
 ## Prerequisites
 
+The following examples require the `parallel-web` library and an API key which can be obtained from [Parallel](https://platform.parallel.ai).
+
 ```shell
 uv pip install -U parallel-web
 ```
@@ -23,7 +25,9 @@ uv pip install -U parallel-web
 export PARALLEL_API_KEY=***
 ```
 
-Get an API key from [Parallel](https://platform.parallel.ai).
+<Tip>
+The API key is optional. Keyless access is rate-limited; setting a key raises the ceiling.
+</Tip>
 
 ## Search API
 
