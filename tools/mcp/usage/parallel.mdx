@@ -18,7 +18,6 @@ from agno.tools.mcp.params import StreamableHTTPClientParams
 
 
 async def run_agent(message: str) -> None:
-    # Build headers — only add auth if key is present
     headers: dict[str, str] = {}
     api_key = getenv("PARALLEL_API_KEY")
     if api_key:

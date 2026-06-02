@@ -1,19 +1,25 @@
 ---
 title: "MCP Parallel Agent"
-description: "Create an agent that uses Parallel for web search via the MCP server."
+description: "Create an agent that uses Parallel for searching information using the Parallel MCP server."
 ---
 
+Web search using Parallel's MCP server. API key is optional (keyless access is rate-limited).
+
+## Prerequisites
+
+```bash
+uv pip install agno mcp anthropic
+```
+
+```bash
+export ANTHROPIC_API_KEY=***
+# Optional — keyless access is rate-limited
+export PARALLEL_API_KEY=***
+```
+
+## Example
+
 ```python
-"""Parallel MCP Agent - Web Search via Parallel MCP
-
-Setup:
-1. Install: uv pip install agno mcp anthropic
-2. Set ANTHROPIC_API_KEY environment variable
-3. Optionally set PARALLEL_API_KEY (keyless access is rate-limited)
-
-Parallel MCP Docs: https://docs.parallel.ai/integrations/mcp/search-mcp
-"""
-
 import asyncio
 from datetime import timedelta
 from os import getenv
@@ -25,7 +31,6 @@ from agno.tools.mcp.params import StreamableHTTPClientParams
 
 
 async def run_agent(message: str) -> None:
-    # Build headers — only add auth if key is present
     headers: dict[str, str] = {}
     api_key = getenv("PARALLEL_API_KEY")
     if api_key:
@@ -63,9 +68,6 @@ cd agno
 
 ./scripts/demo_setup.sh
 source .venvs/demo/bin/activate
-
-# Optional — keyless access is rate-limited
-export PARALLEL_API_KEY="***"
 
 python cookbook/91_tools/mcp/parallel.py
 ```
