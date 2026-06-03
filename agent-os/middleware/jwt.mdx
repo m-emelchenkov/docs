@@ -173,6 +173,25 @@ Use strong verification keys, store them securely (not in code), and enable vali
 - Set `samesite="strict"` for CSRF protection
 </Tip>
 
+## Local Development
+
+<Warning>
+Do not use `validate=False` in production. The middleware decodes claims without verifying the JWT signature.
+</Warning>
+
+Skip signature verification in local development, or when an upstream API gateway already validates JWTs.
+
+```python
+from agno.os.middleware.jwt import JWTMiddleware
+
+app.add_middleware(
+    JWTMiddleware,
+    validate=False,
+)
+```
+
+No verification key is required. Claims are extracted from the token but not authenticated.
+
 ## RBAC Authorization
 
 Enable Role-Based Access Control (RBAC) to validate JWT scopes against required permissions:
@@ -222,7 +241,7 @@ app.add_middleware(
 ```
 
 <Tip>
-For detailed RBAC documentation including all available scopes and default mappings, see [RBAC Documentation](/agent-os/security/rbac).
+For all available scopes and default endpoint mappings, see [Scopes](/agent-os/security/authorization/scopes).
 </Tip>
 
 
@@ -312,11 +331,11 @@ See the [JWTMiddleware Reference](/reference/agent-os/jwt-middleware) for the co
     Custom FastAPI app with JWT middleware and AgentOS integration.
   </Card>
   <Card
-    title="RBAC Documentation"
+    title="Authorization"
     icon="lock"
-    href="/agent-os/security/rbac"
+    href="/agent-os/security/authorization/overview"
   >
-    Detailed RBAC scopes, permissions, and access control configuration.
+    Scopes, roles, and access control configuration.
   </Card>
   <Card
     title="JWTMiddleware Reference"

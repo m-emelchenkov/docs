@@ -1,6 +1,6 @@
 ---
 title: Security & Auth
-description: "Build a layered security model: authenticate every request, use RBAC for roles, and isolate data and access between users."
+description: "Build a layered security model: authenticate every request, use scopes and roles for permissions, and isolate data between users."
 ---
 
 AgentOS security works in layers. Each one stops a different class of attack, from unauthenticated requests at the edge to cross-user data access in the database.
@@ -8,11 +8,12 @@ AgentOS security works in layers. Each one stops a different class of attack, fr
 | Layer | What it stops | Mechanism |
 |-------|---------------|-----------|
 | **Authentication** | Unauthenticated requests | JWT validation at the middleware |
-| **Authorization** | Authenticated but out-of-scope requests | RBAC scopes on every endpoint |
+| **Authorization** | Authenticated but out-of-scope requests | Scope checks on every endpoint |
 | **Request isolation** | Concurrent requests reading each other's data | Fresh, isolated object per request |
 | **User isolation** | Cross-user data leakage on shared endpoints | Opt-in using `AuthorizationConfig(user_isolation=True)` |
 
-AgentOS give you good defaults at every layer
+AgentOS gives you good defaults at every layer.
+
 <Note>
 
 Network-layer controls (rate limiting, WAF, IP allowlists, mTLS) live at your reverse proxy or API gateway layer.
@@ -21,7 +22,7 @@ Network-layer controls (rate limiting, WAF, IP allowlists, mTLS) live at your re
 
 ## Authentication
 
-A production AgentOS sits behind JWT-validating middleware. Every request carries a token signed by the [control plane](https://os.agno.com); your service verifies it with a public key.
+A production AgentOS sits behind JWT-validating middleware. Every request carries a token signed by the [AgentOS control plane](https://os.agno.com); your service verifies it with a public key.
 
 ```python
 from agno.os import AgentOS
@@ -64,11 +65,11 @@ A small set of public routes are exempt from the JWT requirement: `/`, `/health`
   </Step>
 </Steps>
 
-The control plane keeps the private key. Your service only ever sees the public key. JWTs are signed by the control plane and verified by your service. See [Generate a Verification Key](/agent-os/security/rbac#generate-a-verification-key) for the full walkthrough.
+The AgentOS control plane keeps the private key. Your service only ever sees the public key. JWTs are signed by the control plane and verified by your service. See [Generate a Verification Key](/agent-os/security/authorization/quickstart#generate-a-verification-key) for the full walkthrough.
 
 ### Custom JWT configuration
 
-If you're issuing JWTs from your own auth provider, pass an `AuthorizationConfig`:
+If you're issuing JWTs from your own backend, or from a third-party identity provider like WorkOS, Auth0, or Okta, pass an `AuthorizationConfig`:
 
 ```python
 from agno.os import AgentOS
@@ -79,7 +80,7 @@ agent_os = AgentOS(
     db=db,
     authorization=True,
     authorization_config=AuthorizationConfig(
-        verification_keys=["public-key-1", "public-key-2"],   # rotation
+        verification_keys=["public-key-1", "public-key-2"],   # multi-issuer
         algorithm="RS256",
         verify_audience=True,
         audience="my-agent-os",   # must match the token's `aud`; defaults to the AgentOS id
@@ -88,15 +89,17 @@ agent_os = AgentOS(
 )
 ```
 
-`verification_keys` is a list, so you can rotate keys without downtime. Old tokens validate against the old key, and new tokens against the new. Drop the old key once tokens have expired.
+`verification_keys` is a list. AgentOS tries each key in order until one verifies the token, so you can accept tokens from multiple issuers at the same time. For key rotation, use a JWKS file instead.
 
 With `verify_audience=True`, AgentOS rejects tokens whose `aud` claim doesn't match the expected audience. That expected value defaults to the AgentOS `id`; set `audience` to override it when your provider mints a different value.
 
 JWT claim names (`scopes`, `sub`) are configured on the JWT middleware itself, not on `AuthorizationConfig`. The defaults (`scopes` for the scopes claim, `sub` for the user id claim) match the tokens minted by the control plane.
 
-## Authorization (RBAC scopes)
+For the full self-hosted setup including multi-issuer, see [Self-Hosted](/agent-os/security/authorization/self-hosted).
 
-Every JWT carries a `scopes` claim. Endpoints are gated on scopes.
+## Authorization
+
+Every JWT carries a claim listing the caller's permissions (`scopes` by default; configurable via `scopes_claim` if your provider uses a different name, like WorkOS's `permissions`). Endpoints are gated on those scopes.
 
 | Scope | Grants |
 |-------|--------|
@@ -105,7 +108,7 @@ Every JWT carries a `scopes` claim. Endpoints are gated on scopes.
 | `agents:*:run` | Run any agent (same pattern for teams, workflows) |
 | `agent_os:admin` | Full access including session, memory, and trace queries |
 
-The control plane mints each token with the appropriate scopes. Scopes are bundled into roles and assigned to users in the control plane: AgentOS ships three default roles (owner, admin, member), and custom roles are available on Enterprise. See the [RBAC scope reference](/agent-os/security/rbac#scope-reference) for the full scope list, [Default Roles](/agent-os/security/rbac#default-roles) for what each grants, and [Custom Roles](/agent-os/security/rbac#custom-roles-and-scopes) to compose your own.
+The AgentOS control plane mints each token with the appropriate scopes. Scopes are bundled into roles and assigned to users in the control plane: the AgentOS control plane provides three default roles (owner, admin, member), and custom roles are available on Enterprise. Self-hosters define roles in their identity provider or backend. See the [scope reference](/agent-os/security/authorization/scopes#scope-reference) for the full scope list, [Default Roles](/agent-os/security/authorization/roles#default-roles) for what each grants, and [Custom Roles](/agent-os/security/authorization/roles#custom-roles) to compose your own.
 
 ## Request isolation
 
@@ -117,7 +120,7 @@ This is on by default for every run endpoint. There's nothing to configure.
 
 ## User isolation
 
-Per-user data isolation is **opt-in**. RBAC stays in force without it, but routes operate on the unscoped DB. A caller with `agents:my-agent:run` could read another user's sessions if they know the IDs. For multi-tenant deployments, turn it on:
+Per-user data isolation is **opt-in**. Authorization stays in force without it, but routes operate on the unscoped DB. A caller with `agents:my-agent:run` could read another user's sessions if they know the IDs. For multi-tenant deployments, turn it on:
 
 ```python
 from agno.os.config import AuthorizationConfig

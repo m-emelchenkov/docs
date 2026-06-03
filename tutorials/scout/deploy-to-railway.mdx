@@ -52,7 +52,7 @@ MIIBIjANBgkq...
 -----END PUBLIC KEY-----
 ```
 
-The Agno control plane handles JWT issuance, session management, traces, metrics, and the web UI. Scout just verifies the JWTs it sees. See the [AgentOS security docs](/agent-os/security/overview) for the full picture.
+The AgentOS control plane handles JWT issuance, session management, traces, metrics, and the web UI. Scout just verifies the JWTs it sees. See the [AgentOS security docs](/agent-os/security/overview) for the full picture.
 
 <Warning>
   Opting out is not recommended. If you must run production without auth (e.g. inside a private VPC behind another auth layer), flip `authorization=False` in [`app/main.py`](https://github.com/agno-agi/scout/blob/main/app/main.py) before deploying. Without it, anyone who guesses your Railway domain can query your CRM, wiki, and connected sources.

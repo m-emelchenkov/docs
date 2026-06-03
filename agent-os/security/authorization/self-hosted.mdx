@@ -1,0 +1,137 @@
+---
+title: "Self-Hosted (BYO Token)"
+sidebarTitle: "Self-Hosted (BYO Token)"
+description: "Run AgentOS without the AgentOS control plane by issuing and verifying your own JWTs."
+---
+
+AgentOS verifies any JWT signed with a key you provide. The AgentOS control plane is one issuer; you can also issue your own tokens, or accept tokens from third-party identity providers.
+
+## Issuance Models
+
+| Model | Tokens minted by | Verification key | When to use |
+|-------|------------------|------------------|-------------|
+| Control plane | `os.agno.com` | Public key from the control plane | Default. Works with the AgentOS UI out of the box. |
+| Self-hosted | Your backend or identity provider | The key you sign with | Air-gapped, on-prem, or full control over claims. |
+
+## Issuing Your Own Tokens
+
+Sign tokens in your backend with the matching verification key. Asymmetric algorithms (RS256, ES256) use a public key. Symmetric algorithms (HS256) use a shared secret. See [Algorithm Options](/reference/agent-os/authorization-config#algorithm-options) for the full list.
+
+Tokens must include the claims from [Token Structure](/agent-os/security/authorization/tokens#token-structure). The `scopes` claim controls what the caller can do.
+
+Configure AgentOS with the verification key:
+
+```python
+from agno.os import AgentOS
+from agno.os.config import AuthorizationConfig
+
+agent_os = AgentOS(
+    id="my-agent-os",
+    agents=[agent],
+    authorization=True,
+    authorization_config=AuthorizationConfig(
+        verification_keys=["your-public-key-or-shared-secret"],
+        algorithm="RS256",  # or "HS256" for shared secret
+    ),
+)
+```
+
+Send the token in the `Authorization` header:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:7777/agents
+```
+
+See the [Basic Authorization (Symmetric)](/agent-os/usage/rbac/basic-symmetric) and [Basic Authorization (Asymmetric)](/agent-os/usage/rbac/basic-asymmetric) examples for generating signed tokens end to end.
+
+<Note>
+For key rotation, use a JWKS file instead of a single verification key. AgentOS matches the JWT's `kid` header to the right key in the file. See [Configuration Options](/agent-os/security/authorization/quickstart#configuration-options) for the `jwks_file` setup.
+</Note>
+
+## Third-Party Identity Providers
+
+AgentOS works with any standards-compliant identity provider, including WorkOS, Auth0, Okta, Clerk, Supabase, Firebase, AWS Cognito, and Keycloak. There are no provider-specific integrations to install. The setup is the same for all of them:
+
+1. Download the provider's JWKS file or get its public key.
+2. Configure it as a verification key.
+3. Point the JWT middleware at the claim that carries permissions (`scopes_claim`), or use [custom scope mappings](/agent-os/security/authorization/customization) to define endpoint requirements in the provider's naming.
+
+### Example: WorkOS
+
+Download the JWKS file from your WorkOS environment:
+
+```bash
+curl https://api.workos.com/sso/jwks/$WORKOS_CLIENT_ID > workos-jwks.json
+```
+
+Point AgentOS at it. WorkOS tokens carry permissions under the `permissions` claim, so set `scopes_claim="permissions"` on the JWT middleware:
+
+```python
+from agno.os import AgentOS
+from agno.os.middleware.jwt import JWTMiddleware
+
+agent_os = AgentOS(
+    id="my-agent-os",
+    agents=[agent],
+)
+
+app = agent_os.get_app()
+
+app.add_middleware(
+    JWTMiddleware,
+    jwks_file="workos-jwks.json",
+    algorithm="RS256",
+    scopes_claim="permissions",
+    authorization=True,
+)
+```
+
+WorkOS access tokens carry `permissions`, `role`, `org_id`, and `sid` claims by default. If your WorkOS permission names already match AgentOS scopes (e.g., `agents:read`), the middleware passes them through directly. If they don't, use [custom scope mappings](/agent-os/security/authorization/customization) to redefine endpoint requirements in WorkOS's naming.
+
+## Accepting Multiple Issuers
+
+`verification_keys` is a list. AgentOS tries each key in order until one verifies the token. Pass a second key to accept tokens from both the AgentOS control plane and your own backend at the same time.
+
+```python
+authorization_config=AuthorizationConfig(
+    verification_keys=[
+        AGENTOS_CONTROL_PLANE_PUBLIC_KEY,  # tokens issued by os.agno.com
+        YOUR_BACKEND_PUBLIC_KEY,        # tokens minted by your service
+    ],
+    algorithm="RS256",
+)
+```
+
+This keeps the AgentOS UI working through the control plane while your backend mints its own tokens for service-to-service or production traffic. All keys in the list must use the algorithm set in `algorithm`.
+
+<Note>
+Order matters for performance, not correctness. AgentOS tries each key in order and stops at the first match. Put the most common issuer first to skip an extra decode attempt per request.
+</Note>
+
+## Reading Tokens from Cookies
+
+By default, AgentOS reads the JWT from the `Authorization: Bearer` header. For browser apps that hit AgentOS directly, use the JWT middleware to read from a cookie, or both.
+
+```python
+from agno.os.middleware.jwt import JWTMiddleware, TokenSource
+
+app = agent_os.get_app()
+
+app.add_middleware(
+    JWTMiddleware,
+    verification_keys=["your-public-key"],
+    algorithm="RS256",
+    token_source=TokenSource.BOTH,   # HEADER | COOKIE | BOTH
+    cookie_name="access_token",
+)
+```
+
+See [JWT Middleware](/agent-os/middleware/jwt#token-sources) for the full set of token-source options.
+
+## Next Steps
+
+| Task | Guide |
+|------|-------|
+| See claim structure and example tokens | [Tokens](/agent-os/security/authorization/tokens) |
+| See the full scope reference | [Scopes](/agent-os/security/authorization/scopes) |
+| Configure JWT middleware in depth | [JWT Middleware](/agent-os/middleware/jwt) |

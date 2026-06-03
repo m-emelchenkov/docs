@@ -4415,14 +4415,7 @@
               "agent-os/introduction",
               "agent-os/run-your-os",
               "agent-os/connect-your-os",
-              "agent-os/control-plane",
-              {
-                "group": "Security & Authorization",
-                "pages": [
-                  "agent-os/security/overview",
-                  "agent-os/security/rbac"
-                ]
-              }
+              "agent-os/control-plane"
             ]
           },
           {
@@ -4450,6 +4443,25 @@
                   "agent-os/middleware/overview",
                   "agent-os/middleware/custom",
                   "agent-os/middleware/jwt"
+                ]
+              },
+              {
+                "group": "Security & Authorization",
+                "pages": [
+                  "agent-os/security/overview",
+                  {
+                    "group": "Authorization",
+                    "pages": [
+                      "agent-os/security/authorization/overview",
+                      "agent-os/security/authorization/quickstart",
+                      "agent-os/security/authorization/tokens",
+                      "agent-os/security/authorization/self-hosted",
+                      "agent-os/security/authorization/scopes",
+                      "agent-os/security/authorization/roles",
+                      "agent-os/security/authorization/user-isolation",
+                      "agent-os/security/authorization/customization"
+                    ]
+                  }
                 ]
               },
               {
@@ -7937,6 +7949,10 @@
     {
       "source": "/runtime/security-and-auth",
       "destination": "/features/security-and-auth"
+    },
+    {
+      "source": "/agent-os/security/rbac",
+      "destination": "/agent-os/security/authorization/overview"
     },
     {
       "source": "/runtime/interfaces",

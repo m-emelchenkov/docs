@@ -1,0 +1,65 @@
+---
+title: "Roles"
+sidebarTitle: "Roles"
+description: "Default and custom roles in the AgentOS control plane."
+---
+
+Roles are named bundles of scopes assigned to users. Members inherit the scopes of every role assigned to them.
+
+<Note>
+The roles on this page are managed in the [AgentOS control plane](https://os.agno.com). If you're running [self-hosted](/agent-os/security/authorization/self-hosted), define roles in your identity provider or backend and include the appropriate scopes in the JWT.
+</Note>
+
+## Default Roles
+
+The AgentOS control plane provides three default roles for organization members.
+
+| Capability                          | Owner | Administrator | Member |
+|-------------------------------------|:-----:|:-------------:|:------:|
+| Run agents, teams, workflows        |   ✓   |       ✓       |   ✓    |
+| Create and update AgentOS resources |   ✓   |       ✓       |   ✓    |
+| Delete AgentOS resources            |   ✓   |       ✓       |        |
+| Create and update AgentOS instances |   ✓   |       ✓       |   ✓    |
+| Delete AgentOS instances            |   ✓   |               |        |
+| Manage members and roles            |   ✓   |       ✓       |        |
+| Update organization settings        |   ✓   |       ✓       |        |
+| View billing                        |   ✓   |       ✓       |   ✓    |
+| Update billing                      |   ✓   |               |        |
+| Delete the organization             |   ✓   |               |        |
+
+## Custom Roles
+
+<Note>
+Custom roles and scopes are available on the Enterprise plan. [Book a call](https://cal.com/team/agno/intro) or email [support@agno.com](mailto:support@agno.com) to enable.
+</Note>
+
+<Warning>
+Custom roles require JWT authentication. Without it, scope enforcement is skipped entirely by AgentOS and assigned roles have no effect.
+</Warning>
+
+Compose scopes into named roles in the AgentOS control plane and assign them to users in your organization.
+
+### Create a Custom Role
+
+1. Open the [Roles page](https://os.agno.com/settings/roles) in the control plane.
+2. Define a role name and select the scopes it grants.
+3. Save the role.
+
+### Assign a Role to a User
+
+Open the [Organization settings page](https://os.agno.com/settings/organization) and assign the role to a user.
+
+<video
+  autoPlay
+  muted
+  controls
+  className="w-full aspect-video"
+  src="/videos/roles.mp4"
+></video>
+
+## Next Steps
+
+| Task | Guide |
+|------|-------|
+| See the full scope reference | [Scopes](/agent-os/security/authorization/scopes) |
+| Isolate data per user | [Per-User Data Isolation](/agent-os/security/authorization/user-isolation) |

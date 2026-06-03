@@ -1,0 +1,73 @@
+---
+title: "JSON Web Tokens (JWT)"
+sidebarTitle: "JSON Web Tokens (JWT)"
+description: "JWT claim structure, example tokens, and how AgentOS reads them."
+---
+
+AgentOS reads the JWT from the `Authorization: Bearer <token>` header on every request. Tokens can come from the AgentOS control plane or your own backend.
+
+## Token Structure
+
+Your JWT tokens should include:
+
+```json
+{
+  "sub": "user-123",
+  "scopes": ["agents:read", "agents:my-agent:run"],
+  "exp": 1735689600,
+  "iat": 1735603200
+}
+```
+
+| Claim | Required | Description |
+|-------|----------|-------------|
+| `scopes` | Yes | Array of permission scopes |
+| `sub` | No | User ID (extracted as `user_id`) |
+| `session_id` | No | Session ID for session tracking |
+| `aud` | No | Audience (must match AgentOS `id` when `verify_audience=True`) |
+| `exp` | No | Expiry timestamp. Recommended; expired tokens are rejected. |
+| `iat` | No | Issued-at timestamp. |
+
+## Example Tokens
+
+**Read-only access:**
+
+```json
+{
+  "scopes": ["agents:read", "teams:read", "sessions:read"]
+}
+```
+
+**Run a specific agent:**
+
+```json
+{
+  "scopes": ["agents:my-agent:run", "agents:my-agent:read", "sessions:write"]
+}
+```
+
+**Admin access:**
+
+```json
+{
+  "scopes": ["agent_os:admin"]
+}
+```
+
+See [Scopes](/agent-os/security/authorization/scopes) for the full list.
+
+## Sending Tokens
+
+Send the token in the `Authorization` header:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:7777/agents
+```
+
+## Next Steps
+
+| Task | Guide |
+|------|-------|
+| Issue tokens from your own backend | [Self-Hosted](/agent-os/security/authorization/self-hosted) |
+| See the full scope reference | [Scopes](/agent-os/security/authorization/scopes) |
+| Configure JWT middleware directly | [JWT Middleware](/agent-os/middleware/jwt) |

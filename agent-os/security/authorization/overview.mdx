@@ -1,0 +1,135 @@
+---
+title: "Authorization"
+sidebarTitle: "Overview"
+description: "JWT validation and scope-based permissions for AgentOS endpoints."
+---
+
+AgentOS validates the JWT on every request, then checks its scopes against the permissions each endpoint requires. This controls who can access and run your agents, teams, and workflows.
+
+<img
+  className="block dark:hidden"
+  src="/images/jwt-verification-light.png"
+  alt="JWT verification flow"
+/>
+
+<img
+  className="hidden dark:block"
+  src="/images/jwt-verification-dark.png"
+  alt="JWT verification flow"
+/>
+
+Enable authorization when initializing AgentOS:
+
+```python
+from agno.agent import Agent
+from agno.models.openai import OpenAIResponses
+from agno.os import AgentOS
+
+
+agent = Agent(
+    id="my-agent",
+    model=OpenAIResponses(id="gpt-5.2"),
+)
+
+agent_os = AgentOS(
+    id="my-agent-os",
+    agents=[agent],
+    authorization=True,
+)
+
+app = agent_os.get_app()
+```
+
+## Key Concepts
+
+| Concept | Description |
+|---------|-------------|
+| Tokens | JWTs signed by the control plane or your own backend, sent as `Authorization: Bearer <token>` |
+| Scopes | Permission strings in the `scopes` claim, like `agents:read` or `agents:my-agent:run` |
+| Roles | Named bundles of scopes assigned to users (Owner, Administrator, Member, or custom) |
+| Isolation | Per-user data scoping for sessions, memories, and traces |
+
+## Learn How To
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="play" href="/agent-os/security/authorization/quickstart">
+    Enable authorization, set a verification key, and make your first authenticated request.
+  </Card>
+  <Card title="JSON Web Tokens (JWT)" icon="key" href="/agent-os/security/authorization/tokens">
+    JWT claim structure, example tokens, and how AgentOS reads them.
+  </Card>
+  <Card title="Self-Hosted (BYO Token)" icon="server" href="/agent-os/security/authorization/self-hosted">
+    Run AgentOS without the control plane by issuing and verifying your own JWTs.
+  </Card>
+  <Card title="Scopes" icon="shield" href="/agent-os/security/authorization/scopes">
+    Scope format and the full permission reference for every AgentOS endpoint.
+  </Card>
+  <Card title="Roles" icon="users" href="/agent-os/security/authorization/roles">
+    Default roles and custom roles defined in the control plane.
+  </Card>
+  <Card title="Per-User Data Isolation" icon="user-lock" href="/agent-os/security/authorization/user-isolation">
+    Scope sessions, memories, and traces to the caller's user ID.
+  </Card>
+  <Card title="Customization" icon="sliders" href="/agent-os/security/authorization/customization">
+    Override scope mappings to add custom endpoints or change defaults.
+  </Card>
+</CardGroup>
+
+## Examples
+
+<CardGroup cols={2}>
+  <Card
+    title="Basic Authorization (Symmetric)"
+    icon="lock"
+    href="/agent-os/usage/rbac/basic-symmetric"
+  >
+    Enable authorization with a shared-secret JWT (HS256).
+  </Card>
+  <Card
+    title="Basic Authorization (Asymmetric)"
+    icon="key"
+    href="/agent-os/usage/rbac/basic-asymmetric"
+  >
+    Sign with a private key, verify with the public key (RS256).
+  </Card>
+  <Card
+    title="Per-Agent Permissions"
+    icon="user"
+    href="/agent-os/usage/rbac/per-agent-permissions"
+  >
+    Grant specific permissions to specific agents.
+  </Card>
+  <Card
+    title="Per-User Data Isolation"
+    icon="users"
+    href="https://github.com/agno-agi/agno/blob/main/cookbook/05_agent_os/rbac/symmetric/user_isolation.py"
+  >
+    Scope sessions, memory, and traces per user with `user_isolation=True`.
+  </Card>
+</CardGroup>
+
+## Developer Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="JWT Middleware"
+    icon="key"
+    href="/agent-os/middleware/jwt"
+  >
+    Configure token sources, claim extraction, and scope checking.
+  </Card>
+  <Card
+    title="AuthorizationConfig Reference"
+    icon="gear"
+    href="/reference/agent-os/authorization-config"
+  >
+    Configuration options for JWT verification.
+  </Card>
+  <Card
+    title="JWTMiddleware Reference"
+    icon="code"
+    href="/reference/agent-os/jwt-middleware"
+  >
+    Complete JWT middleware class reference.
+  </Card>
+</CardGroup>

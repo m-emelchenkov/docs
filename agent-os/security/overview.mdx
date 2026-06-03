@@ -4,12 +4,12 @@ sidebarTitle: "Overview"
 description: "Secure your AgentOS with authentication and authorization."
 ---
 
-AgentOS supports two security mechanisms:
+AgentOS supports two security modes:
 
-| Method | Use Case |
-|--------|----------|
-| **Basic Authentication** | Simple key validation for development |
-| **RBAC** | JWT-powered authorization with fine-grained scopes for production |
+| Mode | When to use |
+|------|-------------|
+| **Basic Authentication** | Simple key validation for development. |
+| **Authorization** | 	JWT-powered authorization with fine-grained scopes for production. |
 
 ## Basic Authentication
 
@@ -20,9 +20,9 @@ export OS_SECURITY_KEY="your-secret-key"
 
 Requests without a valid `Authorization: Bearer <key>` header return `401 Unauthorized`.
 
-## Role-Based Access Control (RBAC)
+## Authorization
 
-RBAC validates JWT tokens and checks scopes against required permissions for each endpoint. Enable it with `authorization=True`:
+Authorization validates JWT tokens and checks scopes against required permissions for each endpoint. Enable it with `authorization=True`:
 ```python
 from agno.os import AgentOS
 
@@ -40,21 +40,21 @@ export JWT_VERIFICATION_KEY="your-public-key"
 
 Requests without a valid JWT return `401 Unauthorized`. Requests with insufficient scopes return `403 Forbidden`.
 
-See the [RBAC documentation](/agent-os/security/rbac) for the full setup flow, scope reference, and endpoint mappings.
+See [Authorization](/agent-os/security/authorization/overview) for the full setup flow, scope reference, and endpoint mappings.
 
 <CardGroup cols={2}>
   <Card
-    title="RBAC Documentation"
+    title="Authorization"
     icon="lock"
-    href="/agent-os/security/rbac"
+    href="/agent-os/security/authorization/overview"
   >
-    Complete scopes, permissions, and access control configuration.
+    JWT validation, scopes, roles, and per-user data isolation.
   </Card>
   <Card
     title="JWT Middleware"
     icon="key"
     href="/agent-os/middleware/jwt"
   >
-    JWT authentication with parameter injection and claims extraction.
+    Token sources, claim extraction, and parameter injection.
   </Card>
 </CardGroup>

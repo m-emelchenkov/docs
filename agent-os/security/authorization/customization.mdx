@@ -1,0 +1,41 @@
+---
+title: "Customization"
+sidebarTitle: "Customization"
+description: "Override scope mappings to add custom endpoints or change defaults."
+---
+
+Customize or extend the default scope mappings using the JWT middleware:
+
+```python
+from agno.os import AgentOS
+from agno.os.middleware import JWTMiddleware
+
+agent_os = AgentOS(
+    id="my-agent-os",
+    agents=[my_agent],
+)
+
+app = agent_os.get_app()
+
+app.add_middleware(
+    JWTMiddleware,
+    verification_keys=["your-jwt-key"],
+    algorithm="RS256",
+    authorization=True,
+    scope_mappings={
+        "GET /agents": ["custom:read"],
+        "POST /custom/endpoint": ["custom:write"],
+        "GET /public/stats": [],  # No scopes required
+    }
+)
+```
+
+Custom scope mappings are additive to the defaults. To override a default, specify the same route pattern with your custom scopes.
+
+## Next Steps
+
+| Task | Guide |
+|------|-------|
+| Configure JWT middleware in depth | [JWT Middleware](/agent-os/middleware/jwt) |
+| See the custom scope mappings example | [Custom scope mappings](/agent-os/usage/rbac/custom-scope-mappings) |
+| Reference the middleware class | [JWTMiddleware Reference](/reference/agent-os/jwt-middleware) |

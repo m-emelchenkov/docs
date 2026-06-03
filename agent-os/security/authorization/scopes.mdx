@@ -1,0 +1,230 @@
+---
+title: "Scopes"
+sidebarTitle: "Scopes"
+description: "Scope format and the full permission reference for every AgentOS endpoint."
+---
+
+Scopes are permission strings in the JWT `scopes` claim. Each AgentOS endpoint requires one or more scopes; requests with insufficient scopes return `403 Forbidden`.
+
+## Scope Format
+
+Scopes are hierarchical:
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| `resource:action` | `agents:read` | Access all resources of a type |
+| `resource:<id>:action` | `agents:my-agent:run` | Access a specific resource |
+| `resource:*:action` | `agents:*:read` | Wildcard (equivalent to global) |
+| `agent_os:admin` | - | Full access to all endpoints |
+
+## Scope Reference
+
+Scopes split across two enforcement layers. AgentOs control plane scopes are checked by the control plane. AgentOS scopes are checked by your runtime against incoming requests.
+
+Any `resource:action` scope also accepts a `resource:<id>:action` form to limit access to a specific resource. See [Scope Format](#scope-format).
+
+The `agent_os:admin` scope grants full access to every AgentOS endpoint below.
+
+### AgentOS Control Plane Scopes
+
+| Scope | Description |
+|-------|-------------|
+| `os:read` | View AgentOS instances in the organization |
+| `os:write` | Create and update AgentOS instances |
+| `os:delete` | Delete AgentOS instances |
+| `org:read` | View organization details |
+| `org:write` | Update organization details |
+| `org:delete` | Delete the organization |
+| `org:members:read` | View organization members |
+| `org:members:write` | Invite and update organization members |
+| `org:roles:read` | View organization roles and their scope assignments |
+| `org:roles:write` | Create and update organization role scopes |
+| `org:roles:delete` | Delete organization roles |
+| `billing:read` | View billing details and invoices |
+| `billing:write` | Update billing settings and payment methods |
+
+### AgentOS Scopes
+
+<Tabs>
+  <Tab title="Config">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `config:read` | `GET /config` | Read the OS configuration |
+    | `config:read` | `GET /models` | List available models |
+    | `config:write` | `POST /databases/all/migrate` | Run migrations on all databases |
+    | `config:write` | `POST /databases/*/migrate` | Run migrations on a specific database |
+  </Tab>
+
+  <Tab title="Registry">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `registry:read` | `GET /registry` | View the code-defined registry (tools, models, databases) |
+  </Tab>
+
+  <Tab title="Components">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `components:read` | `GET /components` | List components |
+    | `components:read` | `GET /components/*` | View a component |
+    | `components:read` | `GET /components/*/configs` | List a component's configs |
+    | `components:read` | `GET /components/*/configs/*` | View a component config |
+    | `components:read` | `GET /components/*/configs/current` | View the current component config |
+    | `components:write` | `POST /components` | Create a component |
+    | `components:write` | `POST /components/*/configs` | Create a component config |
+    | `components:write` | `POST /components/*/configs/*/set-current` | Mark a config as current |
+    | `components:write` | `PATCH /components/*` | Update a component |
+    | `components:write` | `PATCH /components/*/configs/*` | Update a component config |
+    | `components:delete` | `DELETE /components/*` | Delete a component |
+    | `components:delete` | `DELETE /components/*/configs/*` | Delete a component config |
+  </Tab>
+
+  <Tab title="Agents">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `agents:read` | `GET /agents` | List agents |
+    | `agents:read` | `GET /agents/*` | View an agent |
+    | `agents:write` | `POST /agents` | Create an agent |
+    | `agents:write` | `PATCH /agents/*` | Update an agent |
+    | `agents:delete` | `DELETE /agents/*` | Delete an agent |
+    | `agents:run` | `POST /agents/*/runs` | Run an agent |
+    | `agents:run` | `POST /agents/*/runs/*/continue` | Continue a paused run |
+    | `agents:run` | `POST /agents/*/runs/*/cancel` | Cancel a run |
+  </Tab>
+
+  <Tab title="Teams">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `teams:read` | `GET /teams` | List teams |
+    | `teams:read` | `GET /teams/*` | View a team |
+    | `teams:write` | `POST /teams` | Create a team |
+    | `teams:write` | `PATCH /teams/*` | Update a team |
+    | `teams:delete` | `DELETE /teams/*` | Delete a team |
+    | `teams:run` | `POST /teams/*/runs` | Run a team |
+    | `teams:run` | `POST /teams/*/runs/*/continue` | Continue a paused run |
+    | `teams:run` | `POST /teams/*/runs/*/cancel` | Cancel a run |
+  </Tab>
+
+  <Tab title="Workflows">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `workflows:read` | `GET /workflows` | List workflows |
+    | `workflows:read` | `GET /workflows/*` | View a workflow |
+    | `workflows:write` | `POST /workflows` | Create a workflow |
+    | `workflows:write` | `PATCH /workflows/*` | Update a workflow |
+    | `workflows:delete` | `DELETE /workflows/*` | Delete a workflow |
+    | `workflows:run` | `POST /workflows/*/runs` | Run a workflow |
+    | `workflows:run` | `POST /workflows/*/runs/*/continue` | Continue a paused run |
+    | `workflows:run` | `POST /workflows/*/runs/*/cancel` | Cancel a run |
+  </Tab>
+
+  <Tab title="Sessions">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `sessions:read` | `GET /sessions` | List sessions |
+    | `sessions:read` | `GET /sessions/*` | View a session |
+    | `sessions:write` | `POST /sessions` | Create a session |
+    | `sessions:write` | `POST /sessions/*/rename` | Rename a session |
+    | `sessions:write` | `PATCH /sessions/*` | Update a session |
+    | `sessions:delete` | `DELETE /sessions` | Delete sessions in bulk |
+    | `sessions:delete` | `DELETE /sessions/*` | Delete a session |
+  </Tab>
+
+  <Tab title="Memories">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `memories:read` | `GET /memories` | List memories |
+    | `memories:read` | `GET /memories/*` | View a memory |
+    | `memories:read` | `GET /memory_topics` | List memory topics |
+    | `memories:read` | `GET /user_memory_stats` | View user memory stats |
+    | `memories:write` | `POST /memories` | Create a memory |
+    | `memories:write` | `PATCH /memories/*` | Update a memory |
+    | `memories:write` | `POST /optimize-memories` | Optimize memories |
+    | `memories:delete` | `DELETE /memories` | Delete memories in bulk |
+    | `memories:delete` | `DELETE /memories/*` | Delete a memory |
+  </Tab>
+
+  <Tab title="Knowledge">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `knowledge:read` | `GET /knowledge/content` | List knowledge content |
+    | `knowledge:read` | `GET /knowledge/content/*` | View knowledge content |
+    | `knowledge:read` | `GET /knowledge/config` | View knowledge config |
+    | `knowledge:read` | `GET /knowledge/*/sources` | List knowledge sources |
+    | `knowledge:read` | `GET /knowledge/*/sources/*/files` | List files in a source |
+    | `knowledge:read` | `POST /knowledge/search` | Search knowledge |
+    | `knowledge:write` | `POST /knowledge/content` | Add knowledge content |
+    | `knowledge:write` | `POST /knowledge/remote-content` | Add remote knowledge content |
+    | `knowledge:write` | `PATCH /knowledge/content/*` | Update knowledge content |
+    | `knowledge:delete` | `DELETE /knowledge/content` | Delete knowledge content in bulk |
+    | `knowledge:delete` | `DELETE /knowledge/content/*` | Delete knowledge content |
+  </Tab>
+
+  <Tab title="Metrics">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `metrics:read` | `GET /metrics` | View metrics |
+    | `metrics:write` | `POST /metrics/refresh` | Refresh metrics |
+  </Tab>
+
+  <Tab title="Evals">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `evals:read` | `GET /eval-runs` | List eval runs |
+    | `evals:read` | `GET /eval-runs/*` | View an eval run |
+    | `evals:write` | `POST /eval-runs` | Create an eval run |
+    | `evals:write` | `PATCH /eval-runs/*` | Update an eval run |
+    | `evals:delete` | `DELETE /eval-runs` | Delete eval runs in bulk |
+  </Tab>
+
+  <Tab title="Traces">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `traces:read` | `GET /traces` | List traces |
+    | `traces:read` | `GET /traces/*` | View a trace |
+    | `traces:read` | `GET /trace_session_stats` | View trace session stats |
+    | `traces:read` | `POST /traces/search` | Search traces |
+  </Tab>
+
+  <Tab title="Schedules">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `schedules:read` | `GET /schedules` | List schedules |
+    | `schedules:read` | `GET /schedules/*` | View a schedule |
+    | `schedules:read` | `GET /schedules/*/runs` | List schedule runs |
+    | `schedules:read` | `GET /schedules/*/runs/*` | View a schedule run |
+    | `schedules:write` | `POST /schedules` | Create a schedule |
+    | `schedules:write` | `PATCH /schedules/*` | Update a schedule |
+    | `schedules:write` | `POST /schedules/*/enable` | Enable a schedule |
+    | `schedules:write` | `POST /schedules/*/disable` | Disable a schedule |
+    | `schedules:write` | `POST /schedules/*/trigger` | Trigger a schedule |
+    | `schedules:delete` | `DELETE /schedules/*` | Delete a schedule |
+  </Tab>
+
+  <Tab title="Approvals">
+    | Scope | Endpoint | Description |
+    |-------|----------|-------------|
+    | `approvals:read` | `GET /approvals` | List approval requests |
+    | `approvals:read` | `GET /approvals/count` | Count approval requests |
+    | `approvals:read` | `GET /approvals/*` | View an approval request |
+    | `approvals:read` | `GET /approvals/*/status` | View approval status |
+    | `approvals:write` | `POST /approvals/*/resolve` | Resolve an approval request |
+    | `approvals:delete` | `DELETE /approvals/*` | Delete an approval request |
+  </Tab>
+</Tabs>
+
+## Access Prerequisites
+
+A few scopes gate access in the control plane. Without them, finer-grained scopes have no effect because the user cannot reach the resources they apply to.
+
+| Scope | Without it, the user cannot |
+|-------|-----------------------------|
+| `org:read` | Access the organization at all |
+| `os:read` | List AgentOS instances in the organization |
+| `config:read` | Use any AgentOS endpoint (the UI loads `/config` on startup) |
+
+## Next Steps
+
+| Task | Guide |
+|------|-------|
+| Bundle scopes into roles | [Roles](/agent-os/security/authorization/roles) |
+| Override scope-to-endpoint mappings | [Customization](/agent-os/security/authorization/customization) |

@@ -39,7 +39,7 @@ if __name__ == "__main__":
 | `config`                  | `str` or `AgentOSConfig` | `None`  | Configuration path or object ([docs](/agent-os/config))        |
 | `base_app`                | `FastAPI`                | `None`  | Custom FastAPI app ([docs](/agent-os/custom-fastapi/overview)) |
 | `lifespan`                | `Any`                    | `None`  | Lifespan context manager ([docs](/agent-os/lifespan))          |
-| `authorization`           | `bool`                   | `False` | Enable RBAC ([docs](/agent-os/security/rbac))                  |
+| `authorization`           | `bool`                   | `False` | Enable authorization ([docs](/agent-os/security/authorization/overview))                  |
 | `authorization_config`    | `AuthorizationConfig`    | `None`  | JWT verification config                                        |
 | `enable_mcp_server`       | `bool`                   | `False` | Enable MCP server ([docs](/agent-os/mcp/mcp))                  |
 | `cors_allowed_origins`    | `List[str]`              | `None`  | Allowed CORS origins                                           |
