@@ -3,25 +3,36 @@ title: "Overview"
 description: "A visual editor in AgentOS to build Agents, Teams, and Workflows."
 ---
 
-Drag, drop, and orchestrate Agents, Teams, and Workflows on a live canvas to deploy production-ready agentic systems with AgentOS Studio.
+Build and orchestrate Agents, Teams, and Workflows on a live canvas to deploy production-ready agentic systems with AgentOS Studio.
 
 ## Concepts
 
-| Concept                                 | Description                                                                         |
-| --------------------------------------- | ----------------------------------------------------------------------------------- |
-| [Agents](/agent-os/studio/agents)       | Build and configure agents with models, tools, and instructions                     |
-| [Teams](/agent-os/studio/teams)         | Compose multi-agent teams with coordination modes                                   |
-| [Workflows](/agent-os/studio/workflows) | Design step-based workflows with conditions, loops, routers, and parallel execution |
-| [Registry](/agent-os/studio/registry)   | Browse and manage registered tools, models, databases, and schemas                  |
+**[Agents](/agent-os/studio/agents)**
+Build agent by giving it a model, tools, and instructions. Add knowledge and memory to ground its responses and remember context.
+
+**[Teams](/agent-os/studio/teams)**
+Build multi-agents team that works toward a shared goal. Choose how the leader coordinates with members using `coordinate`, `route`, `broadcast`, or `tasks` mode.
+
+**[Workflows](/agent-os/studio/workflows)**
+Orchestrate agents and teams into step-based pipelines. Control the flow with loops, conditions, routers, and parallel execution.
+
+use functions or cel expressions to evaluate conditions and selectors.
+
+**[Registry](/agent-os/studio/registry)**
+Add tools, models, databases, and schemas that Studio can use to build agents, teams, and workflows.
+
+Register agents and teams in the `Registry` to reuse them as members in Studio teams and as steps in Studio workflows.
+
+Register `knowledge`, `memory_managers`, and `session_summary_managers` for agents and teams to use.
 
 ## How It Works
 
 Studio connects to your running AgentOS instance and uses a Registry to populate available components.
 Build visually, test interactively, and publish when ready.
 
-1. Register your components in a `Registry`
+1. Register your tools, models, databases, and schemas in a `Registry`
 2. Pass the registry **and a database** to `AgentOS`
-3. Open Studio in the control plane to start building
+3. Open Studio in the [AgentOS Control Plane](https://os.agno.com/studio/agents) to start building
 
 ```python
 from agno.os import AgentOS
@@ -54,38 +65,70 @@ Studio manages the full development lifecycle from building to deploying complex
 
 ### 1. Build
 
-Create your agent, team, or workflow using the visual builder. Drag components from the Registry, configure properties, and wire everything together.
+Create your agent, team, or workflow using the visual builder. use tools, models, and knowledge bases from the Registry, add instructions and configure the settings.
 
-### 2. Save Draft
 
-Save your work as a draft version. Drafts are not accessible via the API but can be tested, restored, and published later. You can save multiple draft versions to checkpoint your progress.
+  <img
+    src="/images/agent-os-studio-create.png"
+    alt="Create an agent in Studio"
+  />
+
+
+
+### 2. Save Draft or publish directly
+
+- Save your work as a draft or publish directly. Drafts can be edited and updated. Drafts helps you test your component before publishing it.
+- Publish or Draft multiple versions to checkpoint your progress.
+  <img
+    src="/images/agent-os-studio-draft-publish-btn.png"
+    alt="Save draft or publish directly in Studio"
+    style={{ borderRadius: "8px" }}
+  />
 
 ### 3. Test
 
-Once saved, test your draft in the AgentOS Control Plane:
+Once saved, test your draft or published version in the AgentOS:
 
-- **Chat Page**: Interact with your agent, team, or workflow in real-time
+- **Chat Page**: 
+  - Interact with your agent, team, or workflow in real-time
+  - run specific version of the component by selecting it in the dropdown.
+
+  <img
+    src="/images/agent-os-studio-chat-page-versioning.png"
+    alt="Run specific version of the component in the chat page"
+    style={{ borderRadius: "8px" }}
+  />      
+
 - **View Traces**: Inspect tool calls, model responses, and reasoning for each run
 - **Debug Mode**: Enable verbose logging to troubleshoot issues
+
 
 <Warning>
   Before publishing, test and make sure your agent handles edge cases and
   unexpected inputs gracefully.
 </Warning>
 
-### 4. Publish
+### 4. Delete
 
-Move from draft to production with one click. Publish the visual blueprint of your agentic system after verification.
-Manage multiple versions of your system blueprint. Every published version is immediately
-accessible via a unique API endpoint. Set any version as _Current_ to make it the default for your production API.
+- Delete the component from the Studio.
 
 ### 5. Manage Versions
 
 Access the full version history for any agent, team, or workflow:
 
-- **Restore**: Load any previous version into the editor
+<img
+  src="/images/agent-os-studio-versions-page.png"
+  alt="Versions page in Studio"
+  style={{ borderRadius: "16px" }}
+/>
+- **Restore**: edit and update the draft version.
 - **Set Current**: Choose which published version is used by default when running via the API
-- **Delete**: Remove old versions you no longer need
+
+- only draft versions can be updated and edited in the Studio.
+- published versions are immutable and can only be updated by publishing a new version.
+- draft version cannot be set as current.
+- only draft versions can be deleted from versions page , published versions and current config cannot be deleted.
+
 
 <Tip>
   Use descriptive version labels like `v1.2-improved-instructions` or
