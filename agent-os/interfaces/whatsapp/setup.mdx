@@ -137,14 +137,21 @@ For **production**, keep validation on and set the App Secret from **App setting
 
 ## Production Access
 
-Once it works, keep developing with the temporary token and test number, or move toward production by adding and verifying your own business number and generating a permanent token.
+Once it works, keep developing with the temporary token and test number, or move toward production by adding your own business number and generating a permanent token. Both are done from **Basic setup > Step 2. Production setup** (not **Step 1. Try it out**, which only provides the temporary token and test number).
 
-To create a permanent token:
-1. Go to [Meta Business Settings](https://business.facebook.com/settings) > **System Users**.
-2. Add an admin-level system user.
-3. Assign your app and WhatsApp Business Account with **Full control**.
-4. Click **Generate Token** and select `whatsapp_business_messaging` and `whatsapp_business_management`.
-5. Store the token securely. It does not expire unless revoked.
+1. **Add your number.** Under **Register your WhatsApp phone number**, click **Add new number** and verify it. You can add up to 2 numbers before business verification, and up to 20 after. Manage numbers anytime in [WhatsApp Manager](https://business.facebook.com/wa/manage/).
+2. **Generate a permanent token.** Still on **Step 2. Production setup**, scroll to **Test your registered number** and use **Step 1: Generate permanent token** to generate the token for your WhatsApp Business Account, then copy it. Unlike the temporary token, it does not expire.
+
+<Warning>
+Do not confuse this **Step 1: Generate permanent token** task (inside **Step 2. Production setup > Test your registered number**) with the **Step 1. Try it out** entry in the sidebar. The sidebar's **Step 1. Try it out** only provides the temporary token and test number.
+</Warning>
+
+3. Set the permanent token as your `WHATSAPP_ACCESS_TOKEN`, and update `WHATSAPP_PHONE_NUMBER_ID` to your registered number's ID.
+4. To send business-initiated messages (marketing, utility, authentication), complete **Add payment** in the same step. Replies to user-initiated messages are free for the first 1,000 conversations per month.
+
+<Note>
+The older **Business Settings > System Users** token flow now shows "No permissions available" for the WhatsApp use case. Use **Step 2. Production setup** instead.
+</Note>
 
 ## Troubleshooting
 
