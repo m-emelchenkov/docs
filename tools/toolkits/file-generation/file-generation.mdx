@@ -13,15 +13,18 @@ Supported file types:
 - JSON 
 - CSV 
 - PDF
+- DOCX
 - TXT
+- HTML
 </Tip>
 
 ## Prerequisites
 
 1. **Install dependencies:**
    ```bash
-   uv pip install reportlab openai
+   uv pip install reportlab python-docx openai
    ```
+   `reportlab` is required for PDF generation and `python-docx` for DOCX generation. JSON, CSV, TXT, and HTML generation have no external dependencies.
 
 2. **Set your credentials:**
     For OpenAI API:
@@ -35,13 +38,14 @@ The following agent will generate files in different formats based on user reque
 
 ```python file_generation_tools.py
 from agno.agent import Agent
+from agno.db.sqlite import SqliteDb
 from agno.models.openai import OpenAIResponses
 from agno.tools.file_generation import FileGenerationTools
 
 agent = Agent(
     model=OpenAIResponses(id="gpt-5.2"),
     db=SqliteDb(db_file="tmp/test.db"),
-    tools=[FileGenerationTools(output_directory="tmp")],  
+    tools=[FileGenerationTools(output_directory="tmp")],
     description="You are a helpful assistant that can generate files in various formats.",
     instructions=[
         "When asked to create files, use the appropriate file generation tools.",
@@ -51,16 +55,16 @@ agent = Agent(
     markdown=True,
 )
 
-response =agent.run(
-        "Create a PDF report about renewable energy trends in 2024. Include sections on solar, wind, and hydroelectric power."
-    )
+response = agent.run(
+    "Create a PDF report about renewable energy trends in 2024. Include sections on solar, wind, and hydroelectric power."
+)
 print(response.content)
-    if response.files:
-        for file in response.files:
-            print(f"Generated file: {file.filename} ({file.size} bytes)")
-            if file.url:
-                print(f"File location: {file.url}")
-    print()
+
+if response.files:
+    for file in response.files:
+        print(f"Generated file: {file.filename} ({file.size} bytes)")
+        if file.url:
+            print(f"File location: {file.url}")
 ```
 
 <Note>
@@ -72,12 +76,15 @@ If not specified, the files will be available in the `RunOutput` object.
 
 | Parameter                 | Type   | Default | Description                                     |
 | ------------------------- | ------ | ------- | ----------------------------------------------- |
-| `enable_json_generation`  | `bool` | `True`  | Enables JSON file generation                    |
-| `enable_csv_generation`   | `bool` | `True`  | Enables CSV file generation                     |
-| `enable_pdf_generation`   | `bool` | `True`  | Enables PDF file generation (requires reportlab)|
-| `enable_txt_generation`   | `bool` | `True`  | Enables text file generation                    |
-| `output_directory`        | `str`  | `None`  | Custom output directory path                    |
-| `all`                     | `bool` | `False` | Enables all file generation types when True     |
+| `enable_json_generation`  | `bool` | `True`  | Enables JSON file generation                       |
+| `enable_csv_generation`   | `bool` | `True`  | Enables CSV file generation                        |
+| `enable_pdf_generation`   | `bool` | `True`  | Enables PDF file generation (requires reportlab)   |
+| `enable_docx_generation`  | `bool` | `True`  | Enables DOCX file generation (requires python-docx)|
+| `enable_txt_generation`   | `bool` | `True`  | Enables text file generation                       |
+| `enable_html_generation`  | `bool` | `True`  | Enables HTML file generation                       |
+| `output_directory`        | `str`  | `None`  | Custom output directory path                       |
+| `save_files`              | `bool` | `False` | Saves generated files to disk when True            |
+| `all`                     | `bool` | `False` | Enables all file generation types when True        |
 
 ## Toolkit Functions
 
@@ -86,7 +93,9 @@ If not specified, the files will be available in the `RunOutput` object.
 | `generate_json_file`  | Generates a JSON file from data (dict, list, or JSON string)  |
 | `generate_csv_file`   | Generates a CSV file from tabular data                        |
 | `generate_pdf_file`   | Generates a PDF document from text content                    |
-| `generate_text_file`  | Generates a plain text file from string content              |
+| `generate_docx_file`  | Generates a Word (DOCX) document from text content            |
+| `generate_text_file`  | Generates a plain text file from string content               |
+| `generate_html_file`  | Generates an HTML file from a complete HTML5 document         |
 
 ## Developer Resources
 
