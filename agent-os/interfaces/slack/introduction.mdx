@@ -1,328 +1,194 @@
 ---
 title: Slack
 sidebarTitle: Overview
-description: Deploy agents, teams, or workflows as interactive Slack bots.
+description: Deploy agents in Slack with out of the box context management, human in the loop approvals, and file handling.
 keywords: [slack, bot, interface, events, streaming, team, workflow, media, tools, task cards]
 ---
 
-The Slack interface lets you deploy agents, teams, or workflows as interactive Slack bots.
+Your agent lives in Slack. It joins conversations, remembers what was said, and responds like a teammate who's been following along.
 
-## Setup
+<Frame caption="Coda, a code review agent in Slack">
+  <video autoPlay muted loop playsInline controls className="w-full rounded-lg" src="/videos/slack-coda-demo.mp4" />
+</Frame>
 
-Follow the [Slack setup guide](/agent-os/interfaces/slack/setup) to create a Slack App and configure OAuth scopes, event subscriptions, and App Home.
+The Slack interface solves the problems that appear when an agent moves from a script into a shared workspace:
 
-<Note>
-Install the Slack dependencies: `uv pip install 'agno[slack]'`
-</Note>
+1. **Context management:** History, memory, and user identity tracked across threads and DMs
+2. **File handling:** Uploads and downloads work out of the box
+3. **Human in the loop:** Pause for approvals before sensitive actions
+4. **Streaming:** Responses stream live with task cards showing progress
 
-Required configuration:
-
-- `SLACK_TOKEN` (Bot User OAuth Token)
-- `SLACK_SIGNING_SECRET` (App Signing Secret)
-- Webhook URL set to `{prefix}/events` (use [ngrok](https://ngrok.com) for local development)
-- **Agents & AI Apps** enabled under App Home in your Slack App settings (required for streaming UI)
-
-## Example Usage
+## Quick start
 
 <Tabs>
-  <Tab title="Agent">
-```python basic.py
+<Tab title="Agent">
+
+```python agent.py
 from agno.agent import Agent
-from agno.db.sqlite import SqliteDb
-from agno.models.openai import OpenAIChat
+from agno.models.openai import OpenAIResponses
 from agno.os.app import AgentOS
 from agno.os.interfaces.slack import Slack
 
-agent_db = SqliteDb(session_table="agent_sessions", db_file="tmp/persistent_memory.db")
+agent = Agent(name="Support Bot", model=OpenAIResponses(id="gpt-5.4"))
 
-basic_agent = Agent(
-    name="Basic Agent",
-    model=OpenAIChat(id="gpt-4o"),
-    db=agent_db,
-    add_history_to_context=True,
-    num_history_runs=3,
-    add_datetime_to_context=True,
-)
-
-agent_os = AgentOS(
-    agents=[basic_agent],
-    interfaces=[Slack(agent=basic_agent)],
-)
-app = agent_os.get_app()
-
-if __name__ == "__main__":
-    agent_os.serve(app="basic:app", reload=True)
+app = AgentOS(
+    agents=[agent],
+    interfaces=[Slack(agent=agent)],
+).get_app()
 ```
-  </Tab>
-  <Tab title="Team">
-```python support_team.py
+
+</Tab>
+<Tab title="Team">
+
+```python team.py
 from agno.agent import Agent
-from agno.db.sqlite import SqliteDb
-from agno.models.openai import OpenAIChat
+from agno.team import Team
+from agno.models.openai import OpenAIResponses
 from agno.os.app import AgentOS
 from agno.os.interfaces.slack import Slack
-from agno.team import Team
-from agno.tools.slack import SlackTools
-from agno.tools.websearch import WebSearchTools
 
-tech_support = Agent(
-    name="Technical Support",
-    role="Handle technical questions and troubleshooting",
-    model=OpenAIChat(id="gpt-4o"),
-    tools=[WebSearchTools()],
-)
-
-docs_specialist = Agent(
-    name="Documentation Specialist",
-    role="Search Slack history and find relevant documentation",
-    model=OpenAIChat(id="gpt-4o"),
-    tools=[SlackTools(enable_search_messages=True, enable_get_thread=True)],
-)
+researcher = Agent(name="Researcher", role="Find information", model=OpenAIResponses(id="gpt-5.4"))
+writer = Agent(name="Writer", role="Draft responses", model=OpenAIResponses(id="gpt-5.4"))
 
 support_team = Team(
     name="Support Team",
     mode="coordinate",
-    members=[tech_support, docs_specialist],
-    model=OpenAIChat(id="gpt-4o"),
-    db=SqliteDb(session_table="team_sessions", db_file="tmp/support_team.db"),
+    members=[researcher, writer],
+    model=OpenAIResponses(id="gpt-5.4"),
 )
 
-agent_os = AgentOS(
+app = AgentOS(
     teams=[support_team],
     interfaces=[Slack(team=support_team)],
-)
-app = agent_os.get_app()
-
-if __name__ == "__main__":
-    agent_os.serve(app="support_team:app", reload=True)
+).get_app()
 ```
-  </Tab>
-  <Tab title="Workflow">
-```python basic_workflow.py
+
+The team coordinator routes messages to the right specialist. Each thread is one session belonging to the team.
+
+</Tab>
+<Tab title="Workflow">
+
+```python workflow.py
 from agno.agent import Agent
-from agno.db.sqlite import SqliteDb
-from agno.models.openai import OpenAIChat
+from agno.workflow import Workflow
+from agno.models.openai import OpenAIResponses
 from agno.os.app import AgentOS
 from agno.os.interfaces.slack import Slack
-from agno.tools.websearch import WebSearchTools
-from agno.workflow import Step, Workflow
 
-researcher = Agent(
-    name="Researcher",
-    model=OpenAIChat(id="gpt-4o"),
-    tools=[WebSearchTools()],
+researcher = Agent(name="Researcher", model=OpenAIResponses(id="gpt-5.4"))
+writer = Agent(name="Writer", model=OpenAIResponses(id="gpt-5.4"))
+
+research_flow = Workflow(
+    name="Research",
+    agents=[researcher, writer],
 )
 
-writer = Agent(
-    name="Writer",
-    model=OpenAIChat(id="gpt-4o"),
-)
-
-research_workflow = Workflow(
-    name="Research Workflow",
-    steps=[
-        Step(agent=researcher, name="Research"),
-        Step(agent=writer, name="Write"),
-    ],
-    db=SqliteDb(session_table="workflow_sessions", db_file="tmp/workflow.db"),
-)
-
-agent_os = AgentOS(
-    workflows=[research_workflow],
-    interfaces=[Slack(workflow=research_workflow)],
-)
-app = agent_os.get_app()
-
-if __name__ == "__main__":
-    agent_os.serve(app="basic_workflow:app", reload=True)
+app = AgentOS(
+    workflows=[research_flow],
+    interfaces=[Slack(workflow=research_flow)],
+).get_app()
 ```
-  </Tab>
+
+Each message triggers the workflow. Task cards show step progress as the workflow moves through stages.
+
+</Tab>
 </Tabs>
 
-<Info>
-See [more examples](/agent-os/usage/interfaces/slack/basic) including [streaming](/agent-os/usage/interfaces/slack/streaming), [teams](/agent-os/usage/interfaces/slack/support-team), [workflows](/agent-os/usage/interfaces/slack/workflow), and [multiple bots](/agent-os/usage/interfaces/slack/multi-bot).
-</Info>
+Set `SLACK_TOKEN` and `SLACK_SIGNING_SECRET` environment variables, then run with `python <file>.py`.
 
-## Sessions
+AgentOS mounts the Slack interface as a FastAPI router at `/slack/events`. Point your Slack App's Request URL there. New to Slack Apps? The [setup guide](/agent-os/interfaces/slack/setup) walks through creating the app and configuring events.
 
-Each Slack thread is a separate conversation. When running multiple bots on the same server, session IDs include the agent name to keep them separate.
+## Multiple bots
 
-<Note>
-Session format: `{entity_id}:{thread_ts}`. For example, an agent named "Basic Agent" produces session IDs like `Basic Agent:1719000000.000100`.
-</Note>
+AgentOS can mount multiple Slack interfaces on different prefixes, each connected to its own Slack App:
 
-When a database is configured on the agent or team, conversation history persists across server restarts. Without a database, conversations reset when the server restarts.
+<Tabs>
+<Tab title="Agent">
 
-## Threads and Channels
-
-How the bot responds depends on `reply_to_mentions_only`:
-
-| Value | Behavior |
-| --- | --- |
-| `True` (default) | Responds to `@mentions` in channels and all direct messages. Ignores unprompted channel messages. |
-| `False` | Responds to all messages in channels where it's a member. The `app_mention` event is skipped in channels to avoid duplicate responses. |
-
-All responses are sent as thread replies to the original message, keeping channel conversations organized.
-
-## Files and Media
-
-Users can send files to the bot, and agents can upload files back. Use `SlackTools` for file operations:
-
-```python
-from agno.tools.slack import SlackTools
-
-agent = Agent(
-    tools=[SlackTools(enable_upload_file=True, enable_download_file=True)],
-)
-```
-
-See the [file analyst example](/agent-os/usage/interfaces/slack/file-analyst) for a complete file processing agent.
-
-## SlackTools
-
-`SlackTools` lets your agents interact with Slack: send messages, search history, and manage files. It works separately from the Slack interface.
-
-```python
-from agno.tools.slack import SlackTools
-
-agent = Agent(
-    tools=[SlackTools(all=True)],
-)
-```
-
-<Tip>
-`search_messages` supports Slack search modifiers: `from:@user`, `in:#channel`, `has:link`, `before:2024-01-01`, `after:2024-01-01`. Combine them to narrow results.
-</Tip>
-
-<Warning>
-`search_messages` requires a **user token**, not a bot token. Using a bot token returns `not_allowed_token_type`. See the [Slack API docs](https://api.slack.com/methods/search.messages) for details.
-</Warning>
-
-For parameters and methods, see the [SlackTools reference](/tools/toolkits/social/slack).
-
-## Multi-Instance
-
-Run multiple bots on the same server with different `prefix` values:
-
-```python
+```python multi_bot.py
 agent_os = AgentOS(
-    agents=[research_bot, analyst_bot],
+    agents=[ace_agent, dash_agent],
     interfaces=[
-        Slack(agent=research_bot, prefix="/research", token=RESEARCH_TOKEN, signing_secret=RESEARCH_SECRET),
-        Slack(agent=analyst_bot, prefix="/analyst", token=ANALYST_TOKEN, signing_secret=ANALYST_SECRET),
+        Slack(
+            agent=ace_agent,
+            prefix="/ace",
+            token=getenv("ACE_SLACK_TOKEN"),
+            signing_secret=getenv("ACE_SLACK_SIGNING_SECRET"),
+        ),
+        Slack(
+            agent=dash_agent,
+            prefix="/dash",
+            token=getenv("DASH_SLACK_TOKEN"),
+            signing_secret=getenv("DASH_SLACK_SIGNING_SECRET"),
+        ),
     ],
 )
 ```
 
-Each instance gets its own route prefix, session namespace, and Slack app credentials.
+</Tab>
+<Tab title="Team">
 
-<Tip>
-Each Slack App can only have one Request URL, so multi-instance setups require separate Slack Apps (one per bot).
-</Tip>
-
-## User Identity
-
-<Info>
-Enable with `resolve_user_identity=True` to pass email-based user IDs to your agent instead of Slack user IDs like `U0123ABC`.
-</Info>
-
-The bot looks up each user's profile:
-
-- **Canonical user ID**: The user's email address (falls back to Slack user ID if email is unavailable)
-- **Display name**: Resolved via fallback chain: `display_name` → `real_name` → `username`
-
-Both values are passed to the agent in `metadata`:
-```python
-{
-    "user_name": "Jane Doe",
-    "user_email": "jane@company.com"
-}
+```python multi_team.py
+agent_os = AgentOS(
+    teams=[support_team, research_team],
+    interfaces=[
+        Slack(
+            team=support_team,
+            prefix="/support",
+            token=getenv("SUPPORT_SLACK_TOKEN"),
+            signing_secret=getenv("SUPPORT_SLACK_SIGNING_SECRET"),
+        ),
+        Slack(
+            team=research_team,
+            prefix="/research",
+            token=getenv("RESEARCH_SLACK_TOKEN"),
+            signing_secret=getenv("RESEARCH_SLACK_SIGNING_SECRET"),
+        ),
+    ],
+)
 ```
 
-Agents that use `MemoryManager` benefit from this. The same person gets the same memory whether they message via Slack, WhatsApp, or Telegram.
+</Tab>
+<Tab title="Workflow">
 
-## Security
+```python multi_workflow.py
+agent_os = AgentOS(
+    workflows=[review_flow, publish_flow],
+    interfaces=[
+        Slack(
+            workflow=review_flow,
+            prefix="/review",
+            token=getenv("REVIEW_SLACK_TOKEN"),
+            signing_secret=getenv("REVIEW_SLACK_SIGNING_SECRET"),
+        ),
+        Slack(
+            workflow=publish_flow,
+            prefix="/publish",
+            token=getenv("PUBLISH_SLACK_TOKEN"),
+            signing_secret=getenv("PUBLISH_SLACK_SIGNING_SECRET"),
+        ),
+    ],
+)
+```
 
-Every incoming event is verified using HMAC-SHA256 signature verification:
+</Tab>
+</Tabs>
 
-1. The `X-Slack-Request-Timestamp` and `X-Slack-Signature` headers are extracted
-2. Events older than 5 minutes are rejected (replay attack prevention)
-3. A signature is computed: `HMAC-SHA256(signing_secret, "v0:{timestamp}:{body}")`
-4. The computed signature is compared using constant-time comparison (`hmac.compare_digest`)
+Each bot gets its own Slack App and Request URL (`/ace/events`, `/dash/events`, etc.).
 
-<Warning>
-If `SLACK_SIGNING_SECRET` is not set, the server returns a 500 error. Always configure the signing secret before deploying.
-</Warning>
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="No response from the bot">
-    **Cause:** Server not running or event subscription not configured.
-
-    **Fix:** Check that the server is running, ngrok is active, and the Request URL in your Slack App settings matches your tunnel URL (e.g., `https://your-tunnel.ngrok.io/slack/events`).
-  </Accordion>
-
-  <Accordion title="403 errors on events">
-    **Cause:** Invalid signing secret.
-
-    **Fix:** Verify `SLACK_SIGNING_SECRET` matches the value under **Basic Information > App Credentials** in your Slack App settings. The signing secret is different from the bot token.
-  </Accordion>
-
-  <Accordion title="Bot ignores channel messages">
-    **Cause:** `reply_to_mentions_only=True` (default).
-
-    **Fix:** Mention the bot with `@YourAppName` or set `reply_to_mentions_only=False` to respond to all channel messages.
-  </Accordion>
-
-  <Accordion title="Bot responds to its own messages">
-    **Cause:** Slack events missing `bot_id` or misidentified bot user.
-
-    **Fix:** The interface filters these automatically. If it still happens, verify your Slack app's bot user has a `bot_id` in events. Reinstalling the app usually resolves this.
-  </Accordion>
-
-  <Accordion title="Streaming UI not appearing">
-    **Cause:** App not configured for "Agents & AI Apps".
-
-    **Fix:** In your Slack App settings, go to **App Home** and enable the **Agents & AI Apps** feature. This is required for task cards, streaming text, and suggested prompts.
-  </Accordion>
-
-  <Accordion title="SLACK_TOKEN is not set">
-    **Cause:** Missing environment variable.
-
-    **Fix:** Export `SLACK_TOKEN` with your Bot User OAuth Token before running the app. Find this under **OAuth & Permissions** in your Slack App settings.
-  </Accordion>
-
-  <Accordion title="SSL certificate errors">
-    **Cause:** macOS system Python missing root certificates.
-
-    **Fix:** Set the `SSL_CERT_FILE` environment variable:
-    ```bash
-    export SSL_CERT_FILE=$(python3 -c "import certifi; print(certifi.where())")
-    ```
-    Or pass a custom `ssl` context to the Slack interface.
-  </Accordion>
-
-  <Accordion title="Response cut off or blank bubble">
-    **Cause:** Message exceeds Slack's 40K character limit, or `recipient_user_id` mismatch in streaming.
-
-    **Fix:** Stream rotation handles the character limit automatically. If you see blank bubbles, this is a known edge case with Slack's streaming API when the recipient user ID doesn't match the human user. Verify your Slack App configuration.
-  </Accordion>
-</AccordionGroup>
-
-## Developer Resources
+## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Interface Reference" icon="book" href="/agent-os/interfaces/slack/reference">
-    All parameters, endpoints, and event handling details.
+  <Card title="Setup Guide" icon="rocket" href="/agent-os/interfaces/slack/setup">
+    Create a Slack App from scratch
   </Card>
-  <Card title="Deploy Guide" icon="rocket" href="/deploy/interfaces/slack/overview">
-    Create a Slack App, configure OAuth, and deploy step by step.
+  <Card title="Features" icon="sparkles" href="/agent-os/interfaces/slack/features">
+    Sessions, files, teams, and more
   </Card>
-  <Card title="SlackTools Reference" icon="wrench" href="/tools/toolkits/social/slack">
-    Toolkit parameters and methods for messaging, search, and files.
+  <Card title="Human-in-the-Loop" icon="shield-check" href="/agent-os/interfaces/slack/hitl">
+    Pause for approval before actions
   </Card>
-  <Card title="Usage Examples" icon="code" href="/agent-os/usage/interfaces/slack/basic">
-    14 examples: agents, teams, workflows, streaming, multimodal, and more.
+  <Card title="Reference" icon="book" href="/agent-os/interfaces/slack/reference">
+    All parameters and endpoints
   </Card>
 </CardGroup>

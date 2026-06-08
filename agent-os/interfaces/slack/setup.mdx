@@ -1,118 +1,214 @@
 ---
 title: Setup
 sidebarTitle: Setup
-description: Create a Slack App, configure OAuth scopes, and set up event subscriptions for Slack bots.
-keywords: [slack, setup, oauth, events, configuration, streaming]
+description: Create a Slack App using a manifest and connect it to your agent.
+keywords: [slack, setup, manifest, oauth, events, configuration]
 ---
 
 <Note>
 Install the Slack dependencies: `uv pip install 'agno[slack]'`
 </Note>
 
-<Steps>
+## Get your URL
 
-<Step title="Create a Slack App">
-1. Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App**
-2. Choose **From scratch**, give it a name, and select your workspace
-3. On the **Basic Information** page, copy the **Signing Secret**
-</Step>
-
-<Step title="Enable Agents & AI Apps">
-This is required for streaming task cards and suggested prompts.
-
-1. In the sidebar, click **Agents & AI Apps**
-2. Toggle **Agent or Assistant** to **On**
-3. Under **Suggested Prompts**, select **Dynamic**
-4. Click **Save**
-
-<Note>
-Enabling this automatically adds the `assistant:write` scope.
-</Note>
-</Step>
-
-<Step title="Add OAuth Scopes">
-1. In the sidebar, click **OAuth & Permissions**
-2. Under **Scopes > Bot Token Scopes**, add:
-
-| Scope | Purpose |
-| --- | --- |
-| `app_mentions:read` | Receive @mention events |
-| `assistant:write` | Streaming (task cards, suggested prompts) |
-| `chat:write` | Send messages and stream responses |
-| `im:history` | Read DM history for thread context |
-| `files:read` | Download files users send to the bot |
-| `files:write` | Upload response files (images, docs) |
-
-<Tip>
-These are the minimum scopes for streaming. Add `channels:history`, `groups:history`, `users:read`, or `search:read` if your agent uses `SlackTools` for channel history, user lookup, or message search.
-</Tip>
-
-3. Click **Install to Workspace** and authorize the app
-4. Copy the **Bot User OAuth Token** (`xoxb-...`)
-</Step>
-
-<Step title="Set Environment Variables">
-```bash
-export SLACK_TOKEN="xoxb-your-bot-user-token"
-export SLACK_SIGNING_SECRET="your-signing-secret"
-```
-
-Find these in your Slack App settings:
-- **Bot User OAuth Token**: OAuth & Permissions
-- **Signing Secret**: Basic Information > App Credentials
-</Step>
-
-<Step title="Subscribe to Events">
-1. In the sidebar, click **Event Subscriptions**
-2. Toggle **Enable Events** to **On**
-3. Set **Request URL** to your tunnel URL:
-   ```
-   https://<your-tunnel>/slack/events
-   ```
-   Your app must be running for Slack to verify the URL.
-
-4. Under **Subscribe to bot events**, add:
-
-| Event | Purpose |
-| --- | --- |
-| `app_mention` | Respond to @mentions in channels |
-| `message.im` | Respond to direct messages |
-| `assistant_thread_started` | Set suggested prompts on new threads |
-
-<Tip>
-Add `message.channels` and `message.groups` if you set `reply_to_mentions_only=False` and want the bot to respond to all channel messages.
-</Tip>
-
-5. Click **Save Changes**
-6. Go to **Install App** and click **Reinstall to Workspace**
-</Step>
-
-<Step title="Enable App Home">
-1. In the sidebar, click **App Home**
-2. Under **Show Tabs**, enable **Messages Tab**
-3. Check **Allow users to send Slash commands and messages from the messages tab**
-</Step>
-
-<Step title="Start a Tunnel">
-Slack needs a public HTTPS URL to deliver events:
+Slack needs a public HTTPS URL to deliver events. For local development, use ngrok:
 
 ```bash
 ngrok http 7777
 ```
 
-Copy the `https://` forwarding URL and paste it into the Event Subscriptions Request URL (Step 5).
-</Step>
+Copy the `https://` forwarding URL. For production, use your deployed URL.
 
-<Step title="Run the App">
+## Create a Slack App
+
+<Tabs>
+<Tab title="Quick start">
+
+1. Download the [manifest.json](https://github.com/agno-agi/agno/blob/main/libs/agno/agno/os/interfaces/slack/manifest.json)
+2. Replace `https://your-url` with your ngrok URL
+3. Go to [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From an app manifest**
+4. Paste the manifest and click **Create**
+5. Go to **Install App** → **Install to Workspace**
+6. Copy the **Bot User OAuth Token** (`xoxb-...`)
+
+</Tab>
+<Tab title="Step by step">
+
+### Create the app
+
+1. Go to [api.slack.com/apps](https://api.slack.com/apps)
+2. Click **Create New App**
+3. Select **From an app manifest**
+4. Select your workspace
+5. Choose **JSON** and paste the manifest below
+
+Replace `https://your-url` with your ngrok or production URL:
+
+```json
+{
+    "display_information": {
+        "name": "My Agent",
+        "description": "An AI agent that lives in Slack.",
+        "background_color": "#000000"
+    },
+    "features": {
+        "app_home": {
+            "home_tab_enabled": false,
+            "messages_tab_enabled": true,
+            "messages_tab_read_only_enabled": false
+        },
+        "bot_user": {
+            "display_name": "My Agent",
+            "always_online": true
+        },
+        "assistant_view": {
+            "assistant_description": "Ask me anything.",
+            "suggested_prompts": []
+        }
+    },
+    "oauth_config": {
+        "scopes": {
+            "bot": [
+                "app_mentions:read",
+                "assistant:write",
+                "channels:history",
+                "channels:read",
+                "chat:write",
+                "files:read",
+                "files:write",
+                "groups:history",
+                "groups:read",
+                "im:history",
+                "users:read",
+                "users:read.email"
+            ]
+        }
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "https://your-url/slack/events",
+            "bot_events": [
+                "app_mention",
+                "assistant_thread_started",
+                "message.im"
+            ]
+        },
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false
+    }
+}
+```
+
+6. Click **Create**
+
+The manifest configures scopes, events, and app home settings in one shot.
+
+6. Click **Create**
+
+### Install to workspace
+
+1. Go to **Install App** in the sidebar
+2. Click **Install to Workspace**
+3. Click **Allow** to authorize
+4. Copy the **Bot User OAuth Token** (`xoxb-...`)
+
+</Tab>
+</Tabs>
+
+## Set Environment Variables
+
 ```bash
-python slack_bot.py
+# Bot User OAuth Token (from Install App page)
+export SLACK_TOKEN="xoxb-..."
+
+# Signing Secret (Basic Information → App Credentials)
+export SLACK_SIGNING_SECRET="..."
+```
+
+## Run
+
+```python basic.py
+from agno.agent import Agent
+from agno.models.openai import OpenAIResponses
+from agno.os.app import AgentOS
+from agno.os.interfaces.slack import Slack
+
+agent = Agent(name="Support Bot", model=OpenAIResponses(id="gpt-5.4"))
+
+app = AgentOS(
+    agents=[agent],
+    interfaces=[Slack(agent=agent)],
+).get_app()
+```
+
+```bash
+python basic.py
 ```
 
 DM the bot or @mention it in a channel to test.
-</Step>
 
-</Steps>
+## Verify
+
+**Direct message**: Find your bot under **Apps** in the Slack sidebar and message it directly.
+
+**In a channel**: Invite the bot first, then mention it:
+
+```
+/invite @MyAgent
+@MyAgent what can you help me with?
+```
+
+Each thread maintains its own conversation. Follow-up messages in the same thread don't need to mention the bot again.
+
+## Customizing the Manifest
+
+### Minimal scopes
+
+The manifest above includes scopes for file handling and user lookup. For a minimal bot that only responds to messages:
+
+```json
+"bot": [
+    "app_mentions:read",
+    "assistant:write",
+    "channels:read",
+    "chat:write",
+    "im:history"
+]
+```
+
+### Respond to all channel messages
+
+Add `message.channels` and `message.groups` to bot_events, and set `reply_to_mentions_only=False` in your code:
+
+```json
+"bot_events": [
+    "app_mention",
+    "assistant_thread_started",
+    "message.channels",
+    "message.groups",
+    "message.im"
+]
+```
+
+```python
+Slack(agent=agent, reply_to_mentions_only=False)
+```
+
+### Search tools
+
+For `SlackTools.search_workspace()`, add these scopes:
+
+```json
+"bot": [
+    "search:read.public",
+    "search:read.files",
+    "search:read.users"
+]
+```
+
+See the [Reference](/agent-os/interfaces/slack/reference) for all scopes and their purposes.
 
 <Warning>
-ngrok is for local development only. For production, see the [deployment templates](/deploy/templates).
+ngrok URLs change each time you restart. For production, deploy behind a stable URL. See [deployment templates](/deploy/templates).
 </Warning>

@@ -4676,8 +4676,9 @@
                     "group": "Slack",
                     "pages": [
                       "agent-os/interfaces/slack/introduction",
-                      "agent-os/interfaces/slack/hitl",
                       "agent-os/interfaces/slack/setup",
+                      "agent-os/interfaces/slack/features",
+                      "agent-os/interfaces/slack/hitl",
                       "agent-os/interfaces/slack/reference"
                     ]
                   },
@@ -4859,8 +4860,7 @@
             "group": "Get Started",
             "pages": [
               "deploy/introduction",
-              "deploy/templates",
-              "deploy/interfaces"
+              "deploy/templates"
             ]
           },
           {
@@ -4959,14 +4959,13 @@
             "pages": [
               "deploy/templates/dash/overview",
               "deploy/templates/scout/overview",
-              "deploy/templates/coda/overview",
-              "deploy/templates/pal/overview",
-              "deploy/templates/gcode/overview"
+              "deploy/templates/coda/overview"
             ]
           },
           {
             "group": "Interfaces",
             "pages": [
+              "deploy/interfaces/overview",
               "deploy/interfaces/slack/overview",
               "deploy/interfaces/telegram/overview",
               "deploy/interfaces/whatsapp/overview",
@@ -7843,6 +7842,7 @@
           },
           {
             "group": "AgentOS API Reference",
+            "openapi": "reference-api/openapi.yaml",
             "pages": [
               "reference-api/overview",
               {
@@ -7900,7 +7900,8 @@
               {
                 "group": "Slack",
                 "pages": [
-                  "reference-api/schema/slack/slack-events"
+                  "reference-api/schema/slack/slack-events",
+                  "reference-api/schema/slack/slack-interactions"
                 ]
               },
               {

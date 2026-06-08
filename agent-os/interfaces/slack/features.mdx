@@ -1,0 +1,154 @@
+---
+title: Features
+sidebarTitle: Features
+description: Sessions, files, teams, workflows, and advanced configuration for the Slack interface.
+keywords: [slack, sessions, threads, files, teams, workflows, user identity]
+---
+
+## Sessions and threads
+
+Each Slack thread maps to a session. The session ID follows the pattern `{agent_name}:{thread_ts}`, so different agents on the same server stay isolated even if they share a database.
+
+```python
+from agno.db.sqlite import SqliteDb
+
+agent = Agent(
+    name="Support Bot",
+    model=...,
+    db=SqliteDb(db_file="sessions.db"),
+    add_history_to_context=True,
+    num_history_runs=5,
+)
+```
+
+With a database configured, conversation history persists across server restarts. Without one, threads reset when the server restarts.
+
+## Responding to messages
+
+By default, the bot responds to @mentions in channels and all direct messages. This keeps the bot out of conversations where it was not explicitly invoked.
+
+| `reply_to_mentions_only` | Behavior |
+|--------------------------|----------|
+| `True` (default) | Responds to @mentions in channels, all DMs |
+| `False` | Responds to every message in joined channels |
+
+<Warning>
+Setting `reply_to_mentions_only=False` means the bot responds to every channel message. Use this only for dedicated bot channels, not general discussion channels.
+</Warning>
+
+## Files
+
+Users can attach files to messages, and agents can upload files back. Enable file tools on your agent:
+
+```python
+from agno.tools.slack import SlackTools
+
+agent = Agent(
+    tools=[SlackTools(enable_upload_file=True, enable_download_file=True)],
+)
+```
+
+The interface extracts attached files from incoming messages and makes them available to the agent.
+
+## Teams and workflows
+
+The interface accepts teams and workflows the same way it accepts agents:
+
+<Tabs>
+  <Tab title="Team">
+```python
+from agno.team import Team
+
+support_team = Team(
+    name="Support",
+    mode="coordinate",
+    members=[tech_agent, docs_agent],
+    model=...,
+)
+
+Slack(team=support_team)
+```
+
+When a user messages the bot, the team coordinator routes to the right specialist. Each thread is still one session, but the session belongs to the team rather than a single agent.
+  </Tab>
+  <Tab title="Workflow">
+```python
+from agno.workflow import Step, Workflow
+
+research_flow = Workflow(
+    name="Research",
+    steps=[
+        Step(agent=researcher, name="Research"),
+        Step(agent=writer, name="Write"),
+    ],
+)
+
+Slack(workflow=research_flow)
+```
+
+Each message triggers the workflow. The interface shows step progress in task cards as the workflow moves through its stages.
+  </Tab>
+</Tabs>
+
+## User identity
+
+Enable `resolve_user_identity=True` to resolve Slack user IDs like `U0123ABC` to email addresses:
+
+```python
+Slack(agent=agent, resolve_user_identity=True)
+```
+
+The agent receives `{"user_name": "Jane Doe", "user_id": "jane@company.com"}` in metadata. This lets agents share memory across interfaces. Jane gets the same context whether she messages via Slack, WhatsApp, or Telegram.
+
+## Multiple bots on one server
+
+Run several bots with different route prefixes:
+
+```python
+AgentOS(
+    agents=[support_bot, research_bot],
+    interfaces=[
+        Slack(agent=support_bot, prefix="/support", token=SUPPORT_TOKEN, signing_secret=SUPPORT_SECRET),
+        Slack(agent=research_bot, prefix="/research", token=RESEARCH_TOKEN, signing_secret=RESEARCH_SECRET),
+    ],
+)
+```
+
+Each Slack App can only have one Request URL, so you need a separate Slack App per bot.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="No response from the bot">
+    **Cause:** Server not running or event subscription misconfigured.
+
+    **Fix:** Verify that ngrok is running, the Request URL in your Slack App settings matches `{your-tunnel-url}/slack/events`, and you've subscribed to `app_mention` and `message.im` events.
+  </Accordion>
+
+  <Accordion title="403 errors on events">
+    **Cause:** Wrong signing secret.
+
+    **Fix:** Verify `SLACK_SIGNING_SECRET` matches the value under **Basic Information > App Credentials** in your Slack App settings. The signing secret is different from the bot token.
+  </Accordion>
+
+  <Accordion title="Bot ignores channel messages">
+    **Cause:** `reply_to_mentions_only=True` (the default).
+
+    **Fix:** @mention the bot with `@YourAppName`, or set `reply_to_mentions_only=False` if you want the bot to respond to all messages in channels it has joined.
+  </Accordion>
+
+  <Accordion title="No streaming UI or task cards">
+    **Cause:** Agents & AI Apps not enabled.
+
+    **Fix:** In your Slack App settings, go to **App Home** and enable **Agents & AI Apps**. This is required for streaming text and task cards.
+  </Accordion>
+
+  <Accordion title="SSL certificate errors on macOS">
+    **Cause:** System Python missing root certificates.
+
+    **Fix:** Set the `SSL_CERT_FILE` environment variable:
+    ```bash
+    export SSL_CERT_FILE=$(python3 -c "import certifi; print(certifi.where())")
+    ```
+  </Accordion>
+</AccordionGroup>
