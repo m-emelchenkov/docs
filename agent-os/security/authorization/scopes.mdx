@@ -247,7 +247,6 @@ app.add_middleware(
     algorithm="RS256",
     authorization=True,
     scope_mappings={
-        "POST /agents/*/runs": ["agents:execute"],  # built-in route: action verb change
         "POST /custom/endpoint": ["custom:write"],  # custom route: full freedom
         "GET /custom/data": ["custom:read"],        # custom route: full freedom
         "GET /public/stats": [],                    # no scopes required
@@ -258,7 +257,7 @@ app.add_middleware(
 Custom scope mappings are additive to the defaults. To override a default, specify the same route pattern with your custom scopes.
 
 <Note>
-**Built-in routes preserve their native resource namespace.** Handlers for `/agents`, `/teams`, and `/workflows` re-check scopes against their native namespace (`agents:`, `teams:`, `workflows:`). You can change the action verb on these routes (e.g., map `POST /agents/*/runs` to `agents:execute` instead of `agents:run`), but you can't replace the namespace. Mapping `GET /agents` to `custom:read` won't grant access because the handler still requires `agents:read`. Full freedom applies only to new routes you define yourself.
+**Built-in routes preserve their native resource namespace.** Handlers for `/agents`, `/teams`, and `/workflows` re-check scopes against their native namespace (`agents:`, `teams:`, `workflows:`). Mapping `GET /agents` to `custom:read` won't grant access because the handler still requires `agents:read`. Full freedom applies only to new routes you define yourself.
 </Note>
 
 ## Next Steps
