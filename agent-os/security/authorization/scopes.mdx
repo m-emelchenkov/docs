@@ -19,9 +19,13 @@ Scopes are hierarchical:
 
 ## Scope Reference
 
-Scopes split across two enforcement layers. AgentOs control plane scopes are checked by the control plane. AgentOS scopes are checked by your runtime against incoming requests.
+Scopes are enforced at two layers. Control plane scopes are enforced by the AgentOS control plane at `os.agno.com`. AgentOS scopes are enforced by your deployed AgentOS service on every API request.
 
-Any `resource:action` scope also accepts a `resource:<id>:action` form to limit access to a specific resource. See [Scope Format](#scope-format).
+Any `agents:action`, `teams:action`, or `workflows:action` scope also accepts a `resource:<id>:action` form to limit access to a specific resource. For example, `agents:web-agent:run` grants run access only to the `web-agent`. Use `*` as the id (`agents:*:run`) to match every resource of that type. See [Scope Format](#scope-format).
+
+<Note>
+**Per-resource scoping applies to `agents`, `teams`, and `workflows` only.** All other resource types (sessions, memories, knowledge, traces, etc.) use global scopes only. The `resource:<id>:action` form is not honored for them.
+</Note>
 
 The `agent_os:admin` scope grants full access to every AgentOS endpoint below.
 
@@ -222,9 +226,44 @@ A few scopes gate access in the control plane. Without them, finer-grained scope
 | `os:read` | List AgentOS instances in the organization |
 | `config:read` | Use any AgentOS endpoint (the UI loads `/config` on startup) |
 
+## Custom Scope Mappings
+
+Customize or extend the default scope mappings using the JWT middleware:
+
+```python
+from agno.os import AgentOS
+from agno.os.middleware import JWTMiddleware
+
+agent_os = AgentOS(
+    id="my-agent-os",
+    agents=[my_agent],
+)
+
+app = agent_os.get_app()
+
+app.add_middleware(
+    JWTMiddleware,
+    verification_keys=["your-jwt-key"],
+    algorithm="RS256",
+    authorization=True,
+    scope_mappings={
+        "POST /agents/*/runs": ["agents:execute"],  # built-in route: action verb change
+        "POST /custom/endpoint": ["custom:write"],  # custom route: full freedom
+        "GET /custom/data": ["custom:read"],        # custom route: full freedom
+        "GET /public/stats": [],                    # no scopes required
+    }
+)
+```
+
+Custom scope mappings are additive to the defaults. To override a default, specify the same route pattern with your custom scopes.
+
+<Note>
+**Built-in routes preserve their native resource namespace.** Handlers for `/agents`, `/teams`, and `/workflows` re-check scopes against their native namespace (`agents:`, `teams:`, `workflows:`). You can change the action verb on these routes (e.g., map `POST /agents/*/runs` to `agents:execute` instead of `agents:run`), but you can't replace the namespace. Mapping `GET /agents` to `custom:read` won't grant access because the handler still requires `agents:read`. Full freedom applies only to new routes you define yourself.
+</Note>
+
 ## Next Steps
 
 | Task | Guide |
 |------|-------|
 | Bundle scopes into roles | [Roles](/agent-os/security/authorization/roles) |
-| Override scope-to-endpoint mappings | [Customization](/agent-os/security/authorization/customization) |
+| Configure JWT middleware in depth | [JWT Middleware](/agent-os/middleware/jwt) |

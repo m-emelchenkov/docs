@@ -36,6 +36,7 @@ from agno.os.middleware.jwt import TokenSource
 | `scope_mappings` | `Optional[Dict[str, List[str]]]` | `None` | Custom route-to-scope mappings (additive to defaults) |
 | `excluded_route_paths` | `Optional[List[str]]` | See below | Routes to skip JWT/RBAC checks |
 | `admin_scope` | `Optional[str]` | `"agent_os:admin"` | Scope that grants full admin access |
+| `user_isolation` | `bool` | `False` | Opt-in per-user data isolation. When `True`, non-admin callers can only read and write rows associated with their JWT `sub` claim (sessions, memories, traces). Cancel/resume/continue routes verify run ownership. |
 
 ## TokenSource Enum
 

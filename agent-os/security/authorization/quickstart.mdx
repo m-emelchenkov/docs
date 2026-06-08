@@ -26,7 +26,7 @@ app = agent_os.get_app()
 
 `authorization=True` enables JWT verification. AgentOS also needs a public key to verify tokens against. Generate one from the control plane and wire it in.
 
-## Generate a Verification Key
+## Generate a Verification Key from the Control Plane
 
 <Steps>
   <Step title="Toggle JWT authorization">
@@ -98,7 +98,6 @@ authorization_config=AuthorizationConfig(
 |----------|---------|
 | `JWT_VERIFICATION_KEY` | Single public key or shared secret. Added to `verification_keys`. |
 | `JWT_JWKS_FILE` | Path to a static JWKS file. |
-| `JWT_JWKS` | Inline JWKS JSON. |
 
 Env vars work alongside `AuthorizationConfig`. Pass keys in code, env vars, or both.
 

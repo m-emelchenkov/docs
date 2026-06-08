@@ -3,16 +3,7 @@ title: Security & Auth
 description: "Build a layered security model: authenticate every request, use scopes and roles for permissions, and isolate data between users."
 ---
 
-AgentOS security works in layers. Each one stops a different class of attack, from unauthenticated requests at the edge to cross-user data access in the database.
-
-| Layer | What it stops | Mechanism |
-|-------|---------------|-----------|
-| **Authentication** | Unauthenticated requests | JWT validation at the middleware |
-| **Authorization** | Authenticated but out-of-scope requests | Scope checks on every endpoint |
-| **Request isolation** | Concurrent requests reading each other's data | Fresh, isolated object per request |
-| **User isolation** | Cross-user data leakage on shared endpoints | Opt-in using `AuthorizationConfig(user_isolation=True)` |
-
-AgentOS gives you good defaults at every layer.
+AgentOS security works in layers. Each one stops a different class of attack, from unauthenticated requests at the edge to cross-user data access in the database. AgentOS gives you good defaults at every layer.
 
 <Note>
 
@@ -22,7 +13,7 @@ Network-layer controls (rate limiting, WAF, IP allowlists, mTLS) live at your re
 
 ## Authentication
 
-A production AgentOS sits behind JWT-validating middleware. Every request carries a token signed by the [AgentOS control plane](https://os.agno.com); your service verifies it with a public key.
+A production AgentOS sits behind JWT-validating middleware. Tokens can come from the [AgentOS control plane](https://os.agno.com), your own backend, or a third-party identity provider. Your service verifies them with the matching public key. See [Self-Hosted](/agent-os/security/authorization/self-hosted) for BYO and third-party setup.
 
 ```python
 from agno.os import AgentOS
@@ -41,7 +32,7 @@ agent_os = AgentOS(
 
 A small set of public routes are exempt from the JWT requirement: `/`, `/health`, `/info`, `/docs`, `/redoc`, `/openapi.json`, `/docs/oauth2-redirect`.
 
-### Get a JWT_VERIFICATION_KEY
+### Generate a Verification Key from the Control Plane
 
 <Steps>
   <Step title="Toggle JWT authorization">
@@ -65,9 +56,9 @@ A small set of public routes are exempt from the JWT requirement: `/`, `/health`
   </Step>
 </Steps>
 
-The AgentOS control plane keeps the private key. Your service only ever sees the public key. JWTs are signed by the control plane and verified by your service. See [Generate a Verification Key](/agent-os/security/authorization/quickstart#generate-a-verification-key) for the full walkthrough.
+When tokens are issued by the AgentOS control plane, it keeps the private key and your service only sees the public key. See [Generate a Verification Key from the Control Plane](/agent-os/security/authorization/quickstart#generate-a-verification-key-from-the-control-plane) for the full walkthrough.
 
-### Custom JWT configuration
+### Configure JWTs from Your Backend or IDP
 
 If you're issuing JWTs from your own backend, or from a third-party identity provider like WorkOS, Auth0, or Okta, pass an `AuthorizationConfig`:
 

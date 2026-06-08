@@ -4458,8 +4458,7 @@
                       "agent-os/security/authorization/self-hosted",
                       "agent-os/security/authorization/scopes",
                       "agent-os/security/authorization/roles",
-                      "agent-os/security/authorization/user-isolation",
-                      "agent-os/security/authorization/customization"
+                      "agent-os/security/authorization/user-isolation"
                     ]
                   }
                 ]
@@ -7954,6 +7953,10 @@
     {
       "source": "/agent-os/security/rbac",
       "destination": "/agent-os/security/authorization/overview"
+    },
+    {
+      "source": "/agent-os/security/authorization/customization",
+      "destination": "/agent-os/security/authorization/scopes#custom-scope-mappings"
     },
     {
       "source": "/runtime/interfaces",
