@@ -4,7 +4,33 @@ sidebarTitle: "Registry"
 description: "Register tools, models, databases, and schemas for use in AgentOS Studio."
 ---
 
-**The Registry manages non-serializable components (tools, models, databases, schemas, functions) that Studio depends on.**
+**The Registry manages non-serializable components (tools, models, databases, schemas, functions, etc.) that Studio depends on.**
+
+
+## Component Types
+
+- **Tools** : `Toolkit` instances, `Function` objects, or plain callables.
+- **Models** : model provider instances (OpenAI, Anthropic, etc.).
+- **Databases** : `BaseDb` instances for storage.
+- **Vector DBs** : `VectorDb` instances for knowledge bases.
+- **Schemas** : Pydantic `BaseModel` subclasses for structured I/O.
+- **Functions** : Python callables used as workflow evaluators, selectors, or executors.
+- **Knowledge** : `Knowledge` instances for RAG.
+- **Memory Managers** : `MemoryManager` instances for memory management.
+- **Session Summary Managers** : `SessionSummaryManager` instances for session summary management.
+- **Teams** : `Team` instances to reuse as members in teams and workflows.
+- **Agents** : `Agent` instances to reuse as members in teams and workflows.
+
+
+<img
+  src="/images/agent-os-studio-registry.png"
+  alt="Open Studio Registry from the Studio navigation"
+  style={{ borderRadius: "8px" }}
+/>
+
+
+
+Example of registry configuration:
 
 ```python
 from agno.db.postgres import PostgresDb
@@ -25,6 +51,27 @@ def custom_evaluator(input: str) -> bool:
     return "urgent" in input.lower()
 
 db = PostgresDb(db_url="postgresql+psycopg://ai:ai@localhost:5532/ai", id="postgres_db")
+user_memory_manager = MemoryManager(
+    model=Claude(id="claude-opus-4-7"),
+    db=db,
+     additional_instructions="""
+    IMPORTANT: Don't store any memories about the user's name. Just say "The User" instead of referencing the user's name.
+    """,
+)
+concise_summary_manager = SessionSummaryManager(
+    model=OpenAIResponses(id="gpt-5-mini"),
+    session_summary_prompt=(
+        "Summarize the conversation in 3-5 bullet points focused on decisions, "
+        "open questions, and any follow-ups required."
+    ),
+    last_n_runs=10,
+)
+agent_knowledge = Knowledge(
+    name="Agent Knowledge",
+    description="Example knowledge base for agents",
+    vector_db=PgVector(table_name="agent_knowledge_documents", db_url=DB_URL),
+    contents_db=db,
+)
 
 registry = Registry(
     name="My Registry",
@@ -34,26 +81,17 @@ registry = Registry(
     vector_dbs=[PgVector(db_url="postgresql+psycopg://ai:ai@localhost:5532/ai", table_name="embeddings")],
     schemas=[InputSchema],
     functions=[custom_evaluator],
+    memory_managers=[user_memory_manager],
+    session_summary_managers=[concise_summary_manager],
+    knowledge=[agent_knowledge],
 )
 
 agent_os = AgentOS(id="my-app", registry=registry, db=db)
 app = agent_os.get_app()
 ```
-
-## Component Types
-
-| Type | Field | Description |
-|------|-------|-------------|
-| Tools | `tools` | `Toolkit` instances, `Function` objects, or plain callables |
-| Models | `models` | Model provider instances (OpenAI, Anthropic, etc.) |
-| Databases | `dbs` | `BaseDb` instances for storage |
-| Vector DBs | `vector_dbs` | `VectorDb` instances for knowledge bases |
-| Schemas | `schemas` | Pydantic `BaseModel` subclasses for structured I/O |
-| Functions | `functions` | Python callables used as workflow evaluators, selectors, or executors |
-
 ## Registry API
 
-The registry exposes a `GET /registry` endpoint through AgentOS with filtering and pagination.
+The registry exposes a [`GET /registry`](/reference-api/schema/registry/list-registry) endpoint through AgentOS with filtering and pagination.
 
 ### Query Parameters
 
@@ -76,9 +114,15 @@ Each component in the response includes type-specific metadata:
 | Vector DB | `collection`, `table_name` |
 | Schema | JSON schema definition |
 | Function | `signature`, `parameters` |
+| Knowledge | `name`, `description`, `vector_db`, `contents_db` |
+| Memory Manager | `model`, `additional_instructions`, `db` |
+| Session Summary Manager | `model`, `session_summary_prompt`, `last_n_runs` |
+| Team | `name`, `type`, `id`, `metadata` |
+| Agent | `name`, `type`, `id`, `metadata` |
 
 ## Developer Resources
 
 - [Registry reference](/reference/agent-os/agent-os)
+- [Registry API reference](/reference-api/schema/registry/list-registry)
 - [Studio overview](/agent-os/studio/introduction)
 - [Workflow serialization](/agent-os/studio/workflows)

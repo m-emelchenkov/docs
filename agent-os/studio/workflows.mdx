@@ -13,7 +13,7 @@ Drag a step onto the canvas and configure its executor type in the properties pa
 |---------------|-------------|
 | **Agent** | Execute the step using a registered agent from your OS |
 | **Team** | Delegate the step to a multi-agent team for collaborative execution |
-| **Custom Executor** | Use a custom function or script for specialized logic |
+| **Custom Executor** | Use a custom function  |
 
 ## Step Types
 
@@ -27,6 +27,12 @@ Beyond basic steps, you can build complex workflows using these step types:
 | `Loop` | Repeat steps until an end condition is met |
 | `Router` | Select a step based on a selector function or CEL expression |
 | `Parallel` | Execute multiple steps concurrently |
+
+<img
+  src="/images/agent-os-studio-workflow-create.png"
+  alt="Create a workflow in AgentOS Studio"
+  style={{ borderRadius: "8px" }}
+/>
 
 These step types can be nested and composed together to build sophisticated automation pipelines while maintaining visual clarity.
 
@@ -55,6 +61,13 @@ condition = Condition(
     evaluator=is_apple,
 )
 ```
+<img
+  src="/images/agent-os-studio-workflow-cel.png"
+  alt="Configure a CEL expression in AgentOS Studio"
+  
+  style={{ clipPath: "inset(0 10px 0 0)" }}
+/>
+
 
 ## CEL Expressions
 
@@ -62,14 +75,7 @@ Workflow steps support [CEL (Common Expression Language)](https://github.com/goo
 
 See [CEL Expressions](/agent-os/studio/cel-expressions) for full usage, context variables, and examples.
 
-## Save and Run
 
-Once your workflow is designed:
-
-1. **Save** your workflow to persist it to the registry
-2. Navigate to the **Chat page** to run your workflow interactively
-3. Provide input and watch the workflow execute step-by-step
-4. View results and logs for each step in real-time
 
 ## Developer Resources
 

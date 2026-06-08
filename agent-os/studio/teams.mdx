@@ -4,19 +4,37 @@ sidebarTitle: "Teams"
 description: "Compose multi-agent teams visually in AgentOS Studio."
 ---
 
-Studio provides a **visual Team Builder** for composing multi-agent teams with coordination modes. 
-No code required. Drag agents onto the canvas, configure coordination, and run teams.
+Build teams in AgentOS Studio by wiring up agents, tools, instructions, knowledge, and memory. No code required.
 
 ## Creating Teams
 
-Create a new team by dragging agents from your [Registry](/agent-os/studio/registry) and configuring the team settings:
+Create a new team by using existing agents and teams from your Registry or built in Studio, and configuring the team settings:
 
-| Setting | Description |
-|---------|-------------|
-| **Members** | Drag and drop agents to include in the team |
-| **Mode** | Coordination mode: `coordinate`, `route`, or `collaborate` |
-| **Instructions** | Team-level instructions for the leader agent |
-| **Success Criteria** | Define when the team's task is complete |
+- **Team Members and Execution**: select agents or teams to include as members, and set the team mode and delegation behavior. Read more about [team members and execution](/agent-os/studio/teams#team-members-and-execution) here.  
+- **Instructions**: team-level instructions for the leader agent.
+- **Success Criteria**: define when the team's task is complete.
+- **Context Management**: configure session summary manager, enable session summaries, number of history runs, add history to context, and add session summary to context.
+- **Memory**: configure memory manager, enable agentic memory, update memory on run, and add memories to context.
+- **Knowledge**: configure knowledge, search knowledge, and add knowledge to context.
+- **Session State**: configure session state, add session state to context, and enable agentic state.
+
+<img
+  src="/images/agent-os-studio-create-team.png"
+  alt="Create a team in AgentOS Studio"
+  style={{ borderRadius: "8px" }}
+/>
+
+### Team Members and Execution
+
+- **Members**: select the agents or teams to include as members.
+- **Team Mode** _(optional)_: controls how the team leader coordinates work with member agents (see [Delegation](/teams/delegation)):
+  - **None**
+  - **Coordinate** (default)
+  - **Route**
+  - **Broadcast**
+  - **Tasks**
+- **Respond Directly**: lets the team leader respond on its own instead of delegating.  
+- **Delegate to All Members**: sends the task to every member at once.  
 
 <Tip>
 Agents can be created directly in Studio or registered via code—both are available for team composition.
@@ -28,15 +46,6 @@ Teams built in Studio can be used in multiple ways:
 
 - **Chat directly** with the team via the Chat page
 - **Use in Workflows** as step executors for complex automation
-
-## Save and Run
-
-Once your team is configured:
-
-1. **Save** your team to persist it to the registry
-2. Navigate to the **Chat page** to interact with your team
-3. Send tasks and watch agents collaborate in real-time
-4. View individual agent contributions and coordination flow
 
 ## Code Equivalent
 

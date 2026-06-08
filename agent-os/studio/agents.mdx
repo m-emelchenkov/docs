@@ -3,21 +3,27 @@ title: "Agents"
 description: "Build and configure agents visually in AgentOS Studio."
 ---
 
-Build production-grade agents via AgentOS Studio’s visual canvas. Wire up models, tools, 
-and structured I/O into complex agentic workflows. Deploy instantly. No-code required.
+Build agents in AgentOS Studio by wiring up models, tools, instructions, knowledge, and memory. No code required.
 
 ## Creating Agents
 
 Create a new agent by selecting components from your [Registry](/agent-os/studio/registry) and configuring them in the properties panel:
 
-| Setting | Description |
-|---------|-------------|
-| **Model** | Select from registered models |
-| **Tools** | Attach registered tools and toolkits |
-| **Instructions** | System-level instructions for the agent |
-| **Input/Output Schema** | Structured I/O using registered Pydantic schemas |
-| **Memory** | Enable memory for multi-turn conversations |
-| **Knowledge** | Attach knowledge bases for RAG |
+- **Model**: select from registered models.
+- **Tools**: attach registered tools and toolkits.
+- **Instructions**: system-level instructions for the agent.
+- **Input/Output Schema**: structured I/O using registered Pydantic schemas.
+- **Database**: attach a database for the agent to use.
+- **Context Management**: configure session summary manager, enable session summaries, number of history runs, add history to context, and add session summary to context.
+- **Memory**: configure memory manager, enable agentic memory, update memory on run, and add memories to context.
+- **Knowledge**: configure knowledge, search knowledge, and add knowledge to context.
+- **Session State**: configure session state, add session state to context, and enable agentic state.
+
+<img
+  src="/images/agent-os-studio-create-agent.png"
+  alt="Create an agent in AgentOS Studio"
+  style={{ borderRadius: "8px" }}
+/>
 
 <Tip>
 Switch to the advanced JSON config editor for fine-grained control over agent settings.
@@ -31,14 +37,6 @@ Use Studio-built Agents in multiple ways:
 - **Add to Teams** for multi-agent collaboration
 - **Use in Workflows** as step executors for automation pipelines
 
-## Save and Run
-
-Once your agent is configured:
-
-1. **Save** your agent to persist it to the registry
-2. Navigate to the **Chat page** to interact with your agent
-3. Send messages and receive responses in real-time
-4. View tool calls, reasoning, and outputs as the agent works
 
 ## Code Equivalent
 
