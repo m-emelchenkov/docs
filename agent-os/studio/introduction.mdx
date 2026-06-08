@@ -7,23 +7,17 @@ Build and orchestrate Agents, Teams, and Workflows on a live canvas to deploy pr
 
 ## Concepts
 
-**[Agents](/agent-os/studio/agents)**
+**[Agents](/agent-os/studio/agents)** :
 Build agent by giving it a model, tools, and instructions. Add knowledge and memory to ground its responses and remember context.
 
-**[Teams](/agent-os/studio/teams)**
+**[Teams](/agent-os/studio/teams)** :
 Build multi-agents team that works toward a shared goal. Choose how the leader coordinates with members using `coordinate`, `route`, `broadcast`, or `tasks` mode.
 
-**[Workflows](/agent-os/studio/workflows)**
-Orchestrate agents and teams into step-based pipelines. Control the flow with loops, conditions, routers, and parallel execution.
+**[Workflows](/agent-os/studio/workflows)** :
+Orchestrate agents and teams into step-based pipelines. Control the flow with loops, conditions, routers, and parallel execution. Use functions or cel expressions to evaluate conditions and selectors.
 
-use functions or cel expressions to evaluate conditions and selectors.
-
-**[Registry](/agent-os/studio/registry)**
-Add tools, models, databases, and schemas that Studio can use to build agents, teams, and workflows.
-
-Register agents and teams in the `Registry` to reuse them as members in Studio teams and as steps in Studio workflows.
-
-Register `knowledge`, `memory_managers`, and `session_summary_managers` for agents and teams to use.
+**[Registry](/agent-os/studio/registry)** :
+Register the components Studio composes with: tools, models, databases, schemas, knowledge, `memory_managers`, and `session_summary_managers`. Register existing agents and teams to reuse them as members in Studio teams or steps in Studio workflows.  
 
 ## How It Works
 
@@ -75,15 +69,10 @@ Create your agent, team, or workflow using the visual builder. use tools, models
 
 
 
-### 2. Save Draft or publish directly
+### 2. Save Draft or Publish Directly
 
 - Save your work as a draft or publish directly. Drafts can be edited and updated. Drafts helps you test your component before publishing it.
 - Publish or Draft multiple versions to checkpoint your progress.
-  <img
-    src="/images/agent-os-studio-draft-publish-btn.png"
-    alt="Save draft or publish directly in Studio"
-    style={{ borderRadius: "8px" }}
-  />
 
 ### 3. Test
 
@@ -91,7 +80,7 @@ Once saved, test your draft or published version in the AgentOS:
 
 - **Chat Page**: 
   - Interact with your agent, team, or workflow in real-time
-  - run specific version of the component by selecting it in the dropdown.
+  - Run specific version of the component by selecting it in the dropdown.
 
   <img
     src="/images/agent-os-studio-chat-page-versioning.png"
@@ -108,11 +97,7 @@ Once saved, test your draft or published version in the AgentOS:
   unexpected inputs gracefully.
 </Warning>
 
-### 4. Delete
-
-- Delete the component from the Studio.
-
-### 5. Manage Versions
+### 4. Manage Versions
 
 Access the full version history for any agent, team, or workflow:
 
@@ -121,13 +106,11 @@ Access the full version history for any agent, team, or workflow:
   alt="Versions page in Studio"
   style={{ borderRadius: "16px" }}
 />
-- **Restore**: edit and update the draft version.
-- **Set Current**: Choose which published version is used by default when running via the API
+Two actions are available on this page:
+- **Restore**: open a draft for editing in Studio.
+- **Set Current**: choose which published version the API serves.
 
-- only draft versions can be updated and edited in the Studio.
-- published versions are immutable and can only be updated by publishing a new version.
-- draft version cannot be set as current.
-- only draft versions can be deleted from versions page , published versions and current config cannot be deleted.
+Drafts are mutable: you can edit them in Studio and delete them. Published versions are immutable and undeletable. To change a published version, publish a new one. Only published versions can be set as current.
 
 
 <Tip>
@@ -137,9 +120,10 @@ Access the full version history for any agent, team, or workflow:
 
 ## Next Steps
 
-| Task                | Guide                                          |
-| ------------------- | ---------------------------------------------- |
-| Build an agent      | [Studio Agents](/agent-os/studio/agents)       |
-| Create a workflow   | [Studio Workflows](/agent-os/studio/workflows) |
-| Compose a team      | [Studio Teams](/agent-os/studio/teams)         |
-| Set up the registry | [Studio Registry](/agent-os/studio/registry)   |
+| Task                  | Guide                                                            |
+| --------------------- | ---------------------------------------------------------------- |
+| Build an agent        | [Studio Agents](/agent-os/studio/agents)                         |
+| Create a workflow     | [Studio Workflows](/agent-os/studio/workflows)                   |
+| Compose a team        | [Studio Teams](/agent-os/studio/teams)                           |
+| Set up the registry   | [Studio Registry](/agent-os/studio/registry)                     |
+| components (API reference) | [Components API reference](/reference-api/schema/components) |
