@@ -28,11 +28,11 @@ Infrastructure starters for building your own agents. Pick where you want to run
 | Railway | Fast cloud deployment, small teams | Just code | ~$20/mo |
 | AWS | Enterprise deployments, full control | Infrastructure-as-code | ~$75/mo |
 
-## Apps
+## Solutions
 
 Pre-built agent systems with self-learning, context retrieval, and production infrastructure already wired up. Clone the repo, configure your data sources, and you're running.
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="Dash" icon="chart-mixed" href="/deploy/templates/dash/overview">
     **Self-learning data agent.** Connects to your databases, learns your schema, improves with every query.
   </Card>
@@ -41,12 +41,6 @@ Pre-built agent systems with self-learning, context retrieval, and production in
   </Card>
   <Card title="Coda" icon="code-branch" href="/deploy/templates/coda/overview">
     **Code companion.** PR reviews, issue triage, architecture questions. Lives in Slack.
-  </Card>
-  <Card title="PAL" icon="brain" href="/deploy/templates/pal/overview">
-    **Personal agent that learns.** Knowledge base, wiki, and structured data that compounds.
-  </Card>
-  <Card title="Gcode" icon="code" href="/deploy/templates/gcode/overview">
-    **Self-improving coding agent.** Persistent workspace, git-based isolation, full audit trail.
   </Card>
 </CardGroup>
 
@@ -63,12 +57,10 @@ Each app ships with capabilities that typically take weeks to build:
 
 ## Improving Your Agents
 
-Each app includes tools for iterating on agent quality:
+Each solution includes tools for iterating on agent quality:
 
-| App | Improvement Tools |
-|-----|-------------------|
+| Solution | Improvement Tools |
+|----------|-------------------|
 | Dash | Automated improvement loop (`python -m evals improve`) |
 | Scout | Probe library with `/loop` support |
 | Coda | Eval suite for routing and synthesis |
-| PAL | Smoke tests and behavioral evals |
-| Gcode | LearningMachine for persistent context |
