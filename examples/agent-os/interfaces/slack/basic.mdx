@@ -2,12 +2,23 @@
 title: "Basic"
 description: "Demonstrates basic."
 ---
+
+Part of the [Slack interface](/agent-os/interfaces/slack/introduction) examples. Follow the [setup guide](/agent-os/interfaces/slack/setup).
+
 ```python
 """
-Basic
-=====
+Basic Slack Agent
+=================
 
-Demonstrates basic.
+Minimal Slack bot that responds only when mentioned in a channel.
+Uses SQLite for session persistence so the agent remembers conversation
+history across restarts.
+
+Key concepts:
+  - ``reply_to_mentions_only=True`` responds to @mentions in channels and every DM.
+  - ``add_history_to_context=True`` feeds the last N runs back into the prompt.
+
+Slack scopes: app_mentions:read, assistant:write, chat:write, im:history
 """
 
 from agno.agent import Agent

@@ -111,6 +111,7 @@
               "features/storage",
               "features/observability",
               "features/security-and-auth",
+              "features/interfaces",
               "features/scheduling"
             ]
           },
@@ -4676,8 +4677,9 @@
                     "group": "Slack",
                     "pages": [
                       "agent-os/interfaces/slack/introduction",
-                      "agent-os/interfaces/slack/hitl",
                       "agent-os/interfaces/slack/setup",
+                      "agent-os/interfaces/slack/features",
+                      "agent-os/interfaces/slack/hitl",
                       "agent-os/interfaces/slack/reference"
                     ]
                   },
@@ -4859,8 +4861,7 @@
             "group": "Get Started",
             "pages": [
               "deploy/introduction",
-              "deploy/templates",
-              "deploy/interfaces"
+              "deploy/templates"
             ]
           },
           {
@@ -4959,14 +4960,13 @@
             "pages": [
               "deploy/templates/dash/overview",
               "deploy/templates/scout/overview",
-              "deploy/templates/coda/overview",
-              "deploy/templates/pal/overview",
-              "deploy/templates/gcode/overview"
+              "deploy/templates/coda/overview"
             ]
           },
           {
             "group": "Interfaces",
             "pages": [
+              "deploy/interfaces/overview",
               "deploy/interfaces/slack/overview",
               "deploy/interfaces/telegram/overview",
               "deploy/interfaces/whatsapp/overview",
@@ -7148,39 +7148,69 @@
                   {
                     "group": "Interfaces",
                     "pages": [
-                      "examples/agent-os/interfaces/whatsapp/overview",
-                      "examples/agent-os/interfaces/a2a/agent-with-tools",
-                      "examples/agent-os/interfaces/a2a/basic",
-                      "examples/agent-os/interfaces/a2a/multi-agent-a2a/airbnb-agent",
-                      "examples/agent-os/interfaces/a2a/multi-agent-a2a/trip-planning-a2a-client",
-                      "examples/agent-os/interfaces/a2a/multi-agent-a2a/weather-agent",
-                      "examples/agent-os/interfaces/a2a/reasoning-agent",
-                      "examples/agent-os/interfaces/a2a/research-team",
-                      "examples/agent-os/interfaces/a2a/structured-output",
-                      "examples/agent-os/interfaces/agui/agent-with-silent-tools",
-                      "examples/agent-os/interfaces/agui/agent-with-tools",
-                      "examples/agent-os/interfaces/agui/basic",
-                      "examples/agent-os/interfaces/agui/multiple-instances",
-                      "examples/agent-os/interfaces/agui/reasoning-agent",
-                      "examples/agent-os/interfaces/agui/research-team",
-                      "examples/agent-os/interfaces/agui/structured-output",
+                      "examples/agent-os/interfaces/overview",
                       "examples/agent-os/interfaces/all-interfaces",
-                      "examples/agent-os/interfaces/slack/agent-with-user-memory",
-                      "examples/agent-os/interfaces/slack/basic",
-                      "examples/agent-os/interfaces/slack/basic-workflow",
-                      "examples/agent-os/interfaces/slack/channel-summarizer",
-                      "examples/agent-os/interfaces/slack/file-analyst",
-                      "examples/agent-os/interfaces/slack/multiple-instances",
-                      "examples/agent-os/interfaces/slack/reasoning-agent",
-                      "examples/agent-os/interfaces/slack/research-assistant",
-                      "examples/agent-os/interfaces/slack/support-team",
-                      "examples/agent-os/interfaces/whatsapp/agent-with-media",
-                      "examples/agent-os/interfaces/whatsapp/agent-with-user-memory",
-                      "examples/agent-os/interfaces/whatsapp/basic",
-                      "examples/agent-os/interfaces/whatsapp/image-generation-model",
-                      "examples/agent-os/interfaces/whatsapp/image-generation-tools",
-                      "examples/agent-os/interfaces/whatsapp/multiple-instances",
-                      "examples/agent-os/interfaces/whatsapp/reasoning-agent"
+                      {
+                        "group": "Slack",
+                        "pages": [
+                          "examples/agent-os/interfaces/slack/overview",
+                          "examples/agent-os/interfaces/slack/basic",
+                          "examples/agent-os/interfaces/slack/basic-workflow",
+                          "examples/agent-os/interfaces/slack/agent-with-user-memory",
+                          "examples/agent-os/interfaces/slack/channel-summarizer",
+                          "examples/agent-os/interfaces/slack/file-analyst",
+                          "examples/agent-os/interfaces/slack/multiple-instances",
+                          "examples/agent-os/interfaces/slack/reasoning-agent",
+                          "examples/agent-os/interfaces/slack/research-assistant",
+                          "examples/agent-os/interfaces/slack/support-team"
+                        ]
+                      },
+                      {
+                        "group": "WhatsApp",
+                        "pages": [
+                          "examples/agent-os/interfaces/whatsapp/overview",
+                          "examples/agent-os/interfaces/whatsapp/basic",
+                          "examples/agent-os/interfaces/whatsapp/agent-with-media",
+                          "examples/agent-os/interfaces/whatsapp/agent-with-user-memory",
+                          "examples/agent-os/interfaces/whatsapp/image-generation-model",
+                          "examples/agent-os/interfaces/whatsapp/image-generation-tools",
+                          "examples/agent-os/interfaces/whatsapp/multiple-instances",
+                          "examples/agent-os/interfaces/whatsapp/reasoning-agent"
+                        ]
+                      },
+                      {
+                        "group": "A2A",
+                        "pages": [
+                          "examples/agent-os/interfaces/a2a/overview",
+                          "examples/agent-os/interfaces/a2a/basic",
+                          "examples/agent-os/interfaces/a2a/agent-with-tools",
+                          "examples/agent-os/interfaces/a2a/reasoning-agent",
+                          "examples/agent-os/interfaces/a2a/research-team",
+                          "examples/agent-os/interfaces/a2a/structured-output",
+                          {
+                            "group": "Multi-Agent A2A",
+                            "pages": [
+                              "examples/agent-os/interfaces/a2a/multi-agent-a2a/overview",
+                              "examples/agent-os/interfaces/a2a/multi-agent-a2a/airbnb-agent",
+                              "examples/agent-os/interfaces/a2a/multi-agent-a2a/trip-planning-a2a-client",
+                              "examples/agent-os/interfaces/a2a/multi-agent-a2a/weather-agent"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "group": "AG-UI",
+                        "pages": [
+                          "examples/agent-os/interfaces/agui/overview",
+                          "examples/agent-os/interfaces/agui/basic",
+                          "examples/agent-os/interfaces/agui/agent-with-silent-tools",
+                          "examples/agent-os/interfaces/agui/agent-with-tools",
+                          "examples/agent-os/interfaces/agui/multiple-instances",
+                          "examples/agent-os/interfaces/agui/reasoning-agent",
+                          "examples/agent-os/interfaces/agui/research-team",
+                          "examples/agent-os/interfaces/agui/structured-output"
+                        ]
+                      }
                     ]
                   },
                   {
@@ -7843,6 +7873,7 @@
           },
           {
             "group": "AgentOS API Reference",
+            "openapi": "reference-api/openapi.yaml",
             "pages": [
               "reference-api/overview",
               {
@@ -7900,7 +7931,8 @@
               {
                 "group": "Slack",
                 "pages": [
-                  "reference-api/schema/slack/slack-events"
+                  "reference-api/schema/slack/slack-events",
+                  "reference-api/schema/slack/slack-interactions"
                 ]
               },
               {
@@ -8101,6 +8133,10 @@
     ]
   },
   "redirects": [
+    {
+      "source": "/deploy/interfaces",
+      "destination": "/deploy/interfaces/overview"
+    },
     {
       "source": "/runtime/build-a-product",
       "destination": "/features/runtime"

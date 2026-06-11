@@ -1,19 +1,30 @@
 ---
 title: Human-in-the-Loop
 sidebarTitle: Human-in-the-Loop
-description: "Pause agents and teams for approval directly in Slack, rendered as interactive TaskCards."
+description: "Pause agents for approval before executing sensitive tools."
 keywords: [slack, hitl, human-in-the-loop, approval, confirmation, task cards]
 ---
 
-When an agent or team pauses for [human-in-the-loop](/hitl/overview), the Slack interface renders the pause as an interactive TaskCard in the channel. The user resolves it with buttons and inputs, and the run resumes. All four pause types are supported.
+[Human-in-the-Loop](/hitl/overview) solves three problems that appear when agents move from answering questions to taking actions:
 
-## Example
+1. **Irreversible operations.** Sending an email, deleting a record, or posting to a channel cannot be undone. A human checkpoint prevents mistakes that require cleanup or apologies.
 
-A paused run is persisted to the database and resumed by `run_id` when the user resolves the TaskCard, so the Slack interface needs a `db`.
+2. **Missing context.** The agent knows what action to take but lacks a critical detail. A deployment needs a target environment. A booking needs a budget. Rather than guessing, the agent pauses and asks.
 
-```python cookbook/05_agent_os/interfaces/slack/hitl_simple.py
-import json
-import httpx
+3. **Audit trail.** Sensitive operations need accountability. Slack threads already contain the discussion that led to the action. Rendering the approval in the same thread keeps the decision and its context together.
+
+<Frame caption="Agent pausing for approval before creating a calendar event and sending an email">
+  <video autoPlay muted loop playsInline controls className="w-full rounded-lg" src="/videos/slack-hitl.mp4" />
+</Frame>
+
+## Quick start
+
+The Slack interface renders HITL pauses as interactive cards in the thread. Users approve, reject, or provide input without leaving Slack.
+
+<Tabs>
+<Tab title="Agent">
+
+```python agent.py
 from agno.agent import Agent
 from agno.db.sqlite import SqliteDb
 from agno.models.openai import OpenAIResponses
@@ -21,68 +32,143 @@ from agno.os import AgentOS
 from agno.os.interfaces.slack import Slack
 from agno.tools import tool
 
-
 @tool(requires_confirmation=True)
-def get_top_hackernews_stories(num_stories: int) -> str:
-    """Fetch top stories from Hacker News."""
-    response = httpx.get("https://hacker-news.firebaseio.com/v0/topstories.json")
-    story_ids = response.json()
-    return json.dumps(story_ids[:num_stories])
+def send_email(to: str, subject: str, body: str) -> str:
+    """Send an email."""
+    ...
 
-
-db = SqliteDb(
-    db_file="tmp/hitl_simple.db",
-    session_table="agent_sessions",
-)
+db = SqliteDb(db_file="agent.db")
 
 agent = Agent(
-    name="HN Agent",
-    id="hn-agent",
+    name="Assistant",
     model=OpenAIResponses(id="gpt-5.4"),
-    tools=[get_top_hackernews_stories],
+    tools=[send_email],
     db=db,
 )
 
 agent_os = AgentOS(
     agents=[agent],
     db=db,
-    interfaces=[Slack(agent=agent, reply_to_mentions_only=True)],
+    interfaces=[Slack(agent=agent)],
 )
 app = agent_os.get_app()
 
 if __name__ == "__main__":
-    agent_os.serve(app="hitl_simple:app", reload=True, port=7777)
+    agent_os.serve(app="agent:app", reload=True)
 ```
 
-## Pause Types
+</Tab>
+<Tab title="Team">
 
-Each pause type renders a different TaskCard:
+```python team.py
+from agno.agent import Agent
+from agno.team import Team
+from agno.db.sqlite import SqliteDb
+from agno.models.openai import OpenAIResponses
+from agno.os import AgentOS
+from agno.os.interfaces.slack import Slack
+from agno.tools import tool
 
-| Pause type            | Slack UI                                                                 | Trigger                                              |
-| --------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------- |
-| Confirmation          | Approve / Reject buttons. Multiple pending tools render as separate rows. | `@tool(requires_confirmation=True)`                  |
-| User input            | Text fields, or dropdowns for `Literal`/`Enum`-typed fields.             | `@tool(requires_user_input=True)`                    |
-| User feedback         | Option buttons from a structured question.                               | [`UserFeedbackTools`](/tools/toolkits/others/user-feedback) |
-| External execution    | Confirm button. The tool runs outside the agent, result is fed back.     | `@tool(external_execution=True)`                     |
+@tool(requires_confirmation=True)
+def send_email(to: str, subject: str, body: str) -> str:
+    """Send an email."""
+    ...
 
-Rejections collect a reason where applicable, which is passed back to the agent so it can adjust.
+db = SqliteDb(db_file="agent.db")
 
-## Teams and Workflows
+researcher = Agent(name="Researcher", model=OpenAIResponses(id="gpt-5.4"))
+writer = Agent(name="Writer", model=OpenAIResponses(id="gpt-5.4"), tools=[send_email])
 
-The same TaskCards work for teams and workflows. When a member agent inside a team pauses, the pause propagates to the team run and surfaces in Slack. Workflow step and executor pauses surface the same way.
+support_team = Team(
+    name="Support Team",
+    mode="coordinate",
+    members=[researcher, writer],
+    model=OpenAIResponses(id="gpt-5.4"),
+    db=db,
+)
 
-| Pattern  | Cookbook |
-|----------|----------|
-| Agent confirmation | [hitl_confirmation.py](https://github.com/agno-agi/agno/blob/main/cookbook/05_agent_os/interfaces/slack/hitl_confirmation.py) |
-| User input | [hitl_user_input.py](https://github.com/agno-agi/agno/blob/main/cookbook/05_agent_os/interfaces/slack/hitl_user_input.py) |
-| External execution | [hitl_external_execution.py](https://github.com/agno-agi/agno/blob/main/cookbook/05_agent_os/interfaces/slack/hitl_external_execution.py) |
-| Structured feedback | [hitl_user_feedback.py](https://github.com/agno-agi/agno/blob/main/cookbook/05_agent_os/interfaces/slack/hitl_user_feedback.py) |
-| Team confirmation | [team_hitl_confirmation.py](https://github.com/agno-agi/agno/blob/main/cookbook/05_agent_os/interfaces/slack/team_hitl_confirmation.py) |
+agent_os = AgentOS(
+    teams=[support_team],
+    db=db,
+    interfaces=[Slack(team=support_team)],
+)
+app = agent_os.get_app()
 
-## Next Steps
+if __name__ == "__main__":
+    agent_os.serve(app="team:app", reload=True)
+```
 
-| Task | Guide |
-|------|-------|
-| Understand pause types | [HITL overview](/hitl/overview) |
-| Set up the Slack interface | [Slack introduction](/agent-os/interfaces/slack/introduction) |
-| Manage approvals in AgentOS | [Approvals overview](/agent-os/approvals/overview) |
+When a member agent calls a tool that requires confirmation, the team pauses.
+
+</Tab>
+<Tab title="Workflow">
+
+```python workflow.py
+from agno.agent import Agent
+from agno.workflow import Step, Workflow
+from agno.db.sqlite import SqliteDb
+from agno.models.openai import OpenAIResponses
+from agno.os import AgentOS
+from agno.os.interfaces.slack import Slack
+from agno.tools import tool
+
+@tool(requires_confirmation=True)
+def send_email(to: str, subject: str, body: str) -> str:
+    """Send an email."""
+    ...
+
+db = SqliteDb(db_file="agent.db")
+
+researcher = Agent(name="Researcher", model=OpenAIResponses(id="gpt-5.4"))
+writer = Agent(name="Writer", model=OpenAIResponses(id="gpt-5.4"), tools=[send_email])
+
+research_flow = Workflow(
+    name="Research",
+    steps=[
+        Step(name="Research", agent=researcher),
+        Step(name="Write", agent=writer),
+    ],
+    db=db,
+)
+
+agent_os = AgentOS(
+    workflows=[research_flow],
+    db=db,
+    interfaces=[Slack(workflow=research_flow)],
+)
+app = agent_os.get_app()
+
+if __name__ == "__main__":
+    agent_os.serve(app="workflow:app", reload=True)
+```
+
+Workflow step pauses surface in Slack the same way.
+
+</Tab>
+</Tabs>
+
+<Tip>
+HITL requires a [database](/features/storage) to persist paused runs.
+</Tip>
+
+## Pause types
+
+| Pause type | Slack card | Trigger |
+|------------|------------|---------|
+| [Confirmation](/hitl/user-confirmation) | Approve/Reject buttons | `@tool(requires_confirmation=True)` |
+| [User input](/hitl/user-input) | Text fields or dropdowns | `@tool(requires_user_input=True)` |
+| [External execution](/hitl/external-execution) | Confirm button, result fed back | `@tool(external_execution=True)` |
+| [User feedback](/hitl/dynamic-user-input) | Dynamic forms: checkboxes, dropdowns, text questions | `UserFeedbackTools()` |
+
+See the [HITL overview](/hitl/overview) for details on each pause type.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="HITL Overview" icon="shield-check" href="/hitl/overview">
+    All pause types and how to use them
+  </Card>
+  <Card title="Reference" icon="book" href="/agent-os/interfaces/slack/reference">
+    All parameters and endpoints
+  </Card>
+</CardGroup>

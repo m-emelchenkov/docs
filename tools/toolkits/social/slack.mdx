@@ -16,17 +16,13 @@ export SLACK_TOKEN=***
 
 ## Example
 
-The following agent sends a message to a Slack channel, lists channels, and retrieves message history.
+The following agent sends a message to a Slack channel, lists channels, and retrieves message history. The messaging, channel, and file tools are enabled by default, so `SlackTools()` needs no configuration.
 
-```python cookbook/14_tools/slack_tools.py
-import os
-
+```python
 from agno.agent import Agent
 from agno.tools.slack import SlackTools
 
-slack_tools = SlackTools()
-
-agent = Agent(tools=[slack_tools])
+agent = Agent(tools=[SlackTools()])
 
 # Example 1: Send a message to a Slack channel
 agent.print_response("Send a message 'Hello from Agno!' to the channel #general", markdown=True)
@@ -44,7 +40,8 @@ agent.print_response("Get the last 10 messages from the channel 1231241", markdo
 | --- | --- | --- | --- |
 | `token` | `Optional[str]` | `None` | Slack API token. Falls back to `SLACK_TOKEN` env var. |
 | `markdown` | `bool` | `True` | Enable Slack mrkdwn formatting in messages. |
-| `output_directory` | `Optional[str]` | `None` | Directory to save downloaded/uploaded files locally. |
+| `output_directory` | `Optional[str]` | `None` | Directory to save downloaded files locally. Setting this implies `save_downloads=True`. |
+| `save_downloads` | `bool` | `False` | When `True`, save downloaded files to disk (in `output_directory` or current directory). When `False`, return file content as base64. |
 | `enable_send_message` | `bool` | `True` | Enable `send_message` tool. |
 | `enable_send_message_thread` | `bool` | `True` | Enable `send_message_thread` tool. |
 | `enable_list_channels` | `bool` | `True` | Enable `list_channels` tool. |
@@ -62,14 +59,18 @@ agent.print_response("Get the last 10 messages from the channel 1231241", markdo
 | `max_file_size` | `int` | `1073741824` | Maximum file size in bytes for uploads and downloads (default 1 GB). |
 | `thread_message_limit` | `int` | `20` | Maximum number of messages to fetch in `get_thread`. |
 
+<Note>
+When you do not pass `instructions`, SlackTools builds usage guidance from the enabled tools (when to reply in a thread, which search to use) and adds it to the agent's system prompt automatically.
+</Note>
+
 ## Toolkit Functions
 
 | Function | Description |
 | --- | --- |
 | `send_message(channel, text)` | Send a message to a Slack channel. |
 | `send_message_thread(channel, text, thread_ts)` | Reply to a message thread in a channel. |
-| `list_channels()` | List all channels in the workspace. |
-| `get_channel_history(channel, limit=100)` | Get message history from a channel. |
+| `list_channels(include_private=False)` | List all channels in the workspace. Set `include_private=True` to include private channels (requires `groups:read` scope). |
+| `get_channel_history(channel, limit=100)` | Get message history from a channel. Returns top-level messages only; use `get_thread()` to expand threads. |
 | `upload_file(channel, content, filename, title?, initial_comment?, thread_ts?)` | Upload a file to a channel with optional caption. |
 | `download_file(file_id, dest_path?)` | Download a file by file ID. Returns path or base64 content. |
 | `search_messages(query, limit=20)` | Search messages across the workspace. Requires a user token (bot tokens return `not_allowed_token_type`). |
@@ -83,9 +84,14 @@ agent.print_response("Get the last 10 messages from the channel 1231241", markdo
 `search_messages` supports Slack search modifiers: `from:@user`, `in:#channel`, `has:link`, `before:2024-01-01`, `after:2024-01-01`. Combine them to narrow results.
 </Tip>
 
+SlackTools also exposes `download_file_bytes(file_id)` for programmatic use. It returns raw bytes and is not registered as an agent tool.
+
 ## Developer Resources
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
+  <Card title="Examples" icon="flask" href="/examples/tools/slack-tools">
+    Tool configurations: all tools, a subset, and read-only.
+  </Card>
   <Card title="Slack Interface" icon="book" href="/agent-os/interfaces/slack/introduction">
     Streaming, sessions, file handling, and behavior details.
   </Card>

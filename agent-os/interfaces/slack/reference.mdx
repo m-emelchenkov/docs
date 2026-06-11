@@ -17,9 +17,9 @@ Slack(agent=my_agent, streaming=True, prefix="/slack")
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
-| `agent` | `Optional[Agent]` | `None` | Agno `Agent` instance. |
-| `team` | `Optional[Team]` | `None` | Agno `Team` instance. |
-| `workflow` | `Optional[Workflow]` | `None` | Agno `Workflow` instance. |
+| `agent` | `Optional[Union[Agent, RemoteAgent]]` | `None` | Agno `Agent` or `RemoteAgent` instance. |
+| `team` | `Optional[Union[Team, RemoteTeam]]` | `None` | Agno `Team` or `RemoteTeam` instance. |
+| `workflow` | `Optional[Union[Workflow, RemoteWorkflow]]` | `None` | Agno `Workflow` or `RemoteWorkflow` instance. |
 | `prefix` | `str` | `"/slack"` | URL prefix for Slack endpoints (e.g., `/slack` means events arrive at `/slack/events`). |
 | `tags` | `Optional[List[str]]` | `None` | FastAPI route tags for API documentation. Defaults to `["Slack"]`. |
 | `reply_to_mentions_only` | `bool` | `True` | When `True` (default), the bot responds to @mentions in channels and all DMs. When `False`, responds to all channel messages. |
@@ -33,7 +33,7 @@ Slack(agent=my_agent, streaming=True, prefix="/slack")
 | `ssl` | `Optional[SSLContext]` | `None` | SSL context for the Slack WebClient. |
 | `buffer_size` | `int` | `100` | Characters to buffer before flushing a streaming update. |
 | `max_file_size` | `int` | `1073741824` | Maximum file size in bytes for uploads and downloads (default 1 GB). |
-| `resolve_user_identity` | `bool` | `False` | Look up each user's email and display name via the Slack `users.info` API. When enabled, the agent receives the user's email as `user_id` instead of their Slack ID, and `metadata` includes `user_name` and `user_email`. |
+| `resolve_user_identity` | `bool` | `False` | Look up each user's email and display name via the Slack `users.info` API. When enabled, the agent receives the user's email as `user_id` instead of their Slack ID, and `metadata` includes `user_name` and `user_id` (the resolved email). |
 
 ## Endpoints
 
@@ -49,6 +49,20 @@ Receives all Slack events (URL verification, messages, app mentions, thread star
 | **400** | Missing `X-Slack-Request-Timestamp` or `X-Slack-Signature` headers. |
 | **403** | Invalid Slack signing signature. |
 | **500** | `SLACK_SIGNING_SECRET` is not set (checked on each request, not at startup). |
+
+### `POST {prefix}/interactions`
+
+Handles Slack interactive components for Human-in-the-Loop (HITL) features: button clicks, form submissions, and approval/denial actions.
+
+| Status | Description |
+| --- | --- |
+| **200** | Interaction acknowledged. Processing happens in the background. |
+| **400** | Missing Slack headers or malformed payload. |
+| **403** | Invalid Slack signing signature. |
+
+<Warning>
+HITL features require this endpoint. Configure **Interactivity & Shortcuts** in your Slack App settings and set the Request URL to `{your-url}{prefix}/interactions`.
+</Warning>
 
 ### Built-in Event Handling
 
@@ -69,9 +83,13 @@ Add scopes in your Slack App under **OAuth & Permissions > Bot Token Scopes**.
 | --- | --- |
 | `app_mentions:read` | Receive @mention events in channels |
 | `assistant:write` | Streaming task cards, suggested prompts, thread titles |
-| `channels:read` | Resolve channel names (called on every inbound event) |
+| `channels:read` | Resolve channel names and IDs (called on every inbound event) |
 | `chat:write` | Send messages and stream responses |
 | `im:history` | Read DM history for thread context |
+
+<Note>
+All five scopes above are required for a functional streaming bot. Missing `app_mentions:read` means the bot won't receive @mentions; missing `channels:read` causes channel name resolution to fail silently.
+</Note>
 
 ### File Handling
 
@@ -86,6 +104,9 @@ Add scopes in your Slack App under **OAuth & Permissions > Bot Token Scopes**.
 | --- | --- |
 | `channels:read` | `list_channels()`, `get_channel_info()` |
 | `channels:history` | `get_channel_history()`, `get_thread()` in public channels |
+| `chat:write` | `send_message()`, `send_message_thread()` |
+| `files:read` | `download_file()`, `download_file_bytes()` |
+| `files:write` | `upload_file()` |
 | `groups:read` | `list_channels()` for private channels |
 | `groups:history` | `get_channel_history()`, `get_thread()` in private channels |
 | `search:read` | `search_messages()` (requires user token) |
@@ -119,13 +140,13 @@ Subscribe to events under **Event Subscriptions > Subscribe to bot events**.
 ## Developer Resources
 
 <CardGroup cols={2}>
-  <Card title="Slack Guide" icon="book" href="/agent-os/interfaces/slack/introduction">
-    Sessions, threads, files, streaming, and troubleshooting.
+  <Card title="Overview" icon="book" href="/agent-os/interfaces/slack/introduction">
+    Quick start with agents, teams, and workflows.
   </Card>
-  <Card title="Deploy Guide" icon="rocket" href="/deploy/interfaces/slack/overview">
-    Create a Slack App and configure step by step.
+  <Card title="Setup Guide" icon="rocket" href="/agent-os/interfaces/slack/setup">
+    Create a Slack App with the manifest.
   </Card>
-  <Card title="SlackTools Reference" icon="wrench" href="/tools/toolkits/social/slack">
+  <Card title="SlackTools" icon="wrench" href="/tools/toolkits/social/slack">
     Toolkit methods for messaging, search, and files.
   </Card>
 </CardGroup>
